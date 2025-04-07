@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Genaker_MagentoMcpAi::ai_assistant" 
+             title="AI Assistant" 
+             module="Genaker_MagentoMcpAi" 
+             sortOrder="100" 
+             parent="Magento_Analytics::business_intelligence" 
+             resource="Genaker_MagentoMcpAi::ai_assistant"/>
+             
+        <add id="Genaker_MagentoMcpAi::mcpai"
+             title="MCP AI Assistant"
+             module="Genaker_MagentoMcpAi"
+             sortOrder="10"
+             parent="Genaker_MagentoMcpAi::ai_assistant"
+             action="magentomcpai/chat/index"
+             resource="Genaker_MagentoMcpAi::mcpai"/>
+    </menu>
+</config> 

@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Framework\App\Response\HeaderProvider\HeaderProviderInterface">
+        <arguments>
+            <argument name="contentSecurityPolicy" xsi:type="string">default-src 'self' 'unsafe-inline' 'unsafe-eval' *.unpkg.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.unpkg.com</argument>
+        </arguments>
+    </type>
+    
+    <!-- API Implementation -->
+    <preference for="Genaker\MagentoMcpAi\Api\McpAiInterface" type="Genaker\MagentoMcpAi\Model\McpAi" />
+    
+    <!-- Logger Configuration -->
+    <virtualType name="Genaker\MagentoMcpAi\Logger\Handler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/magento2/mcpai.log</argument>
+        </arguments>
+    </virtualType>
+    
+    <virtualType name="Genaker\MagentoMcpAi\Logger\Logger" type="Monolog\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">mcpai_logger</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">Genaker\MagentoMcpAi\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="genaker_mcpai_check_config" xsi:type="object">Genaker\MagentoMcpAi\Console\Command\CheckConfig</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <preference for="Genaker\MagentoMcpAi\Api\ChatManagementInterface" type="Genaker\MagentoMcpAi\Model\ChatManagement" />
+    <preference for="Genaker\MagentoMcpAi\Api\Data\ChatResponseInterface" type="Genaker\MagentoMcpAi\Model\Data\ChatResponse" />
+    
+    <!-- OpenAI Service Configuration -->
+    <type name="Genaker\MagentoMcpAi\Model\Service\OpenAiService">
+        <arguments>
+            <argument name="curl" xsi:type="object">Magento\Framework\HTTP\Client\Curl</argument>
+            <argument name="jsonHelper" xsi:type="object">Magento\Framework\Json\Helper\Data</argument>
+        </arguments>
+    </type>
+</config> 
