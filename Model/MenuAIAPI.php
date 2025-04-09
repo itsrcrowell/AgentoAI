@@ -121,7 +121,7 @@ class MenuAIAPI implements MenuAIAPIInterface
                 
                 //dd($parts);
             
-            //TODO: I geva up magento sucks and AI can't fix it we need make secret key work i will just disable it
+            //TODO: I give up magento sucks and AI can't fix it we need make secret key work i will just disable it
              // Step 1: Generate the secret key
              //php bin/magento config:set admin/security/use_form_key 0
             if($parts[1] === 'adminhtml' || $parts[1] === 'admin'){
