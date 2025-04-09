@@ -1,0 +1,1992 @@
+# Magento 2 Admin Menu and System Configuration
+
+## Admin Menu Items
+
+## System Configuration Items
+- **[General Configuration](#general-configuration)**
+  - URL: {base_url}/admin/system_config/edit/section/tnwsforce_general
+  - **[Extensions & Information](#extensions--information)**
+    - Description: <div class="message message-info">For installation &amp; configuration instructions visit our <a href="https://technweb.atlassian.net/wiki/spaces/IWS/pages/590839809/Starter+Package" target="_blank">online documentation</a>.</div>
+    - [Base Version](#base-version): 
+  - **[Salesforce API](#salesforce-api)**
+    - [Enable Saleseforce Integration](#enable-saleseforce-integration): 
+    - [Username](#username): 
+    - [Password](#password): 
+    - [Token](#token): 
+    - [WSDL Path](#wsdl-path): 
+                        An Enterprise WSDL file is required. <br />
+                        After uploading the file, click on <strong>Save Config</strong> in the upper right-hand corner.
+                        When <strong>Test Connection &amp; Apply Salesforce changes</strong> after the configuration is saved.
+                    
+  - **[Advanced](#advanced)**
+    - [Developer Mode](#developer-mode): Enabling the developer mode exposes some additional system features. <strong style='color: red'>Use at your own risk.<strong>
+    - [Batch size](#batch-size): The number of objects to include into a single batch. This a global setting for ALL objects.
+    - [Restart Consumers](#restart-consumers): 
+    - [Refresh grids](#refresh-grids): Enable refresh Salesforce columns data on magento grids by cron.
+    - [Need Update Relation Status](#need-update-relation-status): Enable this feature to recollect sync status in the 'tnw_salesforce_entity_queue_relation' by cron. You may needthat if some records stucks in the Queue even if all "parent records" are synced.
+    - [Memory limit for consumer, Mb](#memory-limit-for-consumer-mb): If sync consumer exceeds this limit at the end of sync process - we restart it. The default value: 500
+    - [Use pre-check ](#use-pre-check-): 
+                        
+                        Run extra SQL query to detect items needs to be synced <br />
+                        Could be useful if Queue is small (up to 1000 records) <br />
+                        Disable it when you sync historical data as extra SQL query takes additional time and resources.
+                        
+                    
+  - **[Debug and Logging](#debug-and-logging)**
+    - [Enable Log](#enable-log): Location is {{base_dir}}/var/log/sforce.log
+    - [Enable Debug Log](#enable-debug-log): Location is {{base_dir}}/var/log/sforce.log
+    - [Database Logging](#database-logging): System will also log to the database for easy access.
+    - [Database Log Limit](#database-log-limit): Maximum number of records to be stored in the database.
+    - [Log limit](#log-limit): Maximum number of days before archiving.
+    - [Enable Log Cleanup](#enable-log-cleanup): Clears log files older than a month. Location is {{base_dir}}/var/log/sforce/
+    - [Log clean up](#log-clean-up): Automatically clean up old log files older than X number of days
+- **[Customers](#customers)**
+  - URL: {base_url}/admin/system_config/edit/section/tnwsforce_customer
+  - **[Account & Contact Configuration](#account--contact-configuration)**
+    - [Account Name](#account-name): Keep Account Name in Salesforce read only.
+    - [Sync All Groups](#sync-all-groups): Synchronizes all customer groups by default, if set to NO you can choose the groups you wish to synchronize.
+    - [Customer Groups](#customer-groups): Only synchronize customers and orders placed by customers from these groups.
+    - [Default Owner](#default-owner): This default owner will be assigned to Contact and/or Account when created.
+    - [Contact Assignee](#contact-assignee): 
+                        <b>Use Default Owner</b> - when a new Contact is created, the Contact will be assigned to the 'Default Owner' value set above.<br>
+                        <b>Retain Owner from Existing Account</b> - If a matching Account already exists in Salesforce, Magento will assign a new Contact to whomever owns the Account. Otherwise Magento will fall back to 'Default Owner' value set above.
+                    
+- **[Returns](#returns)**
+  - URL: {base_url}/admin/system_config/edit/section/tnwsforce_rma
+  - **[Returns Configuration](#returns-configuration)**
+    - [Automatic Synchronization](#automatic-synchronization): Enable/Disable automated Return synchronization
+    - [Default Owner](#default-owner): This default owner will be assigned to the Case when created.
+    - [Subject Prefix](#subject-prefix): Prefix for the RMA subject when synced to Salesforce. Example: "RMA #" will make the Subject "RMA #12345" in Salesforce.
+- **[Products](#products)**
+  - URL: {base_url}/admin/system_config/edit/section/tnwsforce_product
+  - **[Product Configuration](#product-configuration)**
+    - [Automated Synchronization](#automated-synchronization): Enable automatic synchronization. If disabled, the synchronization still can be performed manually.
+    - [Sync with all Pricebooks](#sync-with-all-pricebooks): <b>Yes</b> - products will be synchronized with all pricebooks linked to every Magento website.<br /><b>No</b> - products will ONLY be synchronized with pricebooks from the websites the product is available for (recommended).
+    - [Price accuracy](#price-accuracy): A number of decimal points for prices to be sent into Salesforce
+    - [Product Name](#product-name): Keep Product Name in Salesforce read only.
+    - [Cause Product sync by scheduled update](#cause-product-sync-by-scheduled-update): 
+                    <strong style="color: red;">IMPORTANT: Magento Commerce only!</strong>
+                    Related to the "Schedule an update to a product" feature.
+                    Enable this option if you want to sync updated data to the Salesforce once product version is updated.
+                    https://experienceleague.adobe.com/docs/commerce-admin/catalog/products/product-scheduled-changes.html
+                
+- **[Abandoned Carts](#abandoned-carts)**
+  - URL: {base_url}/admin/system_config/edit/section/tnwsforce_quote
+  - **[Abandoned Cart Configuration](#abandoned-cart-configuration)**
+    - [Automated Synchronization](#automated-synchronization): Enable automatic synchronization. If disabled, the synchronization still can be performed manually.
+    - [Default Owner](#default-owner): The default owner for the newly created Opportunity.
+    - [Abandoned Cart Status](#abandoned-cart-status): Opportunity Stage Name
+    - [Record type](#record-type): Please select appropriate opportunity record type, contact your Salesforce rep if you
+    - [Sales Cycle Length](#sales-cycle-length): Number of days needed to close the Opportunity
+    - [Enable Contact Roles](#enable-contact-roles): Enable Opportunity Customer Role Integration
+    - [Opportunity Customer Role](#opportunity-customer-role): 
+  - **[When the cart becomes abandoned](#when-the-cart-becomes-abandoned)**
+    - [Unit](#unit): 
+    - [Term](#term): 
+- **[Orders](#orders)**
+  - URL: {base_url}/admin/system_config/edit/section/tnwsforce_order
+  - **[Order Configuration](#order-configuration)**
+    - [Automated Synchronization](#automated-synchronization): Enable automatic synchronization. If disabled, the synchronization still can be performed manually.
+    - [Zero Grand Total](#zero-grand-total): Do you want Magento to synchronize orders with zero grand total?
+    - [Synchronize Order Notes](#synchronize-order-notes): Automatically synchronize Order Notes with Salesforce.
+    - [Default Status](#default-status): Orders will be placed in this Draft status when Magento needs to make updates.
+                        <b>IMPORTANT:</b> Default status must be from Draft status group in Salesforce.
+    - [Sync all orders](#sync-all-orders): Synchronize all orders regardless of Magento status
+    - [Order Statuses](#order-statuses): Only synchronize orders with statuses selected above
+  - **[Advanced](#advanced)**
+    - [Create Order](#create-order): 
+                        <b>No</b> - A Salesforce Order will not be created.<br/>
+                        <b>For paid order</b> - A Salesforce Order will be created when an order in Magento is marked as "Paid".<br/>
+                        <b>For every order</b> - A Salesforce Order will be created for every Magento order.<br/>
+                        
+    - [Create Opportunity](#create-opportunity): 
+                        <b>For every order</b> - When a customer clicks "Place Order" button, an Opportunity in Salesforce will be created. A Salesforce Order creation depends on what option is selected in "Create Order" drop-down list.<br/>
+                        <b>No</b> - An Opportunity in Salesforce will not be created.
+                        
+    - [Enable Contact Roles](#enable-contact-roles): Enable Opportunity Customer Role Integration
+    - [Opportunity Customer Role](#opportunity-customer-role): 
+    - [Sales Cycle Length](#sales-cycle-length): Number of days needed to close the Opportunity
+    - [Default Opportunity Draft Status](#default-opportunity-draft-status): Order's Opportunities will be placed in this Draft status when Magento needs to make updates.
+    - [Opportunity Record type](#opportunity-record-type): Please select appropriate opportunity record type, contact your Salesforce rep if you
+    - [Convert Opportunity](#convert-opportunity): 
+                        <strong>Yes</strong> - Update Opportunity Stage name if the order is paid in Magento and set the Stage name to match the value set in Converted Opportunity Status.<br />
+                        <strong>No</strong> - Keep Opportunity Stage name as defined on Opportunity Status mapping page
+                
+    - [Converted Opportunity Status](#converted-opportunity-status): When order is created Opportunity will go into selected status in Salesforce
+    - [Use Invoice date as close date](#use-invoice-date-as-close-date): 
+  - **[Shopping Cart](#shopping-cart)**
+    - [Synchronize Order Items](#synchronize-order-items): Attach Magento products to the Order in Salesforce
+    - [Bundled Products](#bundled-products): Usually makes a big difference if you are using an ERP.
+    - [Configurable Products](#configurable-products): 
+                        <strong>Child Product</strong> - only the simple product will be synchronized to Salesforce for all orders. <br />
+                        <strong>Parent Product</strong> - only the configurable product will be synchronized to Salesforce for all orders.
+                
+  - **[From Salesforce](#from-salesforce)**
+    - Description: The synchronization from Salesforce should be enabled in Salesforce in order for these settings to apply.
+    - [Default Payment Method](#default-payment-method): Default Payment Method to create new order in Magento
+    - [Default Shipping Method](#default-shipping-method): Default ShippingMethod to create new order in Magento
+  - **[Currency Configuration](#currency-configuration)**
+    - [Multi-Currency](#multi-currency): 
+                            Enable if your Magento has multiple stores with
+                            different currencies. NOTE: Salesforce multi-currency
+                            support must be enabled as well.
+                            See
+                            <a href="https://help.salesforce.com/HTViewHelpDoc?id=admin_enable_multicurrency.htm" target="_blank">
+                                Salesforce Documentation
+                            </a>
+                        
+    - [Which currency should be used](#which-currency-should-be-used): This option doesn't take affect for the "Order" and "Order Item" mappings
+    - [Enable Automatic Sync](#enable-automatic-sync): 
+    - [Start Time](#start-time): 
+    - [Frequency](#frequency): 
+- **[Invoices](#invoices)**
+  - URL: {base_url}/admin/system_config/edit/section/tnwsforce_invoice
+  - **[Invoice Configuration](#invoice-configuration)**
+    - [Enable Invoice Synchronization](#enable-invoice-synchronization): Enable/Disable automated invoice synchronization
+    - [Enable Automatic Synchronization](#enable-automatic-synchronization): If disabled, only manual synchronization allowed
+    - [Synchronize Invoice Notes](#synchronize-invoice-notes): Automatically synchronize Invoice Notes with Salesforce.
+- **[Shipments](#shipments)**
+  - URL: {base_url}/admin/system_config/edit/section/tnwsforce_shipment
+  - **[Shipment Configuration](#shipment-configuration)**
+    - [Enable Shipment Synchronization](#enable-shipment-synchronization): Enable/Disable shipment synchronization
+    - [Enable Automatic Synchronization](#enable-automatic-synchronization): If disabled, only manual synchronization allowed
+    - [Enable tracking numbers Synchronization](#enable-tracking-numbers-synchronization): Enable/Disable tracking numbers synchronization
+    - [Delete tracking numbers in Salesforce](#delete-tracking-numbers-in-salesforce): Enable/Disable deleting tracking number in Salesforce when
+    - [Delete tracking numbers in Magento](#delete-tracking-numbers-in-magento): Enable/Disable deleting tracking number in Magento when
+    - [Synchronize Shipment Notes](#synchronize-shipment-notes): Automatically synchronize Shipment Notes with Salesforce.
+- **[Quick Order](#quick-order)**
+  - URL: {base_url}/admin/system_config/edit/section/tnwsforce_quickorder
+  - **[Quick Order Configuration](#quick-order-configuration)**
+    - [Allow Quick Order](#allow-quick-order): Allow/Disallow possibility to request quick order creation from the Salesforce Enterprise Plan.
+    - [Quick Order Token time to live](#quick-order-token-time-to-live): Time in seconds
+    - [Quick Order Token size](#quick-order-token-size): 
+    - [Delay after wrong request](#delay-after-wrong-request): Delay in seconds after wrong Quick Order request
+- **[Newsletter Popup](#newsletter-popup)**
+  - URL: {base_url}/admin/system_config/edit/section/prnewsletterpopup
+  - **[General](#general)**
+    - [Enable Extension](#enable-extension): 
+    - [Serial Key](#serial-key): 
+    - [Use Google Analytics Tracking](#use-google-analytics-tracking): Add auto-generated Google Analytics Event Tracking code to popup form buttons to track user interaction.
+    - [Use Google Tag Manager Tracking](#use-google-tag-manager-tracking): Fire GTM events to track user interaction with your newsletter popup.
+    - [Enable Subscription History](#enable-subscription-history): If enabled, all user interactions with newsletter popup will be saved in magento database.
+    - [Erase Old Subscription History](#erase-old-subscription-history): 
+    - [Disable History for IP-addresses](#disable-history-for-ip-addresses): Enter each IP address in a new line. You can use a wildcard to cover a larger range of IP addresses.
+    - [Cookie Timeout Usage](#cookie-timeout-usage): Separate cookie for each popup allows you to record time when popup was closed for each popup independently. When 2 or more popups are enabled at the same time, the user will see 2nd popup after the page refresh even if the 1st popup was just closed.
+    - [Newsletter Popup Thumbnail](#newsletter-popup-thumbnail): 
+  - **[Device Screen Sizes](#device-screen-sizes)**
+    - [Desktop](#desktop): Width of Desktop screen in pixels. Used to recognize device type to display newsletter popup. Default value is: "equals or greater than 992 px".
+    - [Tablet](#tablet): Width of Tablet screen in pixels. Default value is: "equals or greater than 768 px".
+    - [Mobile](#mobile): Width of Mobile screen in pixels. Default value is: "less than 768 px".
+  - **[Disposable Emails](#disposable-emails)**
+    - [Reject Subscriptions from Disposable Email Addresses](#reject-subscriptions-from-disposable-email-addresses): 
+    - [Disposable Email Services](#disposable-email-services): Black listed domain names. Newsletter subscriptions will be rejected for the email addresses from the above domains.
+  - **[Google reCAPTCHA](#google-recaptcha)**
+    - [Google reCAPTCHA Config](#google-recaptcha-config): 
+    - [Google reCAPTCHA Site Key](#google-recaptcha-site-key): 
+    - [Google reCAPTCHA Secret Key](#google-recaptcha-secret-key): 
+  - **[Integrations](#integrations)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your ActiveCampaign List(s). Please enable this integration in your popup configurations as well.
+    - [API URL](#api-url): You can find API URL in your <a target="_blank" href="https://www.activecampaign.com/login">ActiveCampaign</a> account.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://www.activecampaign.com/login">ActiveCampaign</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Campaign Monitor List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://www.campaignmonitor.com/api">Compaign Monitor</a> account.
+    - [Client ID](#client-id): You can find Client ID in your <a target="_blank" href="https://www.campaignmonitor.com/api">Compaign Monitor</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Constant Contact List(s). Please enable this integration in your popup configurations as well.
+    - [Redirect URI](#redirect-uri): None
+    - [API Key](#api-key): You can find API Key in your <a target="_blank" href="https://app.constantcontact.com/pages/dma/portal/">Constant Contact</a> applications.
+    - [Secret](#secret): You can find API Secret in your <a target="_blank" href="https://app.constantcontact.com/pages/dma/portal/">Constant Contact</a> account.
+    - [Access Token](#access-token): You can generate Access Token only after saving API Key and Secret
+    - [Test Connection](#test-connection): None
+    - [Email Lists](#email-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): Newsletter Popup Fields from the table above will be transferred to the Constant Contact and can be used in the email templates. Some fields, such as Firstname, Lastname, Address are predefined by the Constant Contact and should not be renamed. Other fields, such as Fax, Gender, Coupon can be created using custom fields functionality. You can load a list of all custom fields below. Or check our <a target="_blank" href="https://plumrocket.com/docs/magento-newsletter-popup/v3">online documentation</a> for more info.
+    - [Get Custom Field List](#get-custom-field-list): Retrieve List of Custom Fields and their respective ID's from Constant Contact. Copy "Integration Field ID" into "Fields Mapping" table above to link your Newsletter Popup Fields with Custom Fields on Constant Contact. You can create custom fields by navigating to Constant Contact > My Settings > Contact Settings > <a target="_blank" href="https://ui.constantcontact.com/rnavmap/distui/contacts/settings#custom_fields">Manage Custom Fields</a>
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your ConvertKit Sequences. Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://convertkit.com/">ConvertKit</a> account.
+    - [Secret API ID](#secret-api-id): You can find Secret API ID in your <a target="_blank" href="https://convertkit.com/">ConvertKit </a> account.
+    - [Test Connection](#test-connection): None
+    - [Sequences](#sequences): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Dotdigital Address book(s). Please enable this integration in your popup configurations as well.
+    - [API Endpoint](#api-endpoint): You can find API URL in your <a target="_blank" href="https://dotdigital.com/">Dotdigital</a> account.
+    - [API User Email](#api-user-email): You can find API User Email in your <a target="_blank" href="https://dotdigital.com/">Dotdigital</a> account.
+    - [API User Password](#api-user-password): You can find API User Password in your <a target="_blank" href="https://dotdigital.com/">Dotdigital</a> account.
+    - [Test Connection](#test-connection): None
+    - [Address books](#address-books): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Egoi List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://www.e-goi.com/">Egoi</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Emma List(s). Please enable this integration in your popup configurations as well.
+    - [API Public Key](#api-public-key): You can find API Public Key in your <a target="_blank" href="https://myemma.com">Emma</a> account.
+    - [API Private Key](#api-private-key): You can find API Private Key in your <a target="_blank" href="https://myemma.com">Emma</a> account.
+    - [Account ID](#account-id): You can find Account ID in your <a target="_blank" href="https://myemma.com">Emma</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Get Response List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://app.getresponse.com/api">GetResponse</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your HubSpot List(s). Please enable this integration in your popup configurations as well.
+    - [API URL](#api-url): You can find API URL in your <a target="_blank" href="https://app.hubspot.com/">HubSpot</a> account.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://app.hubspot.com/">HubSpot</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your IContact List(s). Please enable this integration in your popup configurations as well.
+    - [App ID](#app-id): You can find API App ID in your <a target="_blank" href="https://www.icontact.com">IContact</a> account.
+    - [Username](#username): You can find API Username in your <a target="_blank" href="https://www.icontact.com">IContact</a> account.
+    - [Password](#password): You can find API Password in your <a target="_blank" href="https://www.icontact.com">IContact</a> account.
+    - [Account ID](#account-id): You can find API Account ID in your <a target="_blank" href="https://www.icontact.com">IContact</a> account.
+    - [Client Folder ID](#client-folder-id): You can find Client Folder ID in your <a target="_blank" href="https://www.icontact.com">IContact</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Keap "Hot Leads". Please enable this integration in your popup configurations as well.
+    - [Redirect URI](#redirect-uri): None
+    - [API Key](#api-key): You can find API Key in your <a target="_blank" href="https://keys.developer.keap.com/my-apps/">Keap</a> applications.
+    - [Secret](#secret): You can find API Secret in your <a target="_blank" href="https://keys.developer.keap.com/my-apps/">Keap</a> applications.
+    - [Access Token](#access-token): You can generate Access Token only after saving API Key and Secret
+    - [Test Connection](#test-connection): None
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Klaviyo List(s). Please enable this integration in your popup configurations as well.
+    - [Private API Key](#private-api-key): You can find API key in your <a target="_blank" href="https://www.klaviyo.com/account#api-keys-tab">Klaviyo</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your MadMimi List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://www.madmimi.com/">MadMimi</a> account.
+    - [API Username](#api-username): You can find API Username in your <a target="_blank" href="https://madmimi.com">MadMimi</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Mailchimp List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your Mailchimp account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Double opt-in](#double-opt-in): <strong>Important:</strong> Should be set to <strong>Yes</strong>. Abusing this may cause your account to be suspended.<br><a href="http://kb.mailchimp.com/article/how-does-confirmed-optin-or-double-optin-work/" target="_blank">How does double opt-in work?</a>
+    - [Account Details](#account-details): 
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Mailjet List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://app.mailjet.com/">Mailjet</a> account.
+    - [Secret API Key](#secret-api-key): You can find Secret API Key in your <a target="_blank" href="https://app.mailjet.com/">Mailjet </a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact List(s)](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Mautic List(s). Please enable this integration in your popup configurations as well.
+    - [API URL](#api-url): You can find API URL in your Mautic account.
+    - [API User Name](#api-user-name): You can find API User Name in your Mautic account.
+    - [API User Password](#api-user-password): You can find API User Password in your Mautic account.
+    - [Test Connection](#test-connection): None
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Ontraport List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://app.ontraport.com">Ontraport</a> account.
+    - [API App ID](#api-app-id): You can find API App ID in your <a target="_blank" href="https://app.ontraport.com">Ontraport</a> account.
+    - [Test Connection](#test-connection): None
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Salesforce Campaign(s). Please enable this integration in your popup configurations as well.
+    - [Consumer Key](#consumer-key): You can find Consumer Key in your <a target="_blank" href="https://www.salesforce.com">Salesforce</a> account.
+    - [Consumer Secret Key](#consumer-secret-key): You can find Consumer Secret Key in your <a target="_blank" href="https://www.salesforce.com">Salesforce</a> account.
+    - [Account username](#account-username): 
+    - [Account password](#account-password): 
+    - [Security token](#security-token): You can find Security token in your <a target="_blank" href="https://www.salesforce.com">Salesforce</a> account.
+    - [Test Connection](#test-connection): None
+    - [Campaign Lists](#campaign-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your SendinBlue List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://my.sendinblue.com/">SendinBlue</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact List(s)](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Sendy List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="http://sendy.co/">Sendy</a> account.
+    - [Installation Url for Sendy](#installation-url-for-sendy): Installation Url for Sendy. Example: http://somedomain.com/sendy/
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): To synchronize new subscribers with Sendy, you must go to your Sendy installation -> Brands -> View all lists and manually copy & paste Contact List ID and Name from Sendy in the fields above.
+    - [Fields Mapping](#fields-mapping): 
+  - **[ActiveCampaign](#activecampaign)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your ActiveCampaign List(s). Please enable this integration in your popup configurations as well.
+    - [API URL](#api-url): You can find API URL in your <a target="_blank" href="https://www.activecampaign.com/login">ActiveCampaign</a> account.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://www.activecampaign.com/login">ActiveCampaign</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+  - **[Campaign Monitor](#campaign-monitor)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Campaign Monitor List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://www.campaignmonitor.com/api">Compaign Monitor</a> account.
+    - [Client ID](#client-id): You can find Client ID in your <a target="_blank" href="https://www.campaignmonitor.com/api">Compaign Monitor</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+  - **[Constant Contact](#constant-contact)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Constant Contact List(s). Please enable this integration in your popup configurations as well.
+    - [Redirect URI](#redirect-uri): None
+    - [API Key](#api-key): You can find API Key in your <a target="_blank" href="https://app.constantcontact.com/pages/dma/portal/">Constant Contact</a> applications.
+    - [Secret](#secret): You can find API Secret in your <a target="_blank" href="https://app.constantcontact.com/pages/dma/portal/">Constant Contact</a> account.
+    - [Access Token](#access-token): You can generate Access Token only after saving API Key and Secret
+    - [Test Connection](#test-connection): None
+    - [Email Lists](#email-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): Newsletter Popup Fields from the table above will be transferred to the Constant Contact and can be used in the email templates. Some fields, such as Firstname, Lastname, Address are predefined by the Constant Contact and should not be renamed. Other fields, such as Fax, Gender, Coupon can be created using custom fields functionality. You can load a list of all custom fields below. Or check our <a target="_blank" href="https://plumrocket.com/docs/magento-newsletter-popup/v3">online documentation</a> for more info.
+    - [Get Custom Field List](#get-custom-field-list): Retrieve List of Custom Fields and their respective ID's from Constant Contact. Copy "Integration Field ID" into "Fields Mapping" table above to link your Newsletter Popup Fields with Custom Fields on Constant Contact. You can create custom fields by navigating to Constant Contact > My Settings > Contact Settings > <a target="_blank" href="https://ui.constantcontact.com/rnavmap/distui/contacts/settings#custom_fields">Manage Custom Fields</a>
+  - **[Convertkit](#convertkit)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your ConvertKit Sequences. Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://convertkit.com/">ConvertKit</a> account.
+    - [Secret API ID](#secret-api-id): You can find Secret API ID in your <a target="_blank" href="https://convertkit.com/">ConvertKit </a> account.
+    - [Test Connection](#test-connection): None
+    - [Sequences](#sequences): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+  - **[Dotdigital](#dotdigital)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Dotdigital Address book(s). Please enable this integration in your popup configurations as well.
+    - [API Endpoint](#api-endpoint): You can find API URL in your <a target="_blank" href="https://dotdigital.com/">Dotdigital</a> account.
+    - [API User Email](#api-user-email): You can find API User Email in your <a target="_blank" href="https://dotdigital.com/">Dotdigital</a> account.
+    - [API User Password](#api-user-password): You can find API User Password in your <a target="_blank" href="https://dotdigital.com/">Dotdigital</a> account.
+    - [Test Connection](#test-connection): None
+    - [Address books](#address-books): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+  - **[Egoi](#egoi)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Egoi List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://www.e-goi.com/">Egoi</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+  - **[Emma](#emma)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Emma List(s). Please enable this integration in your popup configurations as well.
+    - [API Public Key](#api-public-key): You can find API Public Key in your <a target="_blank" href="https://myemma.com">Emma</a> account.
+    - [API Private Key](#api-private-key): You can find API Private Key in your <a target="_blank" href="https://myemma.com">Emma</a> account.
+    - [Account ID](#account-id): You can find Account ID in your <a target="_blank" href="https://myemma.com">Emma</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+  - **[GetResponse](#getresponse)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Get Response List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://app.getresponse.com/api">GetResponse</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+  - **[HubSpot](#hubspot)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your HubSpot List(s). Please enable this integration in your popup configurations as well.
+    - [API URL](#api-url): You can find API URL in your <a target="_blank" href="https://app.hubspot.com/">HubSpot</a> account.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://app.hubspot.com/">HubSpot</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+  - **[IContact](#icontact)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your IContact List(s). Please enable this integration in your popup configurations as well.
+    - [App ID](#app-id): You can find API App ID in your <a target="_blank" href="https://www.icontact.com">IContact</a> account.
+    - [Username](#username): You can find API Username in your <a target="_blank" href="https://www.icontact.com">IContact</a> account.
+    - [Password](#password): You can find API Password in your <a target="_blank" href="https://www.icontact.com">IContact</a> account.
+    - [Account ID](#account-id): You can find API Account ID in your <a target="_blank" href="https://www.icontact.com">IContact</a> account.
+    - [Client Folder ID](#client-folder-id): You can find Client Folder ID in your <a target="_blank" href="https://www.icontact.com">IContact</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+  - **[Keap](#keap)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Keap "Hot Leads". Please enable this integration in your popup configurations as well.
+    - [Redirect URI](#redirect-uri): None
+    - [API Key](#api-key): You can find API Key in your <a target="_blank" href="https://keys.developer.keap.com/my-apps/">Keap</a> applications.
+    - [Secret](#secret): You can find API Secret in your <a target="_blank" href="https://keys.developer.keap.com/my-apps/">Keap</a> applications.
+    - [Access Token](#access-token): You can generate Access Token only after saving API Key and Secret
+    - [Test Connection](#test-connection): None
+    - [Fields Mapping](#fields-mapping): 
+  - **[Klaviyo](#klaviyo)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Klaviyo List(s). Please enable this integration in your popup configurations as well.
+    - [Private API Key](#private-api-key): You can find API key in your <a target="_blank" href="https://www.klaviyo.com/account#api-keys-tab">Klaviyo</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+  - **[MadMimi](#madmimi)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your MadMimi List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://www.madmimi.com/">MadMimi</a> account.
+    - [API Username](#api-username): You can find API Username in your <a target="_blank" href="https://madmimi.com">MadMimi</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+  - **[Mailchimp](#mailchimp)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Mailchimp List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your Mailchimp account.
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Double opt-in](#double-opt-in): <strong>Important:</strong> Should be set to <strong>Yes</strong>. Abusing this may cause your account to be suspended.<br><a href="http://kb.mailchimp.com/article/how-does-confirmed-optin-or-double-optin-work/" target="_blank">How does double opt-in work?</a>
+    - [Account Details](#account-details): 
+    - [Fields Mapping](#fields-mapping): 
+  - **[Mailjet](#mailjet)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Mailjet List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://app.mailjet.com/">Mailjet</a> account.
+    - [Secret API Key](#secret-api-key): You can find Secret API Key in your <a target="_blank" href="https://app.mailjet.com/">Mailjet </a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact List(s)](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+  - **[Mautic](#mautic)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Mautic List(s). Please enable this integration in your popup configurations as well.
+    - [API URL](#api-url): You can find API URL in your Mautic account.
+    - [API User Name](#api-user-name): You can find API User Name in your Mautic account.
+    - [API User Password](#api-user-password): You can find API User Password in your Mautic account.
+    - [Test Connection](#test-connection): None
+    - [Fields Mapping](#fields-mapping): 
+  - **[Ontraport](#ontraport)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Ontraport List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://app.ontraport.com">Ontraport</a> account.
+    - [API App ID](#api-app-id): You can find API App ID in your <a target="_blank" href="https://app.ontraport.com">Ontraport</a> account.
+    - [Test Connection](#test-connection): None
+    - [Fields Mapping](#fields-mapping): 
+  - **[Salesforce](#salesforce)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Salesforce Campaign(s). Please enable this integration in your popup configurations as well.
+    - [Consumer Key](#consumer-key): You can find Consumer Key in your <a target="_blank" href="https://www.salesforce.com">Salesforce</a> account.
+    - [Consumer Secret Key](#consumer-secret-key): You can find Consumer Secret Key in your <a target="_blank" href="https://www.salesforce.com">Salesforce</a> account.
+    - [Account username](#account-username): 
+    - [Account password](#account-password): 
+    - [Security token](#security-token): You can find Security token in your <a target="_blank" href="https://www.salesforce.com">Salesforce</a> account.
+    - [Test Connection](#test-connection): None
+    - [Campaign Lists](#campaign-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+  - **[SendinBlue](#sendinblue)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your SendinBlue List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="https://my.sendinblue.com/">SendinBlue</a> account.
+    - [Test Connection](#test-connection): None
+    - [Contact List(s)](#contact-lists): You will be able to enable lists in each newsletter popup individually.
+    - [Fields Mapping](#fields-mapping): 
+  - **[Sendy](#sendy)**
+    - [Enable](#enable): The integration allows you to collect subscriber data from the newsletter popup and transfer it to your Sendy List(s). Please enable this integration in your popup configurations as well.
+    - [API Key](#api-key): You can find API key in your <a target="_blank" href="http://sendy.co/">Sendy</a> account.
+    - [Installation Url for Sendy](#installation-url-for-sendy): Installation Url for Sendy. Example: http://somedomain.com/sendy/
+    - [Test Connection](#test-connection): None
+    - [Contact Lists](#contact-lists): To synchronize new subscribers with Sendy, you must go to your Sendy installation -> Brands -> View all lists and manually copy & paste Contact List ID and Name from Sendy in the fields above.
+    - [Fields Mapping](#fields-mapping): 
+- **[Base Settings](#base-settings)**
+  - URL: {base_url}/admin/system_config/edit/section/plumbase
+  - **[Installed Extensions](#installed-extensions)**
+  - **[Notifications](#notifications)**
+    - [Enable Notifications](#enable-notifications): Enable Magento Admin notifications to receive important product updates, security patches and promotions
+    - [Subscribed to](#subscribed-to): 
+  - **[Menu](#menu)**
+    - [Show Plumrocket Menu](#show-plumrocket-menu): Plumrocket Menu give you easy access to all our extensions in one place.
+  - **[System Settings](#system-settings)**
+    - [Send Usage Statistics](#send-usage-statistics): Help Plumrocket improve its products by sending anonymous data about features used, Plumrocket extension configuration and installed versions, magento version. Please note that this will not include personal data or any sensitive information, such as clients, orders, etc.
+  - **[Developer](#developer)**
+    - [Magento Mode](#magento-mode): 
+    - [Magento Path](#magento-path): 
+    - [Error Log](#error-log): 
+    - [Error Log Path](#error-log-path): 
+    - [Time](#time): 
+- **[Optimizers](#optimizers)**
+  - URL: {base_url}/admin/system_config/edit/section/smile_elasticsuite_optimizers
+  - **[Score Mode Configuration](#score-mode-configuration)**
+    - [Score Mode](#score-mode): Select the score_mode to use for function score queries.</br></br>The parameter <code class="literal">score_mode</code> specifies how the computed scores are combined.
+                               Learn more about <a target="_blank" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html">Function score query</a> configuration.
+  - **[Boost Mode Configuration](#boost-mode-configuration)**
+    - [Boost Mode](#boost-mode): Select the boost_mode to use for function score queries.</br></br>The parameter <code class="literal">boost_mode</code> specifies how the boosted scores of each product will be added to their base score.
+                               Learn more about <a target="_blank" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html">Function score query</a> configuration.
+- **[Catalog Search](#catalog-search)**
+  - URL: {base_url}/admin/system_config/edit/section/smile_elasticsuite_catalogsearch_settings
+  - **[Catalog Search Configuration](#catalog-search-configuration)**
+    - [Category Name Weight](#category-name-weight): The search weight of category names when used in fulltext search.
+    - [Redirect to product page if only one result](#redirect-to-product-page-if-only-one-result): If there is only one product matching a given search query, the user will be redirect to this product page.
+    - [Use URL Rewrites for Category Filter in category navigation](#use-url-rewrites-for-category-filter-in-category-navigation): When set to yes, users are redirected (and all filters are reset) to the chosen category page when they use the category filter in layered navigation.
+    - [Expanded facets](#expanded-facets): Number of facets to display expanded by default.
+    - [Enable adaptive slider](#enable-adaptive-slider): If enabled, when necessary to support the presence of outlier values in the navigation context (for instance, a very high price amidst a majority of low prices), the price slider behavior changes so that the middle of the slider range corresponds to the median price instead of the price at the middle of the range.
+    - [Enable indexing child product SKU in dedicated subfield](#enable-indexing-child-product-sku-in-dedicated-subfield): If enabled, child products SKUs of composite products will be indexed in a separate field and the "sku" field will only contain the parent product sku.
+    - [Enable indexing discount on child products](#enable-indexing-discount-on-child-products): Enable this if your catalog contains configurable products that are having childrens with different prices that could have separated discounts.
+    - [Ignore manual positions of out of stock products](#ignore-manual-positions-of-out-of-stock-products): If you show out of stock products in the frontend (through the "Catalog / Inventory / Stock Options / Display Out of Stock Products" stores configuration setting), switch this setting to Yes to make sure that a manually positionned product (in categories or in search queries) is no longer shown in the configured manual positions when it becomes out of stock.
+- **[Indices Mapping](#indices-mapping)**
+  - URL: {base_url}/admin/system_config/edit/section/smile_elasticsuite_indices
+  - **[Indices Mapping](#indices-mapping)**
+    - [Mapping](#mapping): Configuration to associate index names with indexer keys. this is required to determine the working indexes.<br />You can add other indices managed by the ElasticSuite. For example config for module ElasticSuite CMS Pages Search:<br />Indexer key - elasticsuite_cms_page_fulltext<br />Index name - cms_page
+- **[Analytics](#analytics)**
+  - URL: {base_url}/admin/system_config/edit/section/smile_elasticsuite_analytics
+  - **[Search terms configuration](#search-terms-configuration)**
+    - [Max search terms](#max-search-terms): Maximum number of search terms to display in the search usage report blocks.
+  - **[Pending events configuration](#pending-events-configuration)**
+    - [Hours before warning](#hours-before-warning): A warning will be displayed on the search usage dashboard if there are pending events older than this number of hours still in the events queue table.
+  - **[Filters configuration](#filters-configuration)**
+    - [Show Customer Group filter](#show-customer-group-filter): If enabled, will allow you to filter and display search usage data for a specific customer group.
+    - [Show Company filter](#show-company-filter): If enabled, and if you are using the B2B features and the Company feature, will allow to filter and display search usage data for a specific company.
+- **[Tracking](#tracking)**
+  - URL: {base_url}/admin/system_config/edit/section/smile_elasticsuite_tracker
+  - **[Global Configuration](#global-configuration)**
+    - [Enabled](#enabled): 
+    - [Retention delay](#retention-delay): In months (default is 12 months.).<br /> Tracking data older than this will be removed each day.
+    - [Use the API to collect data](#use-the-api-to-collect-data): If set to Yes, the tracking script will use the dedicated Rest API endpoint to send its data instead of using the legacy invisible pixel method. Useful if you have issues white-listing the tracker image URL with parameters in your frontend cache or if you customized the data collection and the tracker needs to send bigger payloads than usual.
+    - [Headless mode](#headless-mode): If set to Yes, magento will assume that all the events are managed by the front app. No event will be added from php directly.
+    - [Filter bot hits](#filter-bot-hits): If enabled, it will prevent known IA or search engines crawler bots generated tracker hits from being recorded to prevent your behavioral data from being polluted by sometimes totally incoherent pagination or results count data.
+  - **[Session Configuration](#session-configuration)**
+    - [Visit Cookie Name](#visit-cookie-name): 
+    - [Visit Cookie Lifetime](#visit-cookie-lifetime): In seconds. (Default is 3600 sec.)<br /> Without any activity under this delay we start a new visit.
+    - [Visitor Cookie Name](#visitor-cookie-name): 
+    - [Visitor Cookie Lifetime](#visitor-cookie-lifetime): In days. (Default is 365 days.)<br /> This cookie will be stick to the customer to allow multiple session aggregation.
+  - **[Tracking Anonymization](#tracking-anonymization)**
+    - [Anonymize customer data after a delay.](#anonymize-customer-data-after-a-delay): 
+    - [Anonymization Delay](#anonymization-delay): In days. (Default is 365 days.)<br /> Tracked customer related data will be anonymized after this delay.
+  - **[Queue cleanup configuration](#queue-cleanup-configuration)**
+    - [Delay](#delay): In days. (Default is 7 days.)<br />Invalid tracker events older than this delay are periodically removed from the events indexing queue.
+- **[Telemetry](#telemetry)**
+  - URL: {base_url}/admin/system_config/edit/section/smile_elasticsuite_telemetry
+  - **[Telemetry](#telemetry)**
+    - [Enable telemetry](#enable-telemetry): 
+- **[Catalog Search](#catalog-search)**
+  - URL: {base_url}/admin/system_config/edit/section/smile_elasticsuite_catalogsearch_settings
+  - **[Catalog Search Configuration](#catalog-search-configuration)**
+    - [Force zero results for disabled categories](#force-zero-results-for-disabled-categories): If set to yes, any virtual category that references a disabled category in their rule or as their root category will return an empty result. Be careful modifying this option will remove all your category query cache.
+- **[Base Settings](#base-settings)**
+  - URL: {base_url}/admin/system_config/edit/section/smile_elasticsuite_core_base_settings
+  - **[Elasticsearch Client](#elasticsearch-client)**
+    - [Elasticsearch Servers List](#elasticsearch-servers-list): List of servers in [host]:[port] format separated by a comma (e.g. : "es-node1.fqdn:9200, es-node2.fqdn:9200")
+    - [Use HTTPS](#use-https): Select yes if you want to connect to your Elasticsearch server over HTTPS.
+    - [Use SSL certificate Validation](#use-ssl-certificate-validation): Select no if you are using self-signed SSL certificate.
+    - [Enable basic HTTP authentication](#enable-basic-http-authentication): Enable this option when your Elasticsearch server use basic HTTP authentication.
+    - [Encode HTTP authorization headers](#encode-http-authorization-headers): Enable this option when you want to base64 encode the Authorization headers. (Open Distro requires this)
+    - [Basic HTTP authentication user](#basic-http-authentication-user): 
+    - [Basic HTTP authentication password](#basic-http-authentication-password): 
+    - [Enable logging of requests that produce errors](#enable-logging-of-requests-that-produce-errors): This is an alternative to the debug mode for production environments. If enabled, even when the debug mode is disabled, the body of search requests that produce an error will be logged. If disabled, only the error message/exception message will be logged (legacy behavior). A log rotation system on the var/log/system.log file is advised if enabled.
+    - [Enable Debug Mode](#enable-debug-mode): When enabled the module will produce logs through Magento logging system.
+    - [Server Connection Timeout](#server-connection-timeout): In seconds.
+    - [Elasticsearch Client Maximum Number of Retries](#elasticsearch-client-maximum-number-of-retries): Maximum number of times to retry connection when there is a connection failure
+  - **[Indices Settings](#indices-settings)**
+    - [Indices Alias Name](#indices-alias-name): 
+    - [Indices Name Pattern](#indices-name-pattern): 
+    - [Default Number of Shards per Index](#default-number-of-shards-per-index): 
+    - [Default Number of Replicas per Index](#default-number-of-replicas-per-index): 
+    - [Custom settings per Index](#custom-settings-per-index): 
+    - [Time for an index to be considered Ghost (in seconds)](#time-for-an-index-to-be-considered-ghost-in-seconds): Elasticsuite derelict indices resulting from a failed full reindex are considered ghost after this amount of time (in seconds) has elapsed since their creation. You can reduce this amount of time to speed up ghost indices cleanup, but take care to add a safety on top of the maximum reindexing duration of the more complex index of your platform (usually a catalog_product/product search index). Defaults to 172,800 seconds (2 days), minimum value: 3600 (1 hour).
+- **[Analyzers Settings](#analyzers-settings)**
+  - URL: {base_url}/admin/system_config/edit/section/smile_elasticsuite_core_analysis_settings
+  - **[Reference analyzer configuration](#reference-analyzer-configuration)**
+    - [Remove leading zeroes of numeric parts](#remove-leading-zeroes-of-numeric-parts): If enabled, when indexing a reference like "VT0009", it will be as if "VT9" was indexed instead (leading to independant elements "VT", "9" and "VT9" in the search index). This will allow someone searching for "vt9" or "vt 9" to find the product with the exact "VT0009" sku.
+    - [Remove trailing zeroes of numeric parts](#remove-trailing-zeroes-of-numeric-parts): If enabled, when indexing a reference like "DC3000", it will be as if "DC3" was indexed instead (leading to independant elements "DC", "3" and "DC3" in the search index). This will allow someone searching for "dc3" or "dc 3" to find the product with the exact "DC3000" sku.
+    - [Reduce series of contiguous zeroes in numeric parts](#reduce-series-of-contiguous-zeroes-in-numeric-parts): If enabled, when indexing a reference like "PL20004", it will be as if "PL204" was indexed instead (leading to independant elements "PL", "204" and "PL204" in the search index). This will allow someone searching for "pl204", "pl 204", "pl2004" or "pl 2004" to find the product with the exact "PL2004" sku.
+  - **[Language stemmer configuration](#language-stemmer-configuration)**
+    - [Settings available at the store view scope only.](#settings-available-at-the-store-view-scope-only): The ability to select an alternative language stemmer is only available at the store view scope.
+    - [Use default stemmer](#use-default-stemmer): Use the default language stemmer as defined in 'elasticsuite_analysis.xml' file for this store language (as defined by the store locale). If set to No, you'll be able to select a different stemmer for languages that have multiple possible stemmers (Dutch, English, Finnish, French, Galician, German, Hungarian, Italian, Norwegian, Portuguese, Russian, Spanish, Swedish).
+    - [Custom stemmer](#custom-stemmer): In the list "[default]" indicates the stemmer used by Elasticsuite by default for the language, while "[recommended]" indicates the stemmer is the one or one of those recommended for that language by Elasticsearch in its <a href='https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-stemmer-tokenfilter.html#analysis-stemmer-tokenfilter-configure-parms' target='_blank'>online documentation</a>. Those can differ, hence this configuration parameter.
+- **[Autocomplete](#autocomplete)**
+  - URL: {base_url}/admin/system_config/edit/section/smile_elasticsuite_autocomplete_settings
+  - **[Popular Term Autocomplete](#popular-term-autocomplete)**
+    - [Max Size](#max-size): Maximum number of popular search terms to display in autocomplete results.
+  - **[Advanced Settings](#advanced-settings)**
+    - [Using popular search terms for autocomplete search of products and categories](#using-popular-search-terms-for-autocomplete-search-of-products-and-categories): Historically, both for leveraging user behavioral patterns and performance purposes, Elasticsuite relies on the Popular Search Terms Autocomplete results to complete and extend the search terms submitted by the user before searching for matching products or categories.<br />For instance, if a user types "comp" in the search box and the suggested popular search terms are "computer", "peach computer", "computer for kids", then categories and products matching either one of those three search terms will be shown and the original "comp" search term is discarded.<br />On the other hand, if no popular search term is found, then Elasticsuite will try finding products and categories matching only "comp", which might not provide any results unless some attributes have built-in autocompletion capability (by using the "standard_edge_ngram" as their search analyzer).<br />The settings below provide you with the ability to have more control over that "extension" mechanism: whether to disable it entirely, limit its extend, forcing the original search term to always be requested, etc.
+    - [Use suggested search terms to fetch results](#use-suggested-search-terms-to-fetch-results): Default: Yes (legacy behavior). When set to "Yes", products and categories autocomplete will use the search terms suggested in the popular term autocomplete. When set to "No", products and categories autocomplete results will be based solely on the original user raw search term, which might be a partial word being typed (eg "comp" for "computer").
+    - [Always use the user raw input for suggestions](#always-use-the-user-raw-input-for-suggestions): Default: No (legacy behavior). When set to "No", the user raw search term, which might be a partial word being typed, will only be used to fetch suggestions if no matching popular terms were found. When set to "Yes", it will always be used, whether matching popular terms were found or not. Eg if set to "Yes" : when the user is typing "comp" and the popular search term "computer" is suggested, then products or categories matching either "comp" or "computer" will be shown.
+    - [Limit the amount of suggested search terms used](#limit-the-amount-of-suggested-search-terms-used): Default: No (legacy behavior). When set to "No", all the suggested popular search terms will be used for the products and categories autocomplete. When set to "Yes", you will be able to define the maximum number of suggested search terms to use below.
+    - [Maximum number of popular search terms to use](#maximum-number-of-popular-search-terms-to-use): The maximum number of suggested search terms that will be used for fetching results in the products and categories autocomplete boxes. Having a value greater than the "Max Size" defined in the "Popular Term Autocomplete" section above has no effect.
+    - [No extension for actual popular search terms](#no-extension-for-actual-popular-search-terms): Default: No. When set to "Yes", the extension mechanism will be discarded when the search term entered by the user is amongst the popular terms suggestions. Eg : When the user has finished typing "computer", if the list of suggested search terms is ("computer", "peach computer", "computer for kids"), only "computer" will be taken into account for the products and categories autocomplete.
+- **[Miscellaneous](#miscellaneous)**
+  - URL: {base_url}/admin/system_config/edit/section/smile_elasticsuite_misc_settings
+  - **[Footer Settings](#footer-settings)**
+    - [Display ElasticSuite link](#display-elasticsuite-link): Select Yes if you want to display an ElasticSuite copyright link in the footer.
+- **[Thesaurus (global settings)](#thesaurus-global-settings)**
+  - URL: {base_url}/admin/system_config/edit/section/smile_elasticsuite_thesaurus_settings
+  - **[Cache settings](#cache-settings)**
+    - [Always cache thesaurus application results](#always-cache-thesaurus-application-results): Set this to "No" to conditionally cache the results of user search query rewriting by active thesaurus rules. This can be used in peak trafic times to reduce the impact on your cache component with a trade-off of an increased volume of analysis requests sent to Elasticsearch/Opensearch and increased CPU usage.
+    - [Minimum amount of alternative queries](#minimum-amount-of-alternative-queries): The minimum amount of alternative queries that must be generated for a given original user search for enabling the storage of the results in the cache component. Set this to 1, for instance, to only cache the results when there is at least one alternative query generated by the thesaurus rules. Defaults to 0: cache storage is used even when there is no alternative queries through the thesaurus.
+- **[ProLabels](#prolabels)**
+  - URL: {base_url}/admin/system_config/edit/section/prolabels
+- **[SoldTogether](#soldtogether)**
+  - URL: {base_url}/admin/system_config/edit/section/soldtogether
+- **[Core](#core)**
+  - URL: {base_url}/admin/system_config/edit/section/swissup_core
+  - **[Notifications](#notifications)**
+    - [Enabled](#enabled): 
+  - **[Troubleshooting](#troubleshooting)**
+    - [Preview](#preview): 
+    - [Fix Virtual Themes](#fix-virtual-themes): 
+- **[Kount Integration](#kount-integration)**
+  - URL: {base_url}/admin/system_config/edit/section/kount
+  - **[Account Information](#account-information)**
+    - [Enabled](#enabled): Enable or disable the module store wide.
+    - [Environment](#environment): Whether the extension server will run in test mode.
+    - [Merchant Number](#merchant-number): Your 6 digit merchant number you wish to use from AWC.
+    - [Website ID](#website-id): The Website ID from AWC, exactly as it appears.
+    - [API Key](#api-key): API authentication token.
+    - [API Key](#api-key): API authentication token.
+    - [Currency](#currency): 
+  - **[Payment Review Workflow](#payment-review-workflow)**
+    - [Payment Review Workflow Mode](#payment-review-workflow-mode): 
+    - [Decline Action](#decline-action): Cancel should be used with payment method in Authorize Only mode.  Refund should be used with payment method in Authorize and Capture mode.
+    - [Notify Kount RIS of Processor Decline](#notify-kount-ris-of-processor-decline): 
+    - [Prevent Resetting of Order Status](#prevent-resetting-of-order-status): Prevent resetting of order status on 'payment review' and 'fraud' by payment method.
+  - **[Order Settings](#order-settings)**
+    - [Display on Review](#display-on-review): Orders in Kount review status display in customer's account.
+    - [Display Declined](#display-declined): Orders in Kount declined status display in customer's account.
+  - **[Disable Payment Methods](#disable-payment-methods)**
+    - Description: Kount RIS inquiry is not performed for payment methods which are disabled here.
+    - [Disable Payment Method Codes](#disable-payment-method-codes): Select payment methods to disable.
+  - **[Event Notifications](#event-notifications)**
+    - [Enabled](#enabled): Enable or disable ENS.
+    - [Url](#url): ENS URL to be added in the Kount Agent Web Console
+    - [Kount ENS IPs](#kount-ens-ips): ENS and additional load balancer IPs. Enter comma separated. ENS IPs can be obtained from Kount Customer Success Manager.
+    - [Additional IPs for Load Balancer](#additional-ips-for-load-balancer): Additional IPs from which allowed ENS. Enter comma separated.
+  - **[Logging](#logging)**
+    - [Enable Kount SDK Logging](#enable-kount-sdk-logging): 
+    - [Log Ris Metrics](#log-ris-metrics): 
+    - [Log File](#log-file): 
+  - **[Admin Ordering](#admin-ordering)**
+    - [Use Kount for Backend Ordering](#use-kount-for-backend-ordering): 
+    - [Phone To Web Enable](#phone-to-web-enable): Enable Phone-to-Web orders.
+    - [IP Address Exclude](#ip-address-exclude): The IP Addresses you wish to exclude for Phone-to-Web orders. Enter comma separated.
+- **[Accounts](#accounts)**
+  - URL: {base_url}/admin/system_config/edit/section/connector_api_credentials
+  - **[Settings](#settings)**
+    - [Enabled](#enabled): Don't have an API user? Find out about <a href="https://developer.dotdigital.com/docs/getting-started-with-the-api/" target="_blank">getting started with the Dotdigital API</a>.
+    - [API Username](#api-username): 
+    - [API Password](#api-password): 
+    - [API Endpoint](#api-endpoint): 
+    - [API Endpoint Subdomain](#api-endpoint-subdomain): 
+    - [API account ID](#api-account-id): 
+- **[Data Mapping](#data-mapping)**
+  - URL: {base_url}/admin/system_config/edit/section/connector_data_mapping
+  - **[Data Fields Mapping](#data-fields-mapping)**
+    - [Customer Information](#customer-information): 
+    - [Title](#title): 
+    - [Customer ID](#customer-id): 
+    - [Firstname](#firstname): 
+    - [Lastname](#lastname): 
+    - [D.O.B](#dob): 
+    - [Gender](#gender): 
+    - [Created At](#created-at): 
+    - [Last Logged In Date](#last-logged-in-date): 
+    - [Customer Group](#customer-group): 
+    - [Review Count](#review-count): 
+    - [Last Review Date](#last-review-date): 
+    - [Subscriber Status](#subscriber-status): 
+    - [Address](#address): 
+    - [Billing Address Line 1](#billing-address-line-1): 
+    - [Billing Address Line 2](#billing-address-line-2): 
+    - [Billing City](#billing-city): 
+    - [Billing State](#billing-state): 
+    - [Billing Country](#billing-country): 
+    - [Billing Postcode](#billing-postcode): 
+    - [Billing Telephone](#billing-telephone): 
+    - [Billing Company](#billing-company): 
+    - [Delivery Address 1](#delivery-address-1): 
+    - [Delivery Address 2](#delivery-address-2): 
+    - [Delivery City](#delivery-city): 
+    - [Delivery State](#delivery-state): 
+    - [Delivery Country](#delivery-country): 
+    - [Delivery Postcode](#delivery-postcode): 
+    - [Delivery Telephone](#delivery-telephone): 
+    - [Delivery Company](#delivery-company): 
+    - [Sales](#sales): 
+    - [Total Number of Orders](#total-number-of-orders): 
+    - [Average Order Value](#average-order-value): 
+    - [Total Spend](#total-spend): 
+    - [Last Purchase Date](#last-purchase-date): 
+    - [Last Increment ID](#last-increment-id): 
+    - [Total Refund](#total-refund): 
+    - [Most Frequent Day Of Purchase](#most-frequent-day-of-purchase): 
+    - [Most Frequent Month Of Purchase](#most-frequent-month-of-purchase): 
+    - [First Category Purchased](#first-category-purchased): 
+    - [Last Category Purchased](#last-category-purchased): 
+    - [Most Purchased Category](#most-purchased-category): Syncing this data field will increase server resource utilisation.
+    - [Most Purchased Brand](#most-purchased-brand): Syncing this data field will increase server resource utilisation.
+    - [First Brand Purchased](#first-brand-purchased): Syncing this data field will increase server resource utilisation.
+    - [Last Brand Purchased](#last-brand-purchased): Syncing this data field will increase server resource utilisation.
+    - [System Values](#system-values): 
+    - [Website Name](#website-name): 
+    - [Store View Name](#store-view-name): 
+    - [Store Name](#store-name): 
+    - [Last Order ID](#last-order-id): 
+    - [Last Quote ID](#last-quote-id): 
+    - [Abandoned Product Name](#abandoned-product-name): 
+    - [Custom Attributes](#custom-attributes): 
+    - [Manage custom attributes](#manage-custom-attributes): 
+  - **[Create Data Field](#create-data-field)**
+    - [Data Field Name](#data-field-name): (Maximum of 20 characters)
+    - [Data Field Type](#data-field-type): 
+    - [Default Value](#default-value): When sending a campaign that uses template personalisation, a default value ensures that a value is always displayed even if a data field is blank.
+    - [Visibility](#visibility): Make the field public if you want to allow your contacts to view and amend the data you hold on them in this field.
+- **[Sync Settings](#sync-settings)**
+  - URL: {base_url}/admin/system_config/edit/section/sync_settings
+  - **[List Mapping](#list-mapping)**
+    - [Allow non-subscribed contacts to be imported](#allow-non-subscribed-contacts-to-be-imported): 
+    - [Add Customers To](#add-customers-to): 
+    - [Add Email Subscribers To](#add-email-subscribers-to): 
+    - [Add Guests To](#add-guests-to): 
+  - **[Sync](#sync)**
+    - [Customer Enabled](#customer-enabled): 
+    - [Guest Enabled](#guest-enabled): 
+    - [Email Subscriber Enabled](#email-subscriber-enabled): 
+    - [Order Enabled](#order-enabled): 
+    - [Wishlist Enabled](#wishlist-enabled): 
+    - [Review Enabled](#review-enabled): 
+    - [Catalog Enabled](#catalog-enabled): 
+  - **[Create List](#create-list)**
+    - [List Name](#list-name): 
+    - [Visibility](#visibility): 
+- **[Abandoned Carts](#abandoned-carts)**
+  - URL: {base_url}/admin/system_config/edit/section/abandoned_carts
+  - **[Abandoned Cart Program](#abandoned-cart-program)**
+    - [Enrol abandoned cart to](#enrol-abandoned-cart-to): 
+    - [Enrol abandoned cart after](#enrol-abandoned-cart-after): 
+  - **[Customers Email Series](#customers-email-series)**
+    - [Abandoned Cart 1](#abandoned-cart-1): 
+    - [Enabled\Disabled](#enableddisabled): 
+    - [Send After (min)](#send-after-min): 
+    - [Campaign to Send](#campaign-to-send): 
+    - [Abandoned Cart 2](#abandoned-cart-2): 
+    - [Enabled\Disabled](#enableddisabled): 
+    - [Send After](#send-after): 
+    - [Campaign to Send](#campaign-to-send): 
+    - [Abandoned Cart 3](#abandoned-cart-3): 
+    - [Enabled\Disabled](#enableddisabled): 
+    - [Send After](#send-after): 
+    - [Campaign to Send](#campaign-to-send): 
+  - **[Guests Email Series](#guests-email-series)**
+    - [Abandoned Cart 1](#abandoned-cart-1): 
+    - [Enabled\Disabled](#enableddisabled): 
+    - [Send After (min)](#send-after-min): 
+    - [Campaign to Send](#campaign-to-send): 
+    - [Abandoned Cart 2](#abandoned-cart-2): 
+    - [Enabled\Disabled](#enableddisabled): 
+    - [Send After](#send-after): 
+    - [Campaign to Send](#campaign-to-send): 
+    - [Abandoned Cart 3](#abandoned-cart-3): 
+    - [Enabled\Disabled](#enableddisabled): 
+    - [Send After](#send-after): 
+    - [Campaign to Send](#campaign-to-send): 
+- **[Automation](#automation)**
+  - URL: {base_url}/admin/system_config/edit/section/connector_automation
+  - **[Visitor action automation enrolment](#visitor-action-automation-enrolment)**
+    - [New Customer](#new-customer): 
+    - [New Subscriber](#new-subscriber): 
+    - [First Customer Order](#first-customer-order): 
+    - [Customer Order](#customer-order): 
+    - [Guest Order](#guest-order): 
+    - [Approved Review](#approved-review): 
+    - [New Wishlist](#new-wishlist): 
+  - **[Order Status Automation Enrolment](#order-status-automation-enrolment)**
+    - [Customer](#customer): 
+  - **[Product Notification](#product-notification)**
+    - [Enable back in stock notification](#enable-back-in-stock-notification): 
+    - [Product Notification](#product-notification): 
+  - **[Review Settings](#review-settings)**
+    - [Enabled](#enabled): 
+    - [Allow review reminder for non-subscribed contacts](#allow-review-reminder-for-non-subscribed-contacts): Enable this if you want to allow review reminder email to be sent also to contacts who haven't opted in (This will always exclude unsubscribed contacts).
+    - [Order Status](#order-status): 
+    - [Delay Period (Days)](#delay-period-days): The system will send the reminder the selected number of days after order creation, if the order status matches.
+    - [Campaign to send](#campaign-to-send): 
+    - [Link to product page](#link-to-product-page): Enable this if your reviews are displayed on your product pages.
+    - [Reviews Anchor](#reviews-anchor): (Optional) Provide the anchor used on product or review pages e.g. #reviews.
+    - [Reviews Link Text](#reviews-link-text): The link text displayed beneath products on the external dynamic content page for reviews.
+  - **[Feefo Feedback Engine](#feefo-feedback-engine)**
+    - [Feefo Logon](#feefo-logon): This is what you provided Feefo during account setup and is usually your website domain name.
+    - [Reviews Per Product](#reviews-per-product): Number of reviews to display per product.
+    - [Logo Template (Optional)](#logo-template-optional): Enter name of logo template.
+    - [Service Score URL](#service-score-url): Enter Feefo logon above before using this URL.
+    - [Product Reviews URL](#product-reviews-url): Enter Feefo logon above before using this URL.
+- **[Dynamic Content](#dynamic-content)**
+  - URL: {base_url}/admin/system_config/edit/section/connector_dynamic_content
+  - **[External Dynamic URLs](#external-dynamic-urls)**
+    - [Secure code for dynamic URLs](#secure-code-for-dynamic-urls): 
+    - [Passcode](#passcode): Recommended: Set a passcode so that basket contents and coupon codes can only be viewed if the following passcode is sent with the request.
+    - [Abandoned Carts (Deprecated)](#abandoned-carts-deprecated): Use the <a href="https://support.dotdigital.com/hc/en-gb/articles/360000419160-Creating-an-abandoned-cart-email">abandoned cart block</a> functionality from EasyEditor.
+    - [Cart Content URL](#cart-content-url): 
+    - [Reviews](#reviews): 
+    - [Review Contents URL](#review-contents-url): 
+    - [Coupon Codes (Deprecated)](#coupon-codes-deprecated): We recommend using the 'dotdigital Coupon URL Builder' in Marketing > Promotions > Cart Price Rules.
+    - [Coupon Codes URL](#coupon-codes-url): 
+    - [Order Recommendation (Deprecated)](#order-recommendation-deprecated): Use Dotdigital's built-in product recommendation functionality. <a href="https://support.dotdigital.com/hc/en-gb/articles/360000110040-Product-recommendations-an-overview">Learn more</a>
+    - [Related Products URL](#related-products-url): 
+    - [Upsell Products URL](#upsell-products-url): 
+    - [Crosssell Products URL](#crosssell-products-url): 
+    - [Cart Recommendation (Deprecated)](#cart-recommendation-deprecated): Use Dotdigital's built-in product recommendation functionality. <a href="https://support.dotdigital.com/hc/en-gb/articles/360000110040-Product-recommendations-an-overview">Learn more</a>
+    - [Related Products URL](#related-products-url): 
+    - [Upsell Products URL](#upsell-products-url): 
+    - [Crosssell Products URL](#crosssell-products-url): 
+    - [Product Recommendation (Deprecated)](#product-recommendation-deprecated): Use Dotdigital's built-in product recommendation functionality. <a href="https://support.dotdigital.com/hc/en-gb/articles/360000110040-Product-recommendations-an-overview">Learn more</a>
+    - [Best Sellers URL](#best-sellers-url): 
+    - [Most Viewed URL](#most-viewed-url): Add category_id/@CATEGORY_ID@ at the end of url to filter most viewed by category
+    - [Product Push URL](#product-push-url): 
+    - [Recently Viewed](#recently-viewed): 
+    - [Wishlist](#wishlist): 
+    - [Wishlist Content](#wishlist-content): 
+    - [Wishlist Related URL](#wishlist-related-url): 
+    - [Wishlist Upsell Products URL](#wishlist-upsell-products-url): 
+    - [Wishlist Crosssell Products URL](#wishlist-crosssell-products-url): 
+  - **[Dynamic Products](#dynamic-products)**
+    - [Wishlist](#wishlist): 
+    - [Display Type](#display-type): 
+    - [Reviews](#reviews): 
+    - [Display Type](#display-type): 
+    - [Related Products](#related-products): 
+    - [Display Type](#display-type): 
+    - [Items To Display](#items-to-display): 
+    - [Upsell Products](#upsell-products): 
+    - [Display Type](#display-type): 
+    - [Items To Display](#items-to-display): 
+    - [Crosssell Products](#crosssell-products): 
+    - [Display Type](#display-type): 
+    - [Items To Display](#items-to-display): 
+    - [Best Sellers](#best-sellers): 
+    - [Display Type](#display-type): 
+    - [Items To Display](#items-to-display): 
+    - [Time Period](#time-period): 
+    - [Most Viewed](#most-viewed): 
+    - [Display Type](#display-type): 
+    - [Items To Display](#items-to-display): 
+    - [Time Period](#time-period): 
+    - [Recently Viewed](#recently-viewed): 
+    - [Display Type](#display-type): 
+    - [Items To Display](#items-to-display): 
+  - **[Manual Product Push](#manual-product-push)**
+    - [Settings](#settings): 
+    - [Display Type](#display-type): 
+    - [Items To Display](#items-to-display): 
+    - [Products](#products): 
+    - [Products](#products): Comma Separated Product Id's
+  - **[Fallback Products](#fallback-products)**
+    - [Products](#products): Comma Separated Product Id's
+- **[Transactional Emails](#transactional-emails)**
+  - URL: {base_url}/admin/system_config/edit/section/transactional_emails
+  - **[Transactional Email Settings](#transactional-email-settings)**
+    - [Enabled](#enabled): 
+    - [Send Mode](#send-mode): 
+    - [Host](#host): 
+    - [Username](#username): 
+    - [Password](#password): 
+    - [Port](#port): 
+    - [Debug](#debug): 
+  - **[Email Templates](#email-templates)**
+    - [Customer](#customer): 
+    - [New Account](#new-account): 
+    - [New Account Confirmation Key](#new-account-confirmation-key): 
+    - [New Account Confirmation](#new-account-confirmation): 
+    - [Forgot Password](#forgot-password): 
+    - [Remind Password](#remind-password): 
+    - [Reset Password](#reset-password): 
+    - [Wish List Sharing](#wish-list-sharing): 
+    - [Forgot Admin Password](#forgot-admin-password): 
+    - [Newsletter](#newsletter): 
+    - [Success Email Template](#success-email-template): 
+    - [Subscription Confirmation](#subscription-confirmation): 
+    - [Unsubscribe Success](#unsubscribe-success): 
+    - [Sales](#sales): 
+    - [New Order Confirmation](#new-order-confirmation): 
+    - [New Order Confirmation For Guest](#new-order-confirmation-for-guest): 
+    - [Order Update](#order-update): 
+    - [Order Update For Guest](#order-update-for-guest): 
+    - [New Shipment](#new-shipment): 
+    - [New Shipment For Guest](#new-shipment-for-guest): 
+    - [Shipment Update](#shipment-update): 
+    - [New Invoice](#new-invoice): 
+    - [New Invoice Guest](#new-invoice-guest): 
+    - [Invoice Update](#invoice-update): 
+    - [Invoice Update Guest](#invoice-update-guest): 
+    - [New Credit Credit Memo](#new-credit-credit-memo): 
+    - [New Credit Credit Memo Guest](#new-credit-credit-memo-guest): 
+    - [Credit Memo Update](#credit-memo-update): 
+    - [Credit Memo Update Guest](#credit-memo-update-guest): 
+    - [Contact](#contact): 
+    - [New Contact Form](#new-contact-form): 
+    - [Email](#email): 
+    - [Send Product To Friend](#send-product-to-friend): 
+    - [Product Alerts](#product-alerts): 
+    - [Stock Alert](#stock-alert): 
+    - [Product Price Alert](#product-price-alert): 
+    - [Additional Templates](#additional-templates): 
+    - [Sync additional campaigns as templates](#sync-additional-campaigns-as-templates): Mapped templates will be available to select under any Magento template dropdown.
+- **[Marketing Consent](#marketing-consent)**
+  - URL: {base_url}/admin/system_config/edit/section/connector_consent
+  - **[Email](#email)**
+    - [Import subscribers with consent](#import-subscribers-with-consent): Enable this to record consent when customers subscribe or opt-in anywhere on your store.
+    - [Opt-in consent text (checkout, account)](#opt-in-consent-text-checkout-account): [Required] Enter the consent text you want to record against contacts that opt-in from a page with a URL that includes checkout/ or customer/account/.
+    - [Opt-in consent text (other pages)](#opt-in-consent-text-other-pages): [Required] Enter the consent text you want to record against contacts that opt-in from any page that doesn't have a URL that includes checkout/ or customer/account/.
+- **[Configuration](#configuration)**
+  - URL: {base_url}/admin/system_config/edit/section/connector_configuration
+  - **[Image Types](#image-types)**
+    - Description: Image types are defined in your theme's view.xml file. <a href="https://support.dotdigital.com/hc/en-gb/articles/360016869019" target="_blank">Learn more about the default image types used by dotdigital</a>.
+    - [Catalog Sync](#catalog-sync): Warning: updating this setting will reset your catalog.
+    - [Abandoned Cart](#abandoned-cart): 
+    - [Abandoned Browse](#abandoned-browse): 
+    - [Dynamic Content](#dynamic-content): 
+  - **[Data Fields](#data-fields)**
+    - [Data fields calculation with status](#data-fields-calculation-with-status): Select multiple statuses by pressing Ctrl button while selecting
+    - [Brand Attribute](#brand-attribute): Select your brand attribute. By default, the 'Manufacturer' attribute will be used.
+  - **[Tracking](#tracking)**
+    - [Integration Insights](#integration-insights): 
+    - [ROI Tracking](#roi-tracking): 
+    - [Page Tracking](#page-tracking): 
+    - [Script version](#script-version): 
+    - [Web Behavior Tracking Profile Id](#web-behavior-tracking-profile-id): Web Behavior Tracking enables you to have greater insight into how customers and visitors interact with your website.
+                        Check out how <a href="https://support.dotdigital.com/hc/en-gb/articles/219045108-Installing-Web-Behavior-Tracking#profile" target="_blank">
+                        to set up your unique tracking profile</a>.
+                    
+    - [Tracking Host](#tracking-host): 
+  - **[Transactional Data](#transactional-data)**
+    - [Import Order With Status](#import-order-with-status): Select multiple statuses by pressing Ctrl button while selecting
+    - [Order Custom Attributes](#order-custom-attributes): Select custom order attributes that you want to import with your order data. Select multiple by pressing Ctrl button while selecting.
+    - [Product Attributes](#product-attributes): Selected product attribute(s) will be imported in order and catalog syncs.
+    - [Include Product Custom Options In Order Sync](#include-product-custom-options-in-order-sync): 
+  - **[Abandoned Carts](#abandoned-carts)**
+    - [Easy Email Capture (Checkout)](#easy-email-capture-checkout): Enable this if you have a checkout process that allows the visitor to
+                            enter their email address during the checkout, but it does not update quote table instantly.
+    - [Easy Email Capture (Newsletter)](#easy-email-capture-newsletter): Enable this if you would like to update quote table with email entered in Newsletter Email Field.
+    - [Allow abandoned cart for non-subscribed contacts](#allow-abandoned-cart-for-non-subscribed-contacts): Enable this if you want to allow abandoned cart emails to be sent also to contacts who haven't opted in. (This will always exclude unsubscribed contacts).
+    - [Abandoned Cart Limit](#abandoned-cart-limit): Do not send an abandoned cart email to a contact if they have received a previous abandoned cart email in the last x hours. Do not re-enrol a contact to a program if they were already enrolled in the last x hours.
+    - [Link To Cart Enabled](#link-to-cart-enabled): 
+    - [Link Text](#link-text): Please provide the link text. If no text provided then default text "Take Me To My Basket" will be used.
+    - [Cart URL](#cart-url): For example for http://www.localhost.com/checkout/cart only enter checkout/cart.
+    - [Customer Login URL](#customer-login-url): For example for http://www.localhost.com/customer/account/login only enter customer/account/login.
+    - [Expire Time](#expire-time): The number of hours to wait before expiring an abandoned cart when a contact is pending opt in
+  - **[Dynamic Content Styling](#dynamic-content-styling)**
+    - [Dynamic Styling](#dynamic-styling): Styling entered here will apply to all dynamic content areas pulled from Magento. Classes References Used : 'product-table', 'product-name', 'product-price', 'product-url', 'other-text'
+    - [Product Name](#product-name): 
+    - [Font Color](#font-color): 
+    - [Font Size](#font-size): 
+    - [Style](#style): 
+    - [Product Price](#product-price): 
+    - [Price Color](#price-color): 
+    - [Font Size](#font-size): 
+    - [Font Style](#font-style): 
+    - [Product Link](#product-link): 
+    - [Font Color](#font-color): 
+    - [Font Size](#font-size): 
+    - [Font Style](#font-style): 
+    - [Applies To Whole Document](#applies-to-whole-document): 
+    - [Font](#font): 
+    - [Background Color](#background-color): 
+    - [Other Text (Will Apply To Other Remaining Text)](#other-text-will-apply-to-other-remaining-text): 
+    - [Font Color](#font-color): 
+    - [Font Size](#font-size): 
+    - [Font Style](#font-style): 
+    - [Coupon Code](#coupon-code): 
+    - [Font Color](#font-color): 
+    - [Font Size](#font-size): 
+    - [Font Style](#font-style): 
+    - [Font](#font): 
+    - [Background Color](#background-color): 
+  - **[Dynamic Content](#dynamic-content)**
+    - [Product Link Text](#product-link-text): Please provide the link text. If no text provided then default text will be used.
+  - **[Admin](#admin)**
+    - [Disable Newsletter Success](#disable-newsletter-success): 
+    - [Disable Customer Success](#disable-customer-success): 
+  - **[Catalog Sync Settings](#catalog-sync-settings)**
+    - [Catalog Values](#catalog-values): 
+    - [Catalog Visibility](#catalog-visibility): Selected product visibilities will be exported.
+    - [Catalog Type](#catalog-type): Selected product types will be exported.
+  - **[Customer Preference](#customer-preference)**
+    - [Show Preferences to Customer](#show-preferences-to-customer): 
+    - [Show Lists to Customer](#show-lists-to-customer): 
+    - [Lists to Show](#lists-to-show):  Choose additional lists to show in addition to the Magento General Subscription list.
+    - [Show Data Fields To Customer?](#show-data-fields-to-customer): 
+    - [Data Fields To Show](#data-fields-to-show): Only data fields with visibility public can be shown to customers. You can create more data fields within the Data Mapping section.
+- **[Developer](#developer)**
+  - URL: {base_url}/admin/system_config/edit/section/connector_developer_settings
+  - **[Import Settings](#import-settings)**
+    - Description: Configuration for bulk syncs. Use these options to tune the rate at which data is exported out of Magento and imported into Dotdigital. <a href="https://support.dotdigital.com/en/articles/8199588-edit-data-synchronisation-settings-in-magento-open-source-and-adobe-commerce#h_398b799dd3" target="_blank">Learn more</a>.
+    - [Contact syncs](#contact-syncs): 
+    - [Contact sync batch size](#contact-sync-batch-size): Batch size is the database query limit. Applies to Customer, Subscriber and Guest syncs.
+    - [Contact sync mega batch size](#contact-sync-mega-batch-size): The number of objects we send in a single payload of JSON to the Dotdigital API. Applies to Customer, Subscriber and Guest syncs.
+    - [Insight data syncs](#insight-data-syncs): 
+    - [Transactional data batch size](#transactional-data-batch-size): Batch size is the database query limit. Applies to order, catalog, review and wishlist syncs.
+    - [Order sync mega batch size](#order-sync-mega-batch-size): The number of objects we send in a single payload of JSON to the Dotdigital API.
+    - [Catalog sync mega batch size](#catalog-sync-mega-batch-size): The number of objects we send in a single payload of JSON to the Dotdigital API.
+    - [Additional settings](#additional-settings): 
+    - [Transactional data break](#transactional-data-break): Limits the number of rows processed in a single sync. Applies to Customer, Subscriber, Guest, Order and Catalog syncs.
+    - [Enable Subscribers Sales Data Sync](#enable-subscribers-sales-data-sync): Enabling ability to sync subscribers sales data increases server load and overall sync times.
+    - [Remove /pub directory from URLs](#remove-pub-directory-from-urls): Enable this to remove the /pub directory from image URLs in catalog sync and insight data.
+  - **[Sync Settings](#sync-settings)**
+    - [Admin Task](#admin-task): 
+    - [Automap Data Fields](#automap-data-fields): Map Magento data to Dotdigital data fields, including customer, address and sales information.
+    - [Delete All Contact Ids](#delete-all-contact-ids): 
+    - [Manually Run Sync](#manually-run-sync): 
+    - [Customer Sync](#customer-sync): 
+    - [Subscriber Sync](#subscriber-sync): 
+    - [Guest Sync](#guest-sync): 
+    - [Order Sync](#order-sync): 
+    - [Wishlist Sync](#wishlist-sync): 
+    - [Review Sync](#review-sync): 
+    - [Catalog Sync](#catalog-sync): 
+    - [Importer Sync](#importer-sync): 
+    - [Consent Sync](#consent-sync): 
+    - [Template Sync](#template-sync): 
+    - [Reset Sync Options](#reset-sync-options): 
+    - [Date Range](#date-range): If any of the data range is not selected then a full data refresh will be done.
+    - [Reset Contacts](#reset-contacts): 
+    - [Reset Subscribers](#reset-subscribers): 
+    - [Reset Order Data](#reset-order-data): 
+    - [Reset Review Data](#reset-review-data): 
+    - [Reset Wishlist Data](#reset-wishlist-data): 
+    - [Reset Catalog Data](#reset-catalog-data): 
+  - **[Debug](#debug)**
+    - [Debug Mode](#debug-mode): 
+    - [Debug Api Calls Time](#debug-api-calls-time): Set the number in seconds that api calls greater will be logged.
+  - **[OAUTH Credentials](#oauth-credentials)**
+    - [Client Id](#client-id): 
+    - [Client Secret Key](#client-secret-key): 
+    - [Connection](#connection): 
+    - [Custom OAUTH Domain](#custom-oauth-domain): Enter the custom domain for authorization. Make sure that base URL ends with '/' (slash), e.g. https://yourdomain/magento/
+    - [Custom Authorization URI](#custom-authorization-uri): Enter the custom authorization url. Make sure that base URL ends with '/' (slash), e.g. http://yourdomain/magento/
+  - **[Dynamic Pages IP Restriction](#dynamic-pages-ip-restriction)**
+    - [Dynamic Pages IP Restriction](#dynamic-pages-ip-restriction): Enter IP addresses separated by comma (,). An empty list will ignore any security check. Please ensure you keep <a href="https://support.dotdigital.com/hc/en-gb/articles/212217348-What-IP-addresses-does-the-application-use-to-send-email-so-I-can-add-them-to-my-allow-list-" target="_blank">the latest dotdigital IP ranges</a> included.
+  - **[Manage Cron Timings](#manage-cron-timings)**
+    - [Importer](#importer): 
+    - [Customer](#customer): 
+    - [Guest](#guest): 
+    - [Subscriber](#subscriber): 
+    - [Order](#order): 
+    - [Catalog](#catalog): 
+    - [Review And Wishlist](#review-and-wishlist): 
+    - [Consent](#consent): 
+  - **[Cleaner](#cleaner)**
+    - Description: The cleaner cron purges data from the email_automation, email_importer, email_campaign and email_contact_consent tables on a schedule.
+    - [Cleaner](#cleaner): Cron schedule for cleaner. Defaults to the first day of the month.
+    - [Table Cleaner Interval](#table-cleaner-interval): Delete data older than x days. Defaults to 30.
+  - **[System Alerts](#system-alerts)**
+    - [Enable System Messages](#enable-system-messages): Allow to send in-app system messages to admin users when errors that may affect the dotdigital extension are detected.
+    - [Enable Email Notifications](#enable-email-notifications): Allow to send system alert email notifications when errors that may affect the dotdigital extension are detected.
+    - [Select Roles](#select-roles): Users assigned to the selected role(s) will receive email notifications. Select multiple roles by pressing Ctrl button while selecting.
+    - [Alert Frequency](#alert-frequency): This setting controls both email notification frequency and the time period in which we report errors. e.g. Select "24 Hours" to receive an email every 24 hours reporting any errors that may have occurred in the last 24 hours.
+  - **[PWA Settings](#pwa-settings)**
+    - [PWA Storefront Base URL](#pwa-storefront-base-url):  Specify this if you use a PWA storefront URL which is different from Magento's default frontend base URL. e.g. https://pwa.yourdomain.com/
+    - [Transactional data break](#transactional-data-break): 
+- **[Reviews and Visual Marketing](#reviews-and-visual-marketing)**
+  - URL: {base_url}/admin/system_config/edit/section/yotpo
+  - **[Setup](#setup)**
+    - [Enable Yotpo](#enable-yotpo): To connect Yotpo to your store, enter your <a href="https://docs.magento.com/m2/ee/user_guide/marketing/yotpo-connect.html#enable-yotpo-and-connect-your-magento-store" title="App Key and API Secret" target="_blank" style="color:#2b7dbd">App Key and API Secret</a> in the fields below and save your configuration.
+    - [App Key](#app-key): Note: Additional stores must be connected to their own App Key via Store View settings.
+    - [API Secret](#api-secret): <a href="https://docs.magento.com/m2/ee/user_guide/marketing/yotpo-connect.html#enable-yotpo-and-connect-your-magento-store" target="_blank" title="I can't find my API Secret" style="color:#2b7dbd">I can't find my API Secret</a>
+    - [Module Version](#module-version): <input name="disable_autofill_appkey" type="text" style="display:none!important;"><input name="disable_autofill_secret" type="password" style="display:none!important;">
+  - **[Widget Settings](#widget-settings)**
+    - [Show Reviews Widget](#show-reviews-widget): 
+    - [Show star rating on category pages](#show-star-rating-on-category-pages): 
+    - [Show star rating on product pages](#show-star-rating-on-product-pages): 
+    - [Show Q&A Bottom-line](#show-qa-bottom-line): 
+    - [Hide Magento Reviews](#hide-magento-reviews): 
+    - [Enable Debug Mode](#enable-debug-mode): Enable in order to log all Yotpo processes when Magento debug mode enabled.
+  - **[Sync Settings](#sync-settings)**
+    - [Sync Status](#sync-status): 
+    - [Orders Sync From Date](#orders-sync-from-date): 
+    - [Orders Sync Limit](#orders-sync-limit): Note: Setting a high sync limit (or no limit) may result in a high server load (0=no limit).
+    - [Orders Sync Statuses](#orders-sync-statuses): Customize the order status that will trigger the order export after purchase. You can choose multiple statuses by holding ctrl button.
+- **[Feed Tool](#feed-tool)**
+  - URL: {base_url}/admin/system_config/edit/section/oauth_configs
+  - **[Oauth configurations](#oauth-configurations)**
+    - [Load iframe URL](#load-iframe-url): 
+- **[Email to a Friend](#email-to-a-friend)**
+  - URL: {base_url}/admin/system_config/edit/section/sendfriend
+  - **[Email Templates](#email-templates)**
+    - [Enabled](#enabled): 
+                        We strongly recommend to enable a <a href="https://experienceleague.adobe.com/docs/commerce-admin/systems/security/captcha/security-google-recaptcha.html" target="_blank">CAPTCHA solution</a> alongside enabling "Email to a Friend" to ensure abuse of this feature does not occur.
+                    
+    - [Select Email Template](#select-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Allow for Guests](#allow-for-guests): 
+    - [Max Recipients](#max-recipients): 
+    - [Max Products Sent in 1 Hour](#max-products-sent-in-1-hour): 
+    - [Limit Sending By](#limit-sending-by): 
+- **[Webhooks](#webhooks)**
+  - URL: {base_url}/admin/system_config/edit/section/commerce_webhooks
+  - **[Digital Signature configuration](#digital-signature-configuration)**
+    - [Enabled](#enabled): 
+    - [Public key](#public-key): 
+    - [Generate Keys](#generate-keys): 
+  - **[Database logging configuration](#database-logging-configuration)**
+    - [Enabled](#enabled): 
+    - [Log retention time (in days)](#log-retention-time-in-days): 
+    - [Minimum Log level](#minimum-log-level): 
+    - [Save full log messages](#save-full-log-messages): Full log messages can contain sensitive information. If you select yes, any sensitive data will be present in the logs.
+- **[Checkout](#checkout)**
+  - URL: {base_url}/admin/system_config/edit/section/checkout
+  - **[Checkout Options](#checkout-options)**
+    - [Enable Guest Checkout Login](#enable-guest-checkout-login): Enabling this setting will allow unauthenticated users to query if an e-mail address is already associated with a customer account. This can be used to enhance the checkout workflow for guests that do not realize they already have an account but comes at the cost of exposing information to unauthenticated users.
+    - [Enable Onepage Checkout](#enable-onepage-checkout): 
+    - [Allow Guest Checkout](#allow-guest-checkout): 
+    - [Display Billing Address On](#display-billing-address-on): 
+    - [Maximum Number of Items to Display in Order Summary](#maximum-number-of-items-to-display-in-order-summary): 
+  - **[Shopping Cart](#shopping-cart)**
+    - [Quote Lifetime (days)](#quote-lifetime-days): 
+    - [After Adding a Product Redirect to Shopping Cart](#after-adding-a-product-redirect-to-shopping-cart): 
+    - [Number of Items to Display Pager](#number-of-items-to-display-pager): 
+    - [Show Cross-sell Items in the Shopping Cart](#show-cross-sell-items-in-the-shopping-cart): 
+    - [Enable Clear Shopping Cart](#enable-clear-shopping-cart): 
+  - **[My Cart Link](#my-cart-link)**
+    - [Display Cart Summary](#display-cart-summary): 
+  - **[Mini Cart](#mini-cart)**
+    - [Display Mini Cart](#display-mini-cart): 
+    - [Number of Items to Display Scrollbar](#number-of-items-to-display-scrollbar): 
+    - [Maximum Number of Items to Display](#maximum-number-of-items-to-display): 
+  - **[Payment Failed Emails](#payment-failed-emails)**
+    - [Payment Failed Email Sender](#payment-failed-email-sender): 
+    - [Payment Failed Email Receiver](#payment-failed-email-receiver): 
+    - [Payment Failed Template](#payment-failed-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Send Payment Failed Email Copy To](#send-payment-failed-email-copy-to): Separate by ",".
+    - [Send Payment Failed Email Copy Method](#send-payment-failed-email-copy-method): 
+- **[Google reCAPTCHA Admin Panel](#google-recaptcha-admin-panel)**
+  - URL: {base_url}/admin/system_config/edit/section/recaptcha_backend
+  - **[Admin Panel](#admin-panel)**
+  - **[reCAPTCHA Failure Messages](#recaptcha-failure-messages)**
+    - [reCAPTCHA Validation Failure Message](#recaptcha-validation-failure-message): 
+    - [reCAPTCHA Technical Failure Message](#recaptcha-technical-failure-message): 
+- **[Google reCAPTCHA Storefront](#google-recaptcha-storefront)**
+  - URL: {base_url}/admin/system_config/edit/section/recaptcha_frontend
+  - **[Storefront](#storefront)**
+- **[Customer Configuration](#customer-configuration)**
+  - URL: {base_url}/admin/system_config/edit/section/customer
+  - **[Account Sharing Options](#account-sharing-options)**
+    - [Share Customer Accounts](#share-customer-accounts): 
+  - **[Create New Account Options](#create-new-account-options)**
+    - [Enable Automatic Assignment to Customer Group](#enable-automatic-assignment-to-customer-group): 
+    - [Tax Calculation Based On](#tax-calculation-based-on): 
+    - [Default Group](#default-group): 
+    - [Group for Valid VAT ID - Domestic](#group-for-valid-vat-id---domestic): 
+    - [Group for Valid VAT ID - Intra-Union](#group-for-valid-vat-id---intra-union): 
+    - [Group for Invalid VAT ID](#group-for-invalid-vat-id): 
+    - [Validation Error Group](#validation-error-group): 
+    - [Validate on Each Transaction](#validate-on-each-transaction): 
+    - [Default Value for Disable Automatic Group Changes Based on VAT ID](#default-value-for-disable-automatic-group-changes-based-on-vat-id): 
+    - [Show VAT Number on Storefront](#show-vat-number-on-storefront): To show VAT number on Storefront, set Show VAT Number on Storefront option to Yes.
+    - [Default Email Domain](#default-email-domain): 
+    - [Default Welcome Email](#default-welcome-email): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Default Welcome Email Without Password](#default-welcome-email-without-password): 
+                        This email will be sent instead of the Default Welcome Email, if a customer was created without password. <br /><br />
+                        Email template chosen based on theme fallback when "Default" option is selected.
+                    
+    - [Email Sender](#email-sender): 
+    - [Require Emails Confirmation](#require-emails-confirmation): 
+    - [Confirmation Link Email](#confirmation-link-email): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Welcome Email](#welcome-email): 
+                        This email will be sent instead of the Default Welcome Email, after account confirmation. <br /><br />
+                        Email template chosen based on theme fallback when "Default" option is selected.
+                    
+    - [Generate Human-Friendly Customer ID](#generate-human-friendly-customer-id): 
+  - **[Password Options](#password-options)**
+    - [Forgot Email Template](#forgot-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Remind Email Template](#remind-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Reset Password Template](#reset-password-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Password Template Email Sender](#password-template-email-sender): 
+    - [Recovery Link Expiration Period (hours)](#recovery-link-expiration-period-hours): Please enter a number 1 or greater in this field.
+    - [Number of Required Character Classes](#number-of-required-character-classes): Number of different character classes required in password: Lowercase, Uppercase, Digits, Special Characters.
+    - [Minimum Password Length](#minimum-password-length): Please enter a number 1 or greater in this field.
+    - [Maximum Login Failures to Lockout Account](#maximum-login-failures-to-lockout-account): Use 0 to disable account locking.
+    - [Lockout Time (minutes)](#lockout-time-minutes): Account will be unlocked after provided time.
+    - [Enable Autocomplete on login/forgot password forms](#enable-autocomplete-on-loginforgot-password-forms): 
+  - **[Account Information Options](#account-information-options)**
+    - [Change Email Template](#change-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Change Email and Password Template](#change-email-and-password-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Require email confirmation if email has been changed](#require-email-confirmation-if-email-has-been-changed): 
+  - **[Name and Address Options](#name-and-address-options)**
+    - [Number of Lines in a Street Address](#number-of-lines-in-a-street-address): Valid range: 1-4
+    - [Show Prefix](#show-prefix): The title that goes before name (Mr., Mrs., etc.)
+    - [Prefix Dropdown Options](#prefix-dropdown-options): 
+                        Semicolon (;) separated values.<br/>Leave empty for open text field.
+                    
+    - [Show Middle Name (initial)](#show-middle-name-initial): Always optional.
+    - [Show Suffix](#show-suffix): The suffix that goes after name (Jr., Sr., etc.)
+    - [Suffix Dropdown Options](#suffix-dropdown-options): 
+                        Semicolon (;) separated values.<br/>Leave empty for open text field.
+                    
+    - [Show Date of Birth](#show-date-of-birth): 
+    - [Show Tax/VAT Number](#show-taxvat-number): 
+    - [Show Gender](#show-gender): 
+    - [Show Telephone](#show-telephone): 
+    - [Show Company](#show-company): 
+    - [Show Fax](#show-fax): 
+  - **[Login Options](#login-options)**
+    - [Redirect Customer to Account Dashboard after Logging in](#redirect-customer-to-account-dashboard-after-logging-in): Customer will stay on the current page if "No" is selected.
+  - **[Address Templates](#address-templates)**
+    - [Text](#text): 
+    - [Text One Line](#text-one-line): 
+    - [HTML](#html): Only 'b', 'br', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub', 'sup', 'ul' tags are allowed
+    - [PDF](#pdf): 
+  - **[Online Customers Options](#online-customers-options)**
+    - [Online Minutes Interval](#online-minutes-interval): Leave empty for default (15 minutes).
+    - [Customer Data Lifetime](#customer-data-lifetime): Please specify value in minutes.
+- **[Advanced Reporting](#advanced-reporting)**
+  - URL: {base_url}/admin/system_config/edit/section/analytics
+  - **[Advanced Reporting](#advanced-reporting)**
+    - Description: This service provides a dynamic suite of reports with rich insights about your business.
+                Your reports can be accessed securely on a personalized dashboard outside of the admin panel by clicking on the
+                "Go to Advanced Reporting" link. </br> For more information, see our <a target="_blank" href="https://magento.com/legal/terms/cloud-terms">
+                terms and conditions</a>.
+    - [Advanced Reporting Service](#advanced-reporting-service): 
+    - [Time of day to send data](#time-of-day-to-send-data): 
+    - [Industry](#industry): In order to personalize your Advanced Reporting experience, please select your industry.
+    - [<strong>Get more insights from Magento Business Intelligence</strong>](#strongget-more-insights-from-magento-business-intelligencestrong): Magento Business Intelligence provides you with a simple and clear path to
+                    becoming more data driven.</br> Learn more about <a target="_blank"
+                    href="https://dashboard.rjmetrics.com/v2/magento/signup/">Magento BI Essentials and BI Pro</a> tiers.
+- **[Invitations](#invitations)**
+  - URL: {base_url}/admin/system_config/edit/section/magento_invitation
+  - **[Email](#email)**
+    - [Customer Invitation Email Sender](#customer-invitation-email-sender): 
+    - [Customer Invitation Email Template](#customer-invitation-email-template): 
+  - **[General](#general)**
+    - [Enable Invitations Functionality](#enable-invitations-functionality): 
+    - [Enable Invitations on Storefront](#enable-invitations-on-storefront): 
+    - [Referred Customer Group](#referred-customer-group): 
+    - [New Accounts Registration](#new-accounts-registration): 
+    - [Allow Customers to Add Custom Message to Invitation Email](#allow-customers-to-add-custom-message-to-invitation-email): 
+    - [Max Invitations Allowed to be Sent at One Time](#max-invitations-allowed-to-be-sent-at-one-time): 
+- **[Newsletter](#newsletter)**
+  - URL: {base_url}/admin/system_config/edit/section/newsletter
+  - **[General Options](#general-options)**
+    - [Enabled](#enabled): 
+  - **[Subscription Options](#subscription-options)**
+    - [Allow Guest Subscription](#allow-guest-subscription): 
+    - [Need to Confirm](#need-to-confirm): 
+    - [Confirmation Email Sender](#confirmation-email-sender): 
+    - [Confirmation Email Template](#confirmation-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Success Email Sender](#success-email-sender): 
+    - [Success Email Template](#success-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Unsubscription Email Sender](#unsubscription-email-sender): 
+    - [Unsubscription Email Template](#unsubscription-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+- **[XML Sitemap](#xml-sitemap)**
+  - URL: {base_url}/admin/system_config/edit/section/sitemap
+  - **[Categories Options](#categories-options)**
+    - [Frequency](#frequency): 
+    - [Priority](#priority): Valid values range from 0.0 to 1.0.
+  - **[Products Options](#products-options)**
+    - [Frequency](#frequency): 
+    - [Priority](#priority): Valid values range from 0.0 to 1.0.
+    - [Add Images into Sitemap](#add-images-into-sitemap): 
+  - **[CMS Pages Options](#cms-pages-options)**
+    - [Frequency](#frequency): 
+    - [Priority](#priority): Valid values range from 0.0 to 1.0.
+  - **[Store Url Options](#store-url-options)**
+    - [Frequency](#frequency): 
+    - [Priority](#priority): Valid values range from 0.0 to 1.0.
+  - **[Generation Settings](#generation-settings)**
+    - [Enabled](#enabled): 
+    - [Error Email Recipient](#error-email-recipient): 
+    - [Error Email Sender](#error-email-sender): 
+    - [Error Email Template](#error-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Frequency](#frequency): 
+    - [Start Time](#start-time): 
+  - **[Sitemap File Limits](#sitemap-file-limits)**
+    - [Maximum No of URLs Per File](#maximum-no-of-urls-per-file): 
+    - [Maximum File Size](#maximum-file-size): File size in bytes.
+  - **[Search Engine Submission Settings](#search-engine-submission-settings)**
+    - [Enable Submission to Robots.txt](#enable-submission-to-robotstxt): 
+- **[Payment Methods](#payment-methods)**
+  - URL: {base_url}/admin/system_config/edit/section/payment
+  - **[Zero Subtotal Checkout](#zero-subtotal-checkout)**
+    - [Enabled](#enabled): 
+    - [New Order Status](#new-order-status): 
+    - [Automatically Invoice All Items](#automatically-invoice-all-items): If 'Automatically Invoice All Items' is set to 'Yes', the order is placed in 'Processing' state.
+    - [Sort Order](#sort-order): 
+    - [Title](#title): 
+    - [Payment from Applicable Countries](#payment-from-applicable-countries): 
+    - [Payment from Specific Countries](#payment-from-specific-countries): 
+- **[Gift Registry](#gift-registry)**
+  - URL: {base_url}/admin/system_config/edit/section/magento_giftregistry
+  - **[General Options](#general-options)**
+    - [Enable Gift Registry](#enable-gift-registry): 
+    - [Maximum Registrants](#maximum-registrants): 
+  - **[Owner Notification](#owner-notification)**
+    - [Email Template](#email-template): 
+    - [Email Sender](#email-sender): 
+  - **[Gift Registry Sharing](#gift-registry-sharing)**
+    - [Email Template](#email-template): 
+    - [Email Sender](#email-sender): 
+    - [Maximum Sent Emails Threshold](#maximum-sent-emails-threshold): 
+  - **[Gift Registry Update](#gift-registry-update)**
+    - [Email Template](#email-template): 
+    - [Email Sender](#email-sender): 
+- **[Advanced](#advanced)**
+  - URL: {base_url}/admin/system_config/edit/section/advanced
+  - **[Disable Modules Output](#disable-modules-output)**
+- **[Wish List](#wish-list)**
+  - URL: {base_url}/admin/system_config/edit/section/wishlist
+  - **[Share Options](#share-options)**
+    - [Email Sender](#email-sender): 
+    - [Email Template](#email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Max Emails Allowed to be Sent](#max-emails-allowed-to-be-sent): 10 by default. Max - 10000
+    - [Email Text Length Limit](#email-text-length-limit): 255 by default. Max - 10000
+  - **[General Options](#general-options)**
+    - [Enabled](#enabled): 
+    - [Show in Sidebar](#show-in-sidebar): 
+  - **[My Wish List Link](#my-wish-list-link)**
+    - [Display Wish List Summary](#display-wish-list-summary): 
+- **[Content Management](#content-management)**
+  - URL: {base_url}/admin/system_config/edit/section/cms
+  - **[WYSIWYG Options](#wysiwyg-options)**
+    - [Enable WYSIWYG Editor](#enable-wysiwyg-editor): 
+    - [WYSIWYG Editor](#wysiwyg-editor): 
+- **[Commerce Services Connector](#commerce-services-connector)**
+  - URL: {base_url}/admin/system_config/edit/section/services_connector
+  - **[API Keys](#api-keys)**
+    - Description: 
+                You must follow these steps to configure your Commerce Services Connector:
+                (See <a target="_blank" href="https://docs.magento.com/user-guide/system/saas.html">Commerce Services Connector</a> documentation for detailed instructions.)
+                    <ol class="services-connector-api-keys-text">
+                        <li>Provide API keys of the account owner or license-holder.</li>
+                            <ul>
+                                <li>You can generate API keys from your account at <a target="_blank" href="https://account.magento.com/">account.magento.com</a></li>
+                                <li>We recommend you provide both production and sandbox keys.</li>
+                            </ul>
+                        <li>Click Save Config.</li>
+                        <li>Complete SaaS Identifier section below to finish setup.</li>
+                    </ol>
+                
+                
+    - [Production API Key](#production-api-key): Value passed as the API Key to the Commerce Services in production environment.
+    - [Production Private Key](#production-private-key): Used to sign requests to call Commerce Services in production environment.
+    - [Sandbox API Key](#sandbox-api-key): Value passed as the API Key to the Commerce Services in sandbox environment.
+    - [Sandbox Private Key](#sandbox-private-key): Used to sign requests to call Commerce Services in sandbox environment.
+- **[Delivery Methods](#delivery-methods)**
+  - URL: {base_url}/admin/system_config/edit/section/carriers
+  - **[In-Store Delivery](#in-store-delivery)**
+    - [Enabled](#enabled): 
+    - [Method Name](#method-name): 
+    - [Title](#title): 
+    - [Price](#price): 
+    - [Search Radius](#search-radius): Radius in kilometers for store pick-up search on storefront checkout.
+    - [Displayed Error Message](#displayed-error-message): 
+- **[2FA](#2fa)**
+  - URL: {base_url}/admin/system_config/edit/section/twofactorauth
+  - **[General](#general)**
+    - [Providers to use](#providers-to-use): Two-factor authorization providers for admin users to use during login
+    - [Configuration Email URL for Web API](#configuration-email-url-for-web-api): This can be used to override the default email configuration link that is sent when using the Magento Web API's to authenticate. Use the placeholder :tfat to indicate where the token should be injected
+    - [Configuration for TwoFactorAuth retry attempts](#configuration-for-twofactorauth-retry-attempts): Security configurations for TwoFactorAuth page.
+    - [Configuration for TwoFactorAuth lock expire time](#configuration-for-twofactorauth-lock-expire-time): TwoFactorAuth Configuration.
+  - **[Google](#google)**
+    - [OTP Window](#otp-window): This sets the time drift leeway for OTPs. A leeway of 29 with a period of 30 means OTPs are valid within ±29 seconds from the current time. The leeway must be smaller than the period.
+  - **[Duo Security](#duo-security)**
+    - [Integration key](#integration-key): 
+    - [Secret key](#secret-key): 
+    - [API hostname](#api-hostname): 
+  - **[Authy](#authy)**
+    - [API key](#api-key): 
+    - [OneTouch Message](#onetouch-message): 
+  - **[U2F Key](#u2f-key)**
+    - [WebApi Challenge Domain](#webapi-challenge-domain): This domain will be used when issuing and processing WebAuthn challenges via WebApi. The store domain will be used by default.
+- **[Admin UI SDK](#admin-ui-sdk)**
+  - URL: {base_url}/admin/system_config/edit/section/admin_ui_sdk
+  - **[General configuration](#general-configuration)**
+    - [Enable Admin UI SDK](#enable-admin-ui-sdk): Enable the AdobeAdminIms module to use the Admin UI SDK.
+  - **[Local testing](#local-testing)**
+    - [Enable Local Testing](#enable-local-testing): 
+    - [Local Server Base URL](#local-server-base-url): 
+    - [Mock AdobeAdminIms Module](#mock-adobeadminims-module): 
+    - [Mock IMS Token](#mock-ims-token): 
+    - [Mock IMS Org ID](#mock-ims-org-id): 
+- **[Gift Cards](#gift-cards)**
+  - URL: {base_url}/admin/system_config/edit/section/giftcard
+  - **[Email Sent from Gift Card Account Management](#email-sent-from-gift-card-account-management)**
+    - [Gift Card Email Sender](#gift-card-email-sender): 
+    - [Gift Card Template](#gift-card-template): 
+  - **[Gift Card Account General Settings](#gift-card-account-general-settings)**
+    - [Code Length](#code-length): Excluding prefix, suffix and separators.
+    - [Code Format](#code-format): 
+    - [Code Prefix](#code-prefix): 
+    - [Code Suffix](#code-suffix): 
+    - [Dash Every X Characters](#dash-every-x-characters): if empty no separation
+    - [New Pool Size](#new-pool-size): 
+    - [Low Code Pool Threshold](#low-code-pool-threshold): 
+- **[RSS Feeds](#rss-feeds)**
+  - URL: {base_url}/admin/system_config/edit/section/rss
+  - **[Rss Config](#rss-config)**
+    - [Enable RSS](#enable-rss): 
+- **[Reward Points](#reward-points)**
+  - URL: {base_url}/admin/system_config/edit/section/magento_reward
+  - **[Reward Points](#reward-points)**
+    - [Enable Reward Points Functionality](#enable-reward-points-functionality): 
+    - [Enable Reward Points Functionality on Storefront](#enable-reward-points-functionality-on-storefront): 
+    - [Customers May See Reward Points History](#customers-may-see-reward-points-history): 
+    - [Rewards Points Balance Redemption Threshold](#rewards-points-balance-redemption-threshold): An empty value disables this limitation.
+    - [Cap Reward Points Balance At](#cap-reward-points-balance-at): An empty value disables this limitation.
+    - [Reward Points Expire in (days)](#reward-points-expire-in-days): An empty value disables this limitation.
+    - [Reward Points Expiry Calculation](#reward-points-expiry-calculation): "Static" defines the expiration date as precisely when the balance increases. "Dynamic" does not have an expiration date, but calculates one when the balance is checked for expiry.
+    - [Refund Reward Points Automatically](#refund-reward-points-automatically): 
+    - [Deduct Reward Points from Refund Amount Automatically](#deduct-reward-points-from-refund-amount-automatically): 
+    - [Landing Page](#landing-page): 
+  - **[Actions for Acquiring Reward Points by Customers](#actions-for-acquiring-reward-points-by-customers)**
+    - [Purchase](#purchase): Added for spent money according to reward exchange rates.
+    - [Registration](#registration): 
+    - [Newsletter Signup](#newsletter-signup): Only for customers who subscribe for the first time.
+    - [Converting Invitation to Customer](#converting-invitation-to-customer): 
+    - [Invitation to Customer Conversions Quantity Limit](#invitation-to-customer-conversions-quantity-limit): 
+    - [Converting Invitation to Order](#converting-invitation-to-order): 
+    - [Invitation to Order Conversions Quantity Limit](#invitation-to-order-conversions-quantity-limit): 
+    - [Invitation Conversion to Order Reward](#invitation-conversion-to-order-reward): 
+    - [Review Submission](#review-submission): After approval by administrator.
+    - [Rewarded Reviews Submission Quantity Limit](#rewarded-reviews-submission-quantity-limit): 
+  - **[Email Notification Settings](#email-notification-settings)**
+    - [Email Sender](#email-sender): 
+    - [Subscribe Customers by Default](#subscribe-customers-by-default): 
+    - [Balance Update Email](#balance-update-email): 
+    - [Reward Points Expiry Warning Email](#reward-points-expiry-warning-email): 
+    - [Expiry Warning Before (days)](#expiry-warning-before-days): Entering no value or a value greater than the expiration lifetime disables the warning notification.
+- **[Shipping Settings](#shipping-settings)**
+  - URL: {base_url}/admin/system_config/edit/section/shipping
+  - **[Origin](#origin)**
+    - [Country](#country): 
+    - [Region/State](#regionstate): 
+    - [ZIP/Postal Code](#zippostal-code): 
+    - [City](#city): 
+    - [Street Address](#street-address): 
+    - [Street Address Line 2](#street-address-line-2): 
+  - **[Shipping Policy Parameters](#shipping-policy-parameters)**
+    - [Apply custom Shipping Policy](#apply-custom-shipping-policy): 
+    - [Shipping Policy](#shipping-policy): 
+- **[Shipping Methods](#shipping-methods)**
+  - URL: {base_url}/admin/system_config/edit/section/carriers
+- **[Inventory](#inventory)**
+  - URL: {base_url}/admin/system_config/edit/section/cataloginventory
+  - **[Stock Options](#stock-options)**
+    - [Decrease Stock When Order is Placed](#decrease-stock-when-order-is-placed): 
+    - [Set Items' Status to be In Stock When Order is Cancelled](#set-items-status-to-be-in-stock-when-order-is-cancelled): 
+    - [Display Out of Stock Products](#display-out-of-stock-products): Products will still be shown by direct product URLs.
+    - [Only X left Threshold](#only-x-left-threshold): 
+    - [Display Products Availability in Stock on Storefront](#display-products-availability-in-stock-on-storefront): 
+  - **[Product Stock Options](#product-stock-options)**
+    - Description: 
+                    Please note that these settings apply to individual items in the cart, not to the entire cart.
+                
+    - [Manage Stock](#manage-stock): Changing can take some time due to processing whole catalog.
+    - [Backorders](#backorders): Changing can take some time due to processing whole catalog.
+    - [Maximum Qty Allowed in Shopping Cart](#maximum-qty-allowed-in-shopping-cart): 
+    - [Out-of-Stock Threshold](#out-of-stock-threshold): 
+    - [Minimum Qty Allowed in Shopping Cart](#minimum-qty-allowed-in-shopping-cart): 
+    - [Notify for Quantity Below](#notify-for-quantity-below): 
+    - [Automatically Return Credit Memo Item to Stock](#automatically-return-credit-memo-item-to-stock): 
+    - [Enable Qty Increments](#enable-qty-increments): 
+    - [Qty Increments](#qty-increments): 
+- **[Login as Customer](#login-as-customer)**
+  - URL: {base_url}/admin/system_config/edit/section/login_as_customer
+  - **[Login as Customer Settings](#login-as-customer-settings)**
+    - [Enable Extension](#enable-extension): 
+    - [Store To Login To](#store-to-login-to): 
+                            Use the "Manual Selection" option on a multi-website setup that has "Share Customer Accounts" enabled globally.
+                            If set to "Manual Selection", the "Login as Customer" admin can select a Store after logging in.
+                        
+- **[Tax](#tax)**
+  - URL: {base_url}/admin/system_config/edit/section/tax
+  - **[Tax Classes](#tax-classes)**
+    - [Tax Class for Shipping](#tax-class-for-shipping): 
+    - [Default Tax Class for Product](#default-tax-class-for-product): 
+    - [Default Tax Class for Customer](#default-tax-class-for-customer): 
+  - **[Calculation Settings](#calculation-settings)**
+    - [Tax Calculation Method Based On](#tax-calculation-method-based-on): 
+    - [Tax Calculation Based On](#tax-calculation-based-on): 
+    - [Catalog Prices](#catalog-prices): This sets whether catalog prices entered from Magento Admin include tax.
+    - [Shipping Prices](#shipping-prices): This sets whether shipping amounts entered from Magento Admin or obtained from gateways include tax.
+    - [Apply Customer Tax](#apply-customer-tax): 
+    - [Apply Discount On Prices](#apply-discount-on-prices): Warning: To apply the discount on prices including tax and apply the tax after discount, set Catalog Prices to “Including Tax”.
+    - [Apply Tax On](#apply-tax-on): 
+    - [Enable Cross Border Trade](#enable-cross-border-trade): When catalog price includes tax, enable this setting to fix the price no matter what the customer's tax rate.
+  - **[Default Tax Destination Calculation](#default-tax-destination-calculation)**
+    - [Default Country](#default-country): 
+    - [Default State](#default-state): 
+    - [Default Post Code](#default-post-code): 
+  - **[Price Display Settings](#price-display-settings)**
+    - [Display Product Prices In Catalog](#display-product-prices-in-catalog): 
+    - [Display Shipping Prices](#display-shipping-prices): 
+  - **[Shopping Cart Display Settings](#shopping-cart-display-settings)**
+    - [Display Prices](#display-prices): 
+    - [Display Subtotal](#display-subtotal): 
+    - [Display Shipping Amount](#display-shipping-amount): 
+    - [Additionally Show Order Total Without Tax](#additionally-show-order-total-without-tax): 
+    - [Display Full Tax Summary](#display-full-tax-summary): 
+    - [Display Zero Tax Subtotal](#display-zero-tax-subtotal): 
+  - **[Orders, Invoices, Credit Memos Display Settings](#orders-invoices-credit-memos-display-settings)**
+    - [Display Prices](#display-prices): 
+    - [Display Subtotal](#display-subtotal): 
+    - [Display Shipping Amount](#display-shipping-amount): 
+    - [Additionally Show Order Total Without Tax](#additionally-show-order-total-without-tax): 
+    - [Display Full Tax Summary](#display-full-tax-summary): 
+    - [Display Zero Tax Subtotal](#display-zero-tax-subtotal): 
+- **[Security.txt](#securitytxt)**
+  - URL: {base_url}/admin/system_config/edit/section/magento_securitytxt_securitytxt
+  - **[General](#general)**
+    - [Enable](#enable): 
+  - **[Contact Information](#contact-information)**
+    - [Email](#email): 
+    - [Phone](#phone): 
+    - [Contact Page](#contact-page): Example: https://example.com/security-contact.html
+  - **[Other Information](#other-information)**
+    - [Encryption](#encryption): Example: https://example.com/pgp-key.txt
+    - [Acknowledgements](#acknowledgements): Example: https://example.com/hall-of-fame.html
+    - [Preferred-Languages](#preferred-languages): Example: en, es, hi, de, fr
+    - [Hiring](#hiring): Example: https://example.com/jobs.html
+    - [Policy](#policy): 
+    - [Signature](#signature): None
+- **[Visual Merchandiser](#visual-merchandiser)**
+  - URL: {base_url}/admin/system_config/edit/section/visualmerchandiser
+  - **[General Options](#general-options)**
+    - [Visible Attributes for Category Rules](#visible-attributes-for-category-rules): Additional attributes usable in category rules
+    - [Minimum Stock Threshold](#minimum-stock-threshold): Determines which products are 'low stock'
+    - [Color Attribute Code](#color-attribute-code): 
+    - [Color Order](#color-order): Each color being on a separate row.
+- **[Reports](#reports)**
+  - URL: {base_url}/admin/system_config/edit/section/reports
+  - **[Dashboard](#dashboard)**
+    - [Year-To-Date Starts](#year-to-date-starts): 
+    - [Current Month Starts](#current-month-starts): Select day of the month.
+  - **[General Options](#general-options)**
+    - [Enable Reports](#enable-reports): If disabled, all report events will be disabled
+    - [Enable "Product View" Report](#enable-product-view-report): If enabled, will collect statistic of viewed product pages
+    - [Enable "Send Product Link To Friend" Report](#enable-send-product-link-to-friend-report): If enabled, will collect statistic of product links sent to friend
+    - [Enable "Add Product To Compare List" Report](#enable-add-product-to-compare-list-report): If enabled, will collect statistic of products added to Compare List
+    - [Enable "Product Added To Cart" Report](#enable-product-added-to-cart-report): If enabled, will collect statistic of products added to Cart
+    - [Enable "Product Added To WishList" Report](#enable-product-added-to-wishlist-report): If enabled, will collect statistic of products added to WishList
+    - [Enable "Share WishList" Report](#enable-share-wishlist-report): If enabled, will collect statistic of shared WishLists
+- **[Sales](#sales)**
+  - URL: {base_url}/admin/system_config/edit/section/sales
+  - **[General](#general)**
+    - [Hide Customer IP](#hide-customer-ip): Choose whether a customer IP is shown in orders, invoices, shipments, and credit memos.
+  - **[Checkout Totals Sort Order](#checkout-totals-sort-order)**
+    - [Discount](#discount): 
+    - [Grand Total](#grand-total): 
+    - [Shipping](#shipping): 
+    - [Subtotal](#subtotal): 
+    - [Tax](#tax): 
+  - **[Reorder](#reorder)**
+    - [Allow Reorder](#allow-reorder): 
+  - **[Allow Zero GrandTotal](#allow-zero-grandtotal)**
+    - [Allow Zero GrandTotal for Creditmemo](#allow-zero-grandtotal-for-creditmemo): 
+  - **[Invoice and Packing Slip Design](#invoice-and-packing-slip-design)**
+    - [Logo for PDF Print-outs](#logo-for-pdf-print-outs): 
+                        Your default logo will be used in PDF and HTML documents.<br />(jpeg, tiff, png) If your pdf image is distorted, try to use larger file-size image.
+                    
+    - [Logo for HTML Print View](#logo-for-html-print-view): 
+                        Logo for HTML documents only. If empty, default will be used.<br />(jpeg, gif, png)
+                    
+    - [Address](#address): 
+  - **[Minimum Order Amount](#minimum-order-amount)**
+    - [Enable](#enable): 
+    - [Minimum Amount](#minimum-amount): Subtotal after discount.
+    - [Include Discount Amount](#include-discount-amount): Choosing yes will be used subtotal after discount, otherwise only subtotal will be used.
+    - [Include Tax to Amount](#include-tax-to-amount): 
+    - [Description Message](#description-message): This message will be shown in the shopping cart when the subtotal (after discount) is lower than the minimum allowed amount.
+    - [Error to Show in Shopping Cart](#error-to-show-in-shopping-cart): 
+    - [Validate Each Address Separately in Multi-address Checkout](#validate-each-address-separately-in-multi-address-checkout): 
+    - [Multi-address Description Message](#multi-address-description-message): We'll use the default description above if you leave this empty.
+    - [Multi-address Error to Show in Shopping Cart](#multi-address-error-to-show-in-shopping-cart): We'll use the default error above if you leave this empty.
+  - **[Dashboard](#dashboard)**
+    - [Use Aggregated Data](#use-aggregated-data): Improves dashboard performance but provides non-realtime data.
+  - **[Orders Cron Settings](#orders-cron-settings)**
+    - [Pending Payment Order Lifetime (minutes)](#pending-payment-order-lifetime-minutes): 
+- **[Sales Emails](#sales-emails)**
+  - URL: {base_url}/admin/system_config/edit/section/sales_email
+  - **[General Settings](#general-settings)**
+    - [Asynchronous sending](#asynchronous-sending): 
+    - [Limit per cron run](#limit-per-cron-run): Limit how many entities (orders/shipments/etc) will be processed during one cron run.
+  - **[Order](#order)**
+    - [Enabled](#enabled): 
+    - [New Order Confirmation Email Sender](#new-order-confirmation-email-sender): 
+    - [New Order Confirmation Template](#new-order-confirmation-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [New Order Confirmation Template for Guest](#new-order-confirmation-template-for-guest): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Send Order Email Copy To](#send-order-email-copy-to): Comma-separated.
+    - [Send Order Email Copy Method](#send-order-email-copy-method): 
+  - **[Order Comments](#order-comments)**
+    - [Enabled](#enabled): 
+    - [Order Comment Email Sender](#order-comment-email-sender): 
+    - [Order Comment Email Template](#order-comment-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Order Comment Email Template for Guest](#order-comment-email-template-for-guest): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Send Order Comment Email Copy To](#send-order-comment-email-copy-to): Comma-separated.
+    - [Send Order Comments Email Copy Method](#send-order-comments-email-copy-method): 
+  - **[Invoice](#invoice)**
+    - [Enabled](#enabled): 
+    - [Invoice Email Sender](#invoice-email-sender): 
+    - [Invoice Email Template](#invoice-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Invoice Email Template for Guest](#invoice-email-template-for-guest): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Send Invoice Email Copy To](#send-invoice-email-copy-to): Comma-separated.
+    - [Send Invoice Email Copy Method](#send-invoice-email-copy-method): 
+  - **[Invoice Comments](#invoice-comments)**
+    - [Enabled](#enabled): 
+    - [Invoice Comment Email Sender](#invoice-comment-email-sender): 
+    - [Invoice Comment Email Template](#invoice-comment-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Invoice Comment Email Template for Guest](#invoice-comment-email-template-for-guest): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Send Invoice Comment Email Copy To](#send-invoice-comment-email-copy-to): Comma-separated.
+    - [Send Invoice Comments Email Copy Method](#send-invoice-comments-email-copy-method): 
+  - **[Shipment](#shipment)**
+    - [Enabled](#enabled): 
+    - [Shipment Email Sender](#shipment-email-sender): 
+    - [Shipment Email Template](#shipment-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Shipment Email Template for Guest](#shipment-email-template-for-guest): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Send Shipment Email Copy To](#send-shipment-email-copy-to): Comma-separated.
+    - [Send Shipment Email Copy Method](#send-shipment-email-copy-method): 
+  - **[Shipment Comments](#shipment-comments)**
+    - [Enabled](#enabled): 
+    - [Shipment Comment Email Sender](#shipment-comment-email-sender): 
+    - [Shipment Comment Email Template](#shipment-comment-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Shipment Comment Email Template for Guest](#shipment-comment-email-template-for-guest): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Send Shipment Comment Email Copy To](#send-shipment-comment-email-copy-to): Comma-separated.
+    - [Send Shipment Comments Email Copy Method](#send-shipment-comments-email-copy-method): 
+  - **[Credit Memo](#credit-memo)**
+    - [Enabled](#enabled): 
+    - [Credit Memo Email Sender](#credit-memo-email-sender): 
+    - [Credit Memo Email Template](#credit-memo-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Credit Memo Email Template for Guest](#credit-memo-email-template-for-guest): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Send Credit Memo Email Copy To](#send-credit-memo-email-copy-to): Comma-separated.
+    - [Send Credit Memo Email Copy Method](#send-credit-memo-email-copy-method): 
+  - **[Credit Memo Comments](#credit-memo-comments)**
+    - [Enabled](#enabled): 
+    - [Credit Memo Comment Email Sender](#credit-memo-comment-email-sender): 
+    - [Credit Memo Comment Email Template](#credit-memo-comment-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Credit Memo Comment Email Template for Guest](#credit-memo-comment-email-template-for-guest): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Send Credit Memo Comment Email Copy To](#send-credit-memo-comment-email-copy-to): Comma-separated.
+    - [Send Credit Memo Comments Email Copy Method](#send-credit-memo-comments-email-copy-method): 
+- **[PDF Print-outs](#pdf-print-outs)**
+  - URL: {base_url}/admin/system_config/edit/section/sales_pdf
+  - **[Invoice](#invoice)**
+    - [Display Order ID in Header](#display-order-id-in-header): 
+  - **[Shipment](#shipment)**
+    - [Display Order ID in Header](#display-order-id-in-header): 
+  - **[Credit Memo](#credit-memo)**
+    - [Display Order ID in Header](#display-order-id-in-header): 
+- **[Currency Setup](#currency-setup)**
+  - URL: {base_url}/admin/system_config/edit/section/currency
+  - **[Currency Options](#currency-options)**
+    - [Base Currency](#base-currency): 
+                        Base currency is used for all online payment transactions. The base currency scope is defined by the catalog price scope ("Catalog" > "Price" > "Catalog Price Scope").
+                    
+    - [Default Display Currency](#default-display-currency): 
+    - [Allowed Currencies](#allowed-currencies): 
+  - **[Fixer.io (legacy)](#fixerio-legacy)**
+    - [API Key](#api-key): Use this field if your API Key was generated at Fixer.io. If your key was generated via ApiLayer then use "Setting > General > Currency setup > Fixer Api via APILayer" configuration.
+    - [Connection Timeout in Seconds](#connection-timeout-in-seconds): 
+  - **[Fixer Api (APILayer)](#fixer-api-apilayer)**
+    - [API Key](#api-key): 
+    - [Connection Timeout in Seconds](#connection-timeout-in-seconds): 
+  - **[Currency Converter API](#currency-converter-api)**
+    - [API Key](#api-key): 
+    - [Connection Timeout in Seconds](#connection-timeout-in-seconds): 
+  - **[Scheduled Import Settings](#scheduled-import-settings)**
+    - [Enabled](#enabled): 
+    - [Error Email Recipient](#error-email-recipient): 
+    - [Error Email Sender](#error-email-sender): 
+    - [Error Email Template](#error-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Frequency](#frequency): 
+    - [Service](#service): 
+    - [Start Time](#start-time): 
+- **[OAuth](#oauth)**
+  - URL: {base_url}/admin/system_config/edit/section/oauth
+  - **[Access Token Expiration](#access-token-expiration)**
+    - [Customer Token Lifetime (hours)](#customer-token-lifetime-hours): We will disable this feature if the value is empty.
+    - [Admin Token Lifetime (hours)](#admin-token-lifetime-hours): We will disable this feature if the value is empty.
+  - **[Cleanup Settings](#cleanup-settings)**
+    - [Cleanup Probability](#cleanup-probability): Integer. Launch cleanup in X OAuth requests. 0 (not recommended) - to disable cleanup
+    - [Expiration Period](#expiration-period): Cleanup entries older than X minutes.
+  - **[Consumer Settings](#consumer-settings)**
+    - [Expiration Period](#expiration-period): Consumer key/secret will expire if not used within X seconds after Oauth token exchange starts.
+    - [OAuth consumer credentials HTTP Post maxredirects](#oauth-consumer-credentials-http-post-maxredirects): Number of maximum redirects for OAuth consumer credentials Post request.
+    - [OAuth consumer credentials HTTP Post timeout](#oauth-consumer-credentials-http-post-timeout): Timeout for OAuth consumer credentials Post request within X seconds.
+    - [Allow OAuth Access Tokens to be used as standalone Bearer tokens](#allow-oauth-access-tokens-to-be-used-as-standalone-bearer-tokens): 
+  - **[Authentication Locks](#authentication-locks)**
+    - [Maximum Login Failures to Lock Out Account](#maximum-login-failures-to-lock-out-account): Maximum Number of authentication failures to lock out account.
+    - [Lockout Time (seconds)](#lockout-time-seconds): Period of time in seconds after which account will be unlocked.
+- **[Catalog](#catalog)**
+  - URL: {base_url}/admin/system_config/edit/section/catalog
+  - **[Product Fields Auto-Generation](#product-fields-auto-generation)**
+    - [Mask for SKU](#mask-for-sku): Use {{name}} as Product Name placeholder
+    - [Mask for Meta Title](#mask-for-meta-title): Use {{name}} as Product Name placeholder
+    - [Mask for Meta Keywords](#mask-for-meta-keywords): Use {{name}} as Product Name or {{sku}} as Product SKU placeholders
+    - [Mask for Meta Description](#mask-for-meta-description): Use {{name}} and {{description}} as Product Name and Product Description placeholders
+  - **[Recently Viewed/Compared Products](#recently-viewedcompared-products)**
+    - [Lifetime of products in Recently Viewed Widget](#lifetime-of-products-in-recently-viewed-widget): 
+    - [Lifetime of products in Recently Compared Widget](#lifetime-of-products-in-recently-compared-widget): 
+    - [Synchronize widget products with backend storage](#synchronize-widget-products-with-backend-storage): 
+  - **[Storefront](#storefront)**
+    - [List Mode](#list-mode): 
+    - [Products per Page on Grid Allowed Values](#products-per-page-on-grid-allowed-values): Comma-separated.
+    - [Products per Page on Grid Default Value](#products-per-page-on-grid-default-value): Must be in the allowed values list.
+    - [Products per Page on List Allowed Values](#products-per-page-on-list-allowed-values): Comma-separated.
+    - [Products per Page on List Default Value](#products-per-page-on-list-default-value): Must be in the allowed values list.
+    - [Use Flat Catalog Category](#use-flat-catalog-category): 
+    - [Use Flat Catalog Product](#use-flat-catalog-product): 
+    - [Product Listing Sort by](#product-listing-sort-by): Applies to category pages.
+    - [Allow All Products per Page](#allow-all-products-per-page): Whether to show "All" option in the "Show X Per Page" dropdown.
+    - [Remember Category Pagination](#remember-category-pagination): Changing may affect SEO and cache storage consumption.
+  - **[Product Image Placeholders](#product-image-placeholders)**
+  - **[Search Engine Optimization](#search-engine-optimization)**
+    - [Page Title Separator](#page-title-separator): 
+    - [Use Canonical Link Meta Tag For Categories](#use-canonical-link-meta-tag-for-categories): 
+    - [Use Canonical Link Meta Tag For Products](#use-canonical-link-meta-tag-for-products): 
+  - **[Price](#price)**
+    - [Catalog Price Scope](#catalog-price-scope): This defines the base currency scope ("Currency Setup" > "Currency Options" > "Base Currency").
+  - **[Category Top Navigation](#category-top-navigation)**
+    - [Maximal Depth](#maximal-depth): 
+  - **[Date & Time Custom Options](#date--time-custom-options)**
+    - [Use JavaScript Calendar](#use-javascript-calendar): 
+    - [Date Fields Order](#date-fields-order): 
+    - [Time Format](#time-format): 
+    - [Year Range](#year-range): Please use a four-digit year format.
+- **[System](#system)**
+  - URL: {base_url}/admin/system_config/edit/section/system
+  - **[Images Upload Configuration](#images-upload-configuration)**
+    - [Quality](#quality): Jpeg quality for resized images 1-100%.
+- **[Promotions](#promotions)**
+  - URL: {base_url}/admin/system_config/edit/section/promo
+  - **[Auto Generated Specific Coupon Codes](#auto-generated-specific-coupon-codes)**
+    - [Code Length](#code-length): Excluding prefix, suffix and separators.
+    - [Code Quantity Limit](#code-quantity-limit): For better performance max value allowed is 250,000. Set 0 to disable it.
+    - [Code Format](#code-format): 
+    - [Code Prefix](#code-prefix): 
+    - [Code Suffix](#code-suffix): 
+    - [Dash Every X Characters](#dash-every-x-characters): If empty no separation.
+- **[Google API](#google-api)**
+  - URL: {base_url}/admin/system_config/edit/section/google
+  - **[Google Analytics](#google-analytics)**
+    - [Enable](#enable): 
+    - [Account Number](#account-number): 
+    - [Anonymize IP](#anonymize-ip): 
+- **[Advanced](#advanced)**
+  - URL: {base_url}/admin/system_config/edit/section/advanced
+  - **[Disable Modules Output](#disable-modules-output)**
+- **[Store Email Addresses](#store-email-addresses)**
+  - URL: {base_url}/admin/system_config/edit/section/trans_email
+  - **[Custom Email 1](#custom-email-1)**
+    - [Sender Email](#sender-email): 
+    - [Sender Name](#sender-name): 
+  - **[Custom Email 2](#custom-email-2)**
+    - [Sender Email](#sender-email): 
+    - [Sender Name](#sender-name): 
+  - **[General Contact](#general-contact)**
+    - [Sender Email](#sender-email): 
+    - [Sender Name](#sender-name): 
+  - **[Sales Representative](#sales-representative)**
+    - [Sender Email](#sender-email): 
+    - [Sender Name](#sender-name): 
+  - **[Customer Support](#customer-support)**
+    - [Sender Email](#sender-email): 
+    - [Sender Name](#sender-name): 
+- **[Design](#design)**
+  - URL: {base_url}/admin/system_config/edit/section/design
+- **[Developer](#developer)**
+  - URL: {base_url}/admin/system_config/edit/section/dev
+  - **[Debug](#debug)**
+    - [Enable Template Path Hints for Storefront](#enable-template-path-hints-for-storefront): 
+    - [Enable Hints for Storefront with URL Parameter](#enable-hints-for-storefront-with-url-parameter): Use URL parameter to enable template path hints for Storefront
+    - [Parameter Value](#parameter-value): Add the following parameter to the URL to show template hints ?templatehints=[parameter_value]
+    - [Enable Template Path Hints for Admin](#enable-template-path-hints-for-admin): 
+    - [Add Block Class Type to Hints](#add-block-class-type-to-hints): 
+  - **[Template Settings](#template-settings)**
+    - [Allow Symlinks](#allow-symlinks): 
+                        <strong class="colorRed">Warning!</strong> Enabling this feature is not recommended on production environments because it represents a potential security risk.
+                    
+    - [Minify Html](#minify-html): Minification is not applied in developer mode.
+  - **[Translate Inline](#translate-inline)**
+    - [Enabled for Storefront](#enabled-for-storefront): 
+    - [Enabled for Admin](#enabled-for-admin): Translate, blocks and other output caches should be disabled for both Storefront and Admin inline translations.
+  - **[JavaScript Settings](#javascript-settings)**
+    - [Merge JavaScript Files](#merge-javascript-files): 
+    - [Enable JavaScript Bundling](#enable-javascript-bundling): 
+    - [Minify JavaScript Files](#minify-javascript-files): Minification is not applied in developer mode.
+  - **[CSS Settings](#css-settings)**
+    - [Merge CSS Files](#merge-css-files): 
+    - [Minify CSS Files](#minify-css-files): Minification is not applied in developer mode.
+  - **[Image Processing Settings](#image-processing-settings)**
+    - [Image Adapter](#image-adapter): When the adapter was changed, please flush Catalog Images Cache.
+  - **[Static Files Settings](#static-files-settings)**
+    - [Sign Static Files](#sign-static-files): 
+- **[General](#general)**
+  - URL: {base_url}/admin/system_config/edit/section/general
+  - **[Country Options](#country-options)**
+    - [Allow Countries](#allow-countries): 
+    - [Default Country](#default-country): 
+    - [European Union Countries](#european-union-countries): 
+    - [Top destinations](#top-destinations): 
+  - **[Locale Options](#locale-options)**
+    - [Timezone](#timezone): 
+    - [Locale](#locale): 
+    - [First Day of Week](#first-day-of-week): 
+    - [Weekend Days](#weekend-days): 
+  - **[Store Information](#store-information)**
+    - [Store Name](#store-name): 
+    - [Store Phone Number](#store-phone-number): 
+    - [Store Hours of Operation](#store-hours-of-operation): 
+    - [Country](#country): 
+    - [Region/State](#regionstate): 
+    - [ZIP/Postal Code](#zippostal-code): 
+    - [City](#city): 
+    - [Street Address](#street-address): 
+    - [Street Address Line 2](#street-address-line-2): 
+    - [VAT Number](#vat-number): 
+  - **[Single-Store Mode](#single-store-mode)**
+    - [Enable Single-Store Mode](#enable-single-store-mode): This setting will not be taken into account if system has more than one store view.
+- **[System](#system)**
+  - URL: {base_url}/admin/system_config/edit/section/system
+  - **[Mail Sending Settings](#mail-sending-settings)**
+    - [Disable Email Communications](#disable-email-communications): 
+    - [Transport](#transport): 
+    - [Host](#host): For SMTP and Windows server only.
+    - [Port (25)](#port-25): Please enter at least 0 and at most 65535 (For SMTP and Windows server only).
+    - [Set Return-Path](#set-return-path): 
+    - [Return-Path Email](#return-path-email): 
+    - [Username](#username): Username
+    - [Password](#password): Password
+    - [Auth](#auth): 
+    - [SSL](#ssl): 
+  - **[Images Upload Configuration](#images-upload-configuration)**
+    - [Enable Frontend Resize](#enable-frontend-resize): Resize performed via javascript before file upload.
+    - [Maximum Width](#maximum-width): Maximum allowed width for uploaded image.
+    - [Maximum Height](#maximum-height): Maximum allowed height for uploaded image.
+- **[Admin](#admin)**
+  - URL: {base_url}/admin/system_config/edit/section/admin
+  - **[Admin User Emails](#admin-user-emails)**
+    - [Forgot Password Email Template](#forgot-password-email-template): Email template chosen based on theme fallback when "Default" option is selected.
+    - [Forgot and Reset Email Sender](#forgot-and-reset-email-sender): 
+  - **[Startup Page](#startup-page)**
+    - [Startup Page](#startup-page): 
+  - **[Admin Base URL](#admin-base-url)**
+    - [Use Custom Admin URL](#use-custom-admin-url): 
+    - [Custom Admin URL](#custom-admin-url): Make sure that base URL ends with '/' (slash), e.g. http://yourdomain/magento/
+    - [Use Custom Admin Path](#use-custom-admin-path): 
+    - [Custom Admin Path](#custom-admin-path): You will have to sign in after you save your custom admin path.
+  - **[Security](#security)**
+    - [Recovery Link Expiration Period (hours)](#recovery-link-expiration-period-hours): Please enter a number 1 or greater in this field.
+    - [Add Secret Key to URLs](#add-secret-key-to-urls): 
+    - [Login is Case Sensitive](#login-is-case-sensitive): 
+    - [Admin Session Lifetime (seconds)](#admin-session-lifetime-seconds): Please enter at least 60 and at most 31536000 (one year).
+  - **[Dashboard](#dashboard)**
+    - [Enable Charts](#enable-charts): 
+  - **[Admin Grids](#admin-grids)**
+    - [Limit Number of Products in Grid](#limit-number-of-products-in-grid): Limit total number of products in grid collection.
+    - [Records Limit](#records-limit): Limit total number of products in grid collection if their number is greater than this value. Minimum value: 20000.
+- **[Web](#web)**
+  - URL: {base_url}/admin/system_config/edit/section/web
+  - **[Url Options](#url-options)**
+    - [Add Store Code to Urls](#add-store-code-to-urls): 
+                        <strong class="colorRed">Warning!</strong> When using Store Code in URLs, in some cases system may not work properly if URLs without Store Codes are specified in the third-party services (e.g. PayPal etc.).
+                    
+    - [Auto-redirect to Base URL](#auto-redirect-to-base-url): I.e. redirect from http://example.com/store/ to http://www.example.com/store/
+  - **[Search Engine Optimization](#search-engine-optimization)**
+    - [Use Web Server Rewrites](#use-web-server-rewrites): 
+  - **[Base URLs](#base-urls)**
+    - Description: Any of the fields allow fully qualified URLs that end with '/' (slash) e.g. http://example.com/magento/
+    - [Base URL](#base-url): Specify URL or {{base_url}} placeholder.
+    - [Base Link URL](#base-link-url): May start with {{unsecure_base_url}} placeholder.
+    - [Base URL for Static View Files](#base-url-for-static-view-files): May be empty or start with {{unsecure_base_url}} placeholder.
+    - [Base URL for User Media Files](#base-url-for-user-media-files): May be empty or start with {{unsecure_base_url}} placeholder.
+  - **[Base URLs (Secure)](#base-urls-secure)**
+    - Description: Any of the fields allow fully qualified URLs that end with '/' (slash) e.g. https://example.com/magento/
+    - [Secure Base URL](#secure-base-url): Specify URL or {{base_url}}, or {{unsecure_base_url}} placeholder.
+    - [Secure Base Link URL](#secure-base-link-url): May start with {{secure_base_url}} or {{unsecure_base_url}} placeholder.
+    - [Secure Base URL for Static View Files](#secure-base-url-for-static-view-files): May be empty or start with {{secure_base_url}}, or {{unsecure_base_url}} placeholder.
+    - [Secure Base URL for User Media Files](#secure-base-url-for-user-media-files): May be empty or start with {{secure_base_url}}, or {{unsecure_base_url}} placeholder.
+    - [Use Secure URLs on Storefront](#use-secure-urls-on-storefront): Enter https protocol to use Secure URLs on Storefront.
+    - [Use Secure URLs in Admin](#use-secure-urls-in-admin): Enter https protocol to use Secure URLs in Admin.
+    - [Enable HTTP Strict Transport Security (HSTS)](#enable-http-strict-transport-security-hsts): See <a href="https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Strict_Transport_Security_Cheat_Sheet.html" target="_blank">HTTP Strict Transport Security</a> page for details.
+    - [Upgrade Insecure Requests](#upgrade-insecure-requests): See <a href="http://www.w3.org/TR/upgrade-insecure-requests/" target="_blank">Upgrade Insecure Requests</a> page for details.
+    - [Offloader header](#offloader-header): 
+  - **[Default Pages](#default-pages)**
+    - [Default Web URL](#default-web-url): 
+    - [Default No-route URL](#default-no-route-url): 
+  - **[Session Validation Settings](#session-validation-settings)**
+    - [Validate REMOTE_ADDR](#validate-remoteaddr): 
+    - [Validate HTTP_VIA](#validate-httpvia): 
+    - [Validate HTTP_X_FORWARDED_FOR](#validate-httpxforwardedfor): 
+    - [Validate HTTP_USER_AGENT](#validate-httpuseragent): 
+- **[3D Secure](#3d-secure)**
+  - URL: {base_url}/admin/system_config/edit/section/three_d_secure
+  - **[CardinalCommerce](#cardinalcommerce)**
+    - Description: Please visit <a href="https://www.cardinalcommerce.com/" target="_blank">www.cardinalcommerce.com</a> to get the CardinalCommerce credentials and find out more details about PSD2 SCA requirements. For support contact <a href="mailto:support@cardinalcommerce.com">support@cardinalcommerce.com</a>.
+    - [Environment](#environment): 
+    - [Org Unit Id](#org-unit-id): 
+    - [API Key](#api-key): 
+    - [API Identifier](#api-identifier): 
+    - [Debug](#debug): 
+- **[Magento Web API](#magento-web-api)**
+  - URL: {base_url}/admin/system_config/edit/section/webapi
+  - **[SOAP Settings](#soap-settings)**
+    - [Default Response Charset](#default-response-charset): If empty, UTF-8 will be used.
+  - **[Web Api Input Limits](#web-api-input-limits)**
+    - [Enable Input Limits](#enable-input-limits): 
+    - [Input List Limit](#input-list-limit): Maximum number of items allowed in an entity's array property.
+    - [Maximum Page Size](#maximum-page-size): Maximum number of items allowed in a paginated search result.
+    - [Default Page Size](#default-page-size): Default number of items a paginated search result.
+- **[Multishipping Settings](#multishipping-settings)**
+  - URL: {base_url}/admin/system_config/edit/section/multishipping
+  - **[Options](#options)**
+    - [Allow Shipping to Multiple Addresses](#allow-shipping-to-multiple-addresses): 
+    - [Maximum Qty Allowed for Shipping to Multiple Addresses](#maximum-qty-allowed-for-shipping-to-multiple-addresses): 
+- **[New Relic Reporting](#new-relic-reporting)**
+  - URL: {base_url}/admin/system_config/edit/section/newrelicreporting
+  - **[General](#general)**
+    - [Enable New Relic Integration](#enable-new-relic-integration): 
+    - [New Relic API URL](#new-relic-api-url): 
+    - [Insights API URL](#insights-api-url): Use %s to replace the account ID in the URL
+    - [New Relic Account ID](#new-relic-account-id): "Need a New Relic account? <a href="http://www.newrelic.com/magento" target="_blank">Click here to get one
+    - [New Relic Application ID](#new-relic-application-id): This can commonly be found at the end of the URL when viewing the APM after "/applications/"
+    - [New Relic API Key](#new-relic-api-key): This is located by navigating to Events -> Deployments from the New Relic APM website
+    - [Insights API Key](#insights-api-key): Generated under Insights in Manage data -> API Keys -> Insert Keys
+    - [New Relic Application Name](#new-relic-application-name): This is located by navigating to Settings from the New Relic APM website
+    - [Send each Magento Area Code as Separate App](#send-each-magento-area-code-as-separate-app): In addition to the main app (which includes all PHP execution), separate apps for each Magento area code (adminhtml, frontend, ...) will be created. Requires New Relic Application Name to be set.
+  - **[Cron](#cron)**
+    - [Enable Cron](#enable-cron): 
+- **[Adobe I/O Events](#adobe-io-events)**
+  - URL: {base_url}/admin/system_config/edit/section/adobe_io_events
+  - **[General configuration](#general-configuration)**
+    - [Adobe I/O Authorization Type](#adobe-io-authorization-type): The selected type must match the server-to-server authentication type defined in your App Builder project.
+    - [Service Account Private Key](#service-account-private-key): 
+    - [Adobe I/O Workspace Configuration](#adobe-io-workspace-configuration): 
+    - [Adobe I/O Event Provider Instance ID](#adobe-io-event-provider-instance-id): This field identifies the Adobe I/O Events Provider linked to your Adobe Commerce Instance.
+    - [Event Provider](#event-provider): 
+    - [Adobe I/O Event Provider ID](#adobe-io-event-provider-id): 
+    - [Adobe I/O Event Provider Metadata](#adobe-io-event-provider-metadata): 
+    - [Adobe I/O Environment](#adobe-io-environment): 
+- **[Google API](#google-api)**
+  - URL: {base_url}/admin/system_config/edit/section/google
+  - **[Google GTag](#google-gtag)**
+    - [Enable](#enable): 
+    - [Measurement ID](#measurement-id): (ex. G-XXXXXXXX)
+    - [Enable](#enable): 
+    - [Conversion ID](#conversion-id): (ex. AW-XXXXXXXX)
+    - [Conversion Label](#conversion-label): 
+  - **[Google Analytics4](#google-analytics4)**
+    - [Enable](#enable): 
+    - [Measurement ID](#measurement-id): (ex. G-XXXXXXXX)
+  - **[Google AdWords](#google-adwords)**
+    - [Enable](#enable): 
+    - [Conversion ID](#conversion-id): (ex. AW-XXXXXXXX)
+    - [Conversion Label](#conversion-label): 
+- **[Contacts](#contacts)**
+  - URL: {base_url}/admin/system_config/edit/section/contact
+  - **[Contact Us](#contact-us)**
+    - [Enable Contact Us](#enable-contact-us): 
+  - **[Email Options](#email-options)**
+    - [Send Emails To](#send-emails-to): 
+    - [Email Sender](#email-sender): 
+    - [Email Template](#email-template): Email template chosen based on theme fallback when "Default" option is selected.
+- **[Content Security Policy (CSP)](#content-security-policy-csp)**
+  - URL: {base_url}/admin/system_config/edit/section/csp
+  - **[Mode](#mode)**
+    - [Report URI](#report-uri): URI to report CSP violations on storefront. Used for all storefront pages that don't have own URI configured above.
+    - [Report URI](#report-uri): URI to report CSP violations in admin area. Used for all admin pages that don't have own URI configured above.
+  - **[Storefront Default](#storefront-default)**
+    - [Report URI](#report-uri): URI to report CSP violations on storefront. Used for all storefront pages that don't have own URI configured above.
+  - **[Admin Default](#admin-default)**
+    - [Report URI](#report-uri): URI to report CSP violations in admin area. Used for all admin pages that don't have own URI configured above.
+- **[Persistent Shopping Cart](#persistent-shopping-cart)**
+  - URL: {base_url}/admin/system_config/edit/section/persistent
+  - **[General Options](#general-options)**
+    - [Enable Persistence](#enable-persistence): 
+    - [Persistence Lifetime (seconds)](#persistence-lifetime-seconds): 
+    - [Enable "Remember Me"](#enable-remember-me): 
+    - ["Remember Me" Default Value](#remember-me-default-value): 
+    - [Clear Persistence on Sign Out](#clear-persistence-on-sign-out): 
+    - [Persist Shopping Cart](#persist-shopping-cart): 
+- **[Feed](#feed)**
+  - URL: {base_url}/admin/system_config/edit/section/feed
+  - **[General Settings](#general-settings)**
+    - [Enable Reports](#enable-reports): 
+- **[Developer](#developer)**
+  - URL: {base_url}/admin/system_config/edit/section/mst_core
+  - **[Menu Settings](#menu-settings)**
+    - [Enable Mirasvit Menu](#enable-mirasvit-menu): The menu is visible, if you have at least two active Mirasvit extensions.
+  - **[CSS Settings](#css-settings)**
+    - [Additional CSS Styles](#additional-css-styles): 
+- **[Extension Settings](#extension-settings)**
+  - URL: {base_url}/admin/system_config/edit/section/facebook_business_extension
+  - **[Setup](#setup)**
+    - [Activate Integration](#activate-integration): 
+    - [Pixel Id](#pixel-id): 
+    - [Module Info](#module-info): 
+    - [Delete Meta Connection](#delete-meta-connection): 
+  - **[Business Settings](#business-settings)**
+    - Description: Set your preferred business settings for Facebook and Instagram.
+                
+  - **[Manual Data Sync](#manual-data-sync)**
+    - Description: By default, most Meta services run every 15-60 minutes. Use the following actions to trigger
+                    an immediate data-sync for that service.
+                
+  - **[Developer Testing Mode](#developer-testing-mode)**
+    - [Extension Debug Mode](#extension-debug-mode): 

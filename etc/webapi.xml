@@ -13,4 +13,10 @@
             <resource ref="anonymous"/>
         </resources>
     </route>
+    <route url="/V1/menuai/query" method="POST">
+        <service class="Genaker\MagentoMcpAi\Api\MenuAIAPIInterface" method="sendRequestToChatGPT"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
 </routes> 
