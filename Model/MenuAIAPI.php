@@ -122,20 +122,30 @@ class MenuAIAPI implements MenuAIAPIInterface
             //TODO: I geva up magento sucks and AI can't fix it we need make secret key work i will just disable it
              // Step 1: Generate the secret key
              //php bin/magento config:set admin/security/use_form_key 0
+            if($parts[1] === 'adminhtml' || $parts[1] === 'admin'){
             $secretKey = $this->urlBuilder->getSecretKey(
                 $parts[1] = 'adminhtml',       // frontName
                 $parts[2],   // controller
                 $parts[3]             // action
             );
+        }  else {
+            $secretKey = $this->urlBuilder->getSecretKey(
+                $parts[1],       // frontName
+                $parts[2],   // controller
+                $parts[3]             // action
+            );
+        }
 
             $params = [];
             
             for ($i = 4; $i < count($parts); $i += 2) {
-                $params[$parts[$i]] = $parts[$i+1];
+
+                $params[$parts[$i]] = @$parts[$i+1];
             }
             //dd([$parts, $params, $hash]);
 
             $url = $this->urlBuilder->getUrl($parts[1].'/'.$parts[2].'/'.$parts[3], $params);
+            //dd($url);
         }
         }
 

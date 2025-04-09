@@ -3,14 +3,22 @@ import xml.etree.ElementTree as ET
 import re
 
 def extract_menu_items(xml_file):
+    
+    #print(f"Extracting menu items from {xml_file}")
     tree = ET.parse(xml_file)
     root = tree.getroot()
+    
+    # Define the namespace if needed
+    namespaces = {'xsi': 'http://www.w3.org/2001/XMLSchema-instance'}
+    
     menu_items = []
-    for item in root.findall('.//add'):
-        title = item.find('title')
+    # Use the correct XPath with namespace if necessary
+    for item in root.findall('.//add', namespaces):
+        title = item.get('title')
         action = item.get('action')
         if title is not None and action is not None:
-            menu_items.append((title.text, action))
+            menu_items.append((title, action))
+            #print(f"Menu item: {title} - {action}")
     return menu_items
 
 def extract_system_config_items(xml_file):
@@ -96,13 +104,14 @@ def generate_menu_md():
                         file_path = os.path.join(root, file)
                         menu_items = extract_menu_items(file_path)
                         for title, action in menu_items:
-                            url = f"{{base_url}}/admin/{action.replace('/', '/')}"
+                            url = f"{{base_url}}/{action.replace('/', '/')}"
                             anchor = generate_anchor(title)
-                            md_file.write(f"- [{title}](#{anchor})\n")
+                            md_file.write(f"- [{title}]\n")
                             # Placeholder description, can be customized
                             description = f"Description of {title}"
                             if description:
                                 md_file.write(f"  - Description: {description}\n")
+                                md_file.write(f"  - URL: {url}\n")
 
         # Extract system configuration items
         md_file.write("\n## System Configuration Items\n")

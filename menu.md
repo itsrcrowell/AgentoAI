@@ -1,6 +1,663 @@
 # Magento 2 Admin Menu and System Configuration
 
 ## Admin Menu Items
+- [General Configuration]
+  - Description: Description of General Configuration
+  - URL: {base_url}/adminhtml/system_config/edit/section/tnwsforce_general
+- [Customers]
+  - Description: Description of Customers
+  - URL: {base_url}/adminhtml/system_config/edit/section/tnwsforce_customer
+- [Synchronization Log (DB)]
+  - Description: Description of Synchronization Log (DB)
+  - URL: {base_url}/tnw_salesforce/system_log/view
+- [Configuration]
+  - Description: Description of Configuration
+  - URL: {base_url}/adminhtml/system_config/edit/section/tnwsforce_customer
+- [Returns]
+  - Description: Description of Returns
+  - URL: {base_url}/adminhtml/system_config/edit/section/tnwsforce_rma
+- [Abandoned Carts]
+  - Description: Description of Abandoned Carts
+  - URL: {base_url}/tnw_sforceenterprise/AbandonedCart
+- [Configuration]
+  - Description: Description of Configuration
+  - URL: {base_url}/adminhtml/system_config/edit/section/tnwsforce_product
+- [Configuration]
+  - Description: Description of Configuration
+  - URL: {base_url}/adminhtml/system_config/edit/section/tnwsforce_order
+- [Products]
+  - Description: Description of Products
+  - URL: {base_url}/adminhtml/system_config/edit/section/tnwsforce_product
+- [Abandoned Carts]
+  - Description: Description of Abandoned Carts
+  - URL: {base_url}/adminhtml/system_config/edit/section/tnwsforce_quote
+- [Orders]
+  - Description: Description of Orders
+  - URL: {base_url}/adminhtml/system_config/edit/section/tnwsforce_order
+- [Configuration]
+  - Description: Description of Configuration
+  - URL: {base_url}/adminhtml/system_config/edit/section/tnwsforce_invoice
+- [Configuration]
+  - Description: Description of Configuration
+  - URL: {base_url}/adminhtml/system_config/edit/section/tnwsforce_shipment
+- [Manage Mappings]
+  - Description: Description of Manage Mappings
+  - URL: {base_url}/tnw_sforceenterprise/mapping/index
+- [From Salesforce]
+  - Description: Description of From Salesforce
+  - URL: {base_url}/tnw_sforceenterprise/queue_objects
+- [From Magento]
+  - Description: Description of From Magento
+  - URL: {base_url}/tnw_sforceenterprise/queue_entity_tree
+- [From Magento (old)]
+  - Description: Description of From Magento (old)
+  - URL: {base_url}/tnw_sforceenterprise/queue_entity
+- [From Magento Stat]
+  - Description: Description of From Magento Stat
+  - URL: {base_url}/tnw_sforceenterprise/queue_stat
+- [Scheduled Entities]
+  - Description: Description of Scheduled Entities
+  - URL: {base_url}/tnw_sforceenterprise/queue_prequeue
+- [Salesforce ID Mappings]
+  - Description: Description of Salesforce ID Mappings
+  - URL: {base_url}/tnw_sforceenterprise/queue_salesforceids
+- [Invoices]
+  - Description: Description of Invoices
+  - URL: {base_url}/adminhtml/system_config/edit/section/tnwsforce_invoice
+- [Shipments]
+  - Description: Description of Shipments
+  - URL: {base_url}/adminhtml/system_config/edit/section/tnwsforce_shipment
+- [Quick Order]
+  - Description: Description of Quick Order
+  - URL: {base_url}/adminhtml/system_config/edit/section/tnwsforce_quickorder
+- [Manage Popups]
+  - Description: Description of Manage Popups
+  - URL: {base_url}/prnewsletterpopup/popups/
+- [Manage Themes]
+  - Description: Description of Manage Themes
+  - URL: {base_url}/prnewsletterpopup/templates/
+- [History]
+  - Description: Description of History
+  - URL: {base_url}/prnewsletterpopup/history/
+- [Configuration]
+  - Description: Description of Configuration
+  - URL: {base_url}/adminhtml/system_config/edit/section/prnewsletterpopup
+- [Manage Popups]
+  - Description: Description of Manage Popups
+  - URL: {base_url}/prnewsletterpopup/popups/
+- [Manage Themes]
+  - Description: Description of Manage Themes
+  - URL: {base_url}/prnewsletterpopup/templates/
+- [History]
+  - Description: Description of History
+  - URL: {base_url}/prnewsletterpopup/history/
+- [Optimizers]
+  - Description: Description of Optimizers
+  - URL: {base_url}/smile_elasticsuite_catalog_optimizer/optimizer/index
+- [Indices]
+  - Description: Description of Indices
+  - URL: {base_url}/smile_elasticsuite_indices/index/index
+- [Analysis]
+  - Description: Description of Analysis
+  - URL: {base_url}/smile_elasticsuite_indices/analysis/index
+- [Search Usage]
+  - Description: Description of Search Usage
+  - URL: {base_url}/smile_elasticsuite_analytics/search/usage
+- [Search Relevance]
+  - Description: Description of Search Relevance
+  - URL: {base_url}/smile_elasticsuite/search_request_relevanceconfig/index
+- [Healthcheck]
+  - Description: Description of Healthcheck
+  - URL: {base_url}/smile_elasticsuite/healthcheck/index
+- [Thesaurus]
+  - Description: Description of Thesaurus
+  - URL: {base_url}/smile_elasticsuite_thesaurus/thesaurus/index
+- [ProLabels]
+  - Description: Description of ProLabels
+  - URL: {base_url}/prolabels/label
+- [Frequently Bought Together]
+  - Description: Description of Frequently Bought Together
+  - URL: {base_url}/soldtogether/order
+- [Customers Who Bought This Item Also Bought]
+  - Description: Description of Customers Who Bought This Item Also Bought
+  - URL: {base_url}/soldtogether/customer
+- [Module Manager]
+  - Description: Description of Module Manager
+  - URL: {base_url}/swissup/installer/index
+- [Dotdigital]
+  - Description: Description of Dotdigital
+  - URL: {base_url}/dotdigitalgroup_email/studio
+- [Exclusion Rules]
+  - Description: Description of Exclusion Rules
+  - URL: {base_url}/dotdigitalgroup_email/rules
+- [Dashboard]
+  - Description: Description of Dashboard
+  - URL: {base_url}/dotdigitalgroup_email/dashboard
+- [Importer Status]
+  - Description: Description of Importer Status
+  - URL: {base_url}/dotdigitalgroup_email/importer
+- [Automation Enrollment]
+  - Description: Description of Automation Enrollment
+  - URL: {base_url}/dotdigitalgroup_email/automation
+- [Campaign Sends]
+  - Description: Description of Campaign Sends
+  - URL: {base_url}/dotdigitalgroup_email/campaign
+- [Cron Tasks]
+  - Description: Description of Cron Tasks
+  - URL: {base_url}/dotdigitalgroup_email/cron
+- [Log Viewer]
+  - Description: Description of Log Viewer
+  - URL: {base_url}/dotdigitalgroup_email/logviewer
+- [Abandoned Carts]
+  - Description: Description of Abandoned Carts
+  - URL: {base_url}/dotdigitalgroup_email/abandoned
+- [Message Queue]
+  - Description: Description of Message Queue
+  - URL: {base_url}/dotdigitalgroup_email/queue
+- [Braintree Settlement]
+  - Description: Description of Braintree Settlement
+  - URL: {base_url}/braintree/report
+- [Braintree Virtual Terminal]
+  - Description: Description of Braintree Virtual Terminal
+  - URL: {base_url}/braintree/virtual
+- [Extension Mode]
+  - Description: Description of Extension Mode
+  - URL: {base_url}/adminhtml/system_config/edit/section/tax/expanded/tax_avatax_configuration_extension_mode
+- [Sales Tax]
+  - Description: Description of Sales Tax
+  - URL: {base_url}/adminhtml/system_config/edit/section/tax/expanded/tax_avatax_configuration_sales_tax
+- [Address Validation]
+  - Description: Description of Address Validation
+  - URL: {base_url}/adminhtml/system_config/edit/section/tax/expanded/tax_avatax_configuration_address_validation
+- [VAT]
+  - Description: Description of VAT
+  - URL: {base_url}/adminhtml/system_config/edit/section/tax/expanded/tax_avatax_configuration_vat
+- [Cross-Border]
+  - Description: Description of Cross-Border
+  - URL: {base_url}/adminhtml/system_config/edit/section/tax/expanded/tax_avatax_configuration_cross_border
+- [Exemption Certificate Management]
+  - Description: Description of Exemption Certificate Management
+  - URL: {base_url}/adminhtml/system_config/edit/section/tax/expanded/tax_avatax_configuration_exemption_certcapture_management
+- [Product Sync]
+  - Description: Description of Product Sync
+  - URL: {base_url}/adminhtml/system_config/edit/section/tax/expanded/tax_avatax_configuration_one_way_items_sync
+- [Error, Logs and Queue]
+  - Description: Description of Error, Logs and Queue
+  - URL: {base_url}/adminhtml/system_config/edit/section/tax/expanded/tax_avatax_configuration_error_logs_queue
+- [Advanced]
+  - Description: Description of Advanced
+  - URL: {base_url}/adminhtml/system_config/edit/section/tax/expanded/tax_avatax_configuration_advanced
+- [Customer Tax Classes]
+  - Description: Description of Customer Tax Classes
+  - URL: {base_url}/avatax/tax_classes_customer
+- [Product Tax Classes]
+  - Description: Description of Product Tax Classes
+  - URL: {base_url}/avatax/tax_classes_product
+- [Cross Border Types]
+  - Description: Description of Cross Border Types
+  - URL: {base_url}/avatax/crossbordertype/index
+- [Cross Border Classes]
+  - Description: Description of Cross Border Classes
+  - URL: {base_url}/avatax/crossborder_classes
+- [View Logs]
+  - Description: Description of View Logs
+  - URL: {base_url}/avatax/log
+- [View Queue]
+  - Description: Description of View Queue
+  - URL: {base_url}/avatax/queue
+- [Yotpo Reviews]
+  - Description: Description of Yotpo Reviews
+  - URL: {base_url}/yotpo_yotpo/report/reviews
+- [Yotpo Reviews]
+  - Description: Description of Yotpo Reviews
+  - URL: {base_url}/yotpo_yotpo/external/reviews
+- [Yotpo Analytics]
+  - Description: Description of Yotpo Analytics
+  - URL: {base_url}/yotpo_yotpo/external/analytics
+- [Cron Job Manager]
+  - Description: Description of Cron Job Manager
+  - URL: {base_url}/cronjobmanager/manage/
+- [Tax Classes]
+  - Description: Description of Tax Classes
+  - URL: {base_url}/cybersourcetax/taxclass
+- [Widgets]
+  - Description: Description of Widgets
+  - URL: {base_url}/adminhtml/widget_instance
+- [Manage Encryption Key]
+  - Description: Description of Manage Encryption Key
+  - URL: {base_url}/adminhtml/crypt_key
+- [Webhooks Logs]
+  - Description: Description of Webhooks Logs
+  - URL: {base_url}/webhooks/log
+- [Orders]
+  - Description: Description of Orders
+  - URL: {base_url}/sales/archive/orders
+- [Invoices]
+  - Description: Description of Invoices
+  - URL: {base_url}/sales/archive/invoices
+- [Shipments]
+  - Description: Description of Shipments
+  - URL: {base_url}/sales/archive/shipments
+- [Credit Memos]
+  - Description: Description of Credit Memos
+  - URL: {base_url}/sales/archive/creditmemos
+- [URL Rewrites]
+  - Description: Description of URL Rewrites
+  - URL: {base_url}/adminhtml/url_rewrite/index
+- [Bulk Actions]
+  - Description: Description of Bulk Actions
+  - URL: {base_url}/bulk/index/
+- [Scheduled Import/Export]
+  - Description: Description of Scheduled Import/Export
+  - URL: {base_url}/adminhtml/scheduled_operation
+- [Notifications]
+  - Description: Description of Notifications
+  - URL: {base_url}/adminhtml/notification
+- [Import]
+  - Description: Description of Import
+  - URL: {base_url}/adminhtml/import
+- [Export]
+  - Description: Description of Export
+  - URL: {base_url}/adminhtml/export
+- [Import History]
+  - Description: Description of Import History
+  - URL: {base_url}/adminhtml/history
+- [All Customers]
+  - Description: Description of All Customers
+  - URL: {base_url}/customer/index/
+- [Now Online]
+  - Description: Description of Now Online
+  - URL: {base_url}/customer/online/
+- [Customer Groups]
+  - Description: Description of Customer Groups
+  - URL: {base_url}/customer/group
+- [Configuration]
+  - Description: Description of Configuration
+  - URL: {base_url}/adminhtml/system_config
+- [Events List]
+  - Description: Description of Events List
+  - URL: {base_url}/adminhtml/events
+- [Events Status]
+  - Description: Description of Events Status
+  - URL: {base_url}/adminhtml/eventstatus
+- [Import/Export Tax Rates]
+  - Description: Description of Import/Export Tax Rates
+  - URL: {base_url}/tax/rate/importExport
+- [Advanced Reporting]
+  - Description: Description of Advanced Reporting
+  - URL: {base_url}/analytics/reports/show
+- [BI Essentials]
+  - Description: Description of BI Essentials
+  - URL: {base_url}/analytics/biessentials/signup
+- [Invitations]
+  - Description: Description of Invitations
+  - URL: {base_url}/invitations/index
+- [Invitations]
+  - Description: Description of Invitations
+  - URL: {base_url}/invitations/report_invitation
+- [Invited Customers]
+  - Description: Description of Invited Customers
+  - URL: {base_url}/invitations/report_invitation/customer
+- [Conversions]
+  - Description: Description of Conversions
+  - URL: {base_url}/invitations/report_invitation/order
+- [Downloads]
+  - Description: Description of Downloads
+  - URL: {base_url}/reports/report_product/downloads
+- [Newsletter Templates]
+  - Description: Description of Newsletter Templates
+  - URL: {base_url}/newsletter/template/
+- [Newsletter Queue]
+  - Description: Description of Newsletter Queue
+  - URL: {base_url}/newsletter/queue/
+- [Newsletter Subscribers]
+  - Description: Description of Newsletter Subscribers
+  - URL: {base_url}/newsletter/subscriber/
+- [Newsletter Problem Reports]
+  - Description: Description of Newsletter Problem Reports
+  - URL: {base_url}/newsletter/problem/
+- [Site Map]
+  - Description: Description of Site Map
+  - URL: {base_url}/adminhtml/sitemap/
+- [Gift Registry]
+  - Description: Description of Gift Registry
+  - URL: {base_url}/adminhtml/giftregistry
+- [Sources]
+  - Description: Description of Sources
+  - URL: {base_url}/inventory/source/index
+- [Stocks]
+  - Description: Description of Stocks
+  - URL: {base_url}/inventory/stock/index
+- [Test 1]
+  - Description: Description of Test 1
+  - URL: {base_url}/test/test/test
+- [Test 2]
+  - Description: Description of Test 2
+  - URL: {base_url}/test/test/test
+- [Test 3]
+  - Description: Description of Test 3
+  - URL: {base_url}/test/test/test
+- [Test 4]
+  - Description: Description of Test 4
+  - URL: {base_url}/test/test/test
+- [Test 5]
+  - Description: Description of Test 5
+  - URL: {base_url}/test/test/test
+- [Test 6]
+  - Description: Description of Test 6
+  - URL: {base_url}/test/test/test
+- [Test 7]
+  - Description: Description of Test 7
+  - URL: {base_url}/test/test/test
+- [Test 8]
+  - Description: Description of Test 8
+  - URL: {base_url}/test/test/test
+- [Test 9]
+  - Description: Description of Test 9
+  - URL: {base_url}/test/test/test
+- [Pages]
+  - Description: Description of Pages
+  - URL: {base_url}/adminhtml/cms_page
+- [Hierarchy]
+  - Description: Description of Hierarchy
+  - URL: {base_url}/adminhtml/cms_hierarchy
+- [Pages]
+  - Description: Description of Pages
+  - URL: {base_url}/cms/page
+- [Blocks]
+  - Description: Description of Blocks
+  - URL: {base_url}/cms/block
+- [Index Management]
+  - Description: Description of Index Management
+  - URL: {base_url}/indexer/indexer/list
+- [Segments]
+  - Description: Description of Segments
+  - URL: {base_url}/customersegment/index
+- [Segments]
+  - Description: Description of Segments
+  - URL: {base_url}/customersegment/report_customer_customersegment/segment
+- [Email Templates]
+  - Description: Description of Email Templates
+  - URL: {base_url}/adminhtml/email_template
+- [Login as Customer Log]
+  - Description: Description of Login as Customer Log
+  - URL: {base_url}/loginascustomer_log/log/index
+- [Gift Wrapping]
+  - Description: Description of Gift Wrapping
+  - URL: {base_url}/adminhtml/giftwrapping
+- [Data Collector]
+  - Description: Description of Data Collector
+  - URL: {base_url}/support/backup/index
+- [System Report]
+  - Description: Description of System Report
+  - URL: {base_url}/support/report/index
+- [Currency Rates]
+  - Description: Description of Currency Rates
+  - URL: {base_url}/adminhtml/system_currency
+- [Currency Symbols]
+  - Description: Description of Currency Symbols
+  - URL: {base_url}/adminhtml/system_currencysymbol
+- [Gift Card Accounts]
+  - Description: Description of Gift Card Accounts
+  - URL: {base_url}/adminhtml/giftcardaccount
+- [Catalog Price Rule]
+  - Description: Description of Catalog Price Rule
+  - URL: {base_url}/catalog_rule/promo_catalog/
+- [Site-Wide Analysis Tool]
+  - Description: Description of Site-Wide Analysis Tool
+  - URL: {base_url}/swat/dashboard/launch
+- [Media Gallery]
+  - Description: Description of Media Gallery
+  - URL: {base_url}/media_gallery/media/index
+- [Reward Exchange Rates]
+  - Description: Description of Reward Exchange Rates
+  - URL: {base_url}/adminhtml/reward_rate
+- [All Users]
+  - Description: Description of All Users
+  - URL: {base_url}/adminhtml/user
+- [User Roles]
+  - Description: Description of User Roles
+  - URL: {base_url}/adminhtml/user_role
+- [Locked Users]
+  - Description: Description of Locked Users
+  - URL: {base_url}/adminhtml/locks
+- [Tax Rules]
+  - Description: Description of Tax Rules
+  - URL: {base_url}/tax/rule
+- [Tax Zones and Rates]
+  - Description: Description of Tax Zones and Rates
+  - URL: {base_url}/tax/rate
+- [Returns]
+  - Description: Description of Returns
+  - URL: {base_url}/adminhtml/rma
+- [Returns]
+  - Description: Description of Returns
+  - URL: {base_url}/adminhtml/rma_item_attribute
+- [Commerce Services Connector]
+  - Description: Description of Commerce Services Connector
+  - URL: {base_url}/services_id/
+- [Wish Lists]
+  - Description: Description of Wish Lists
+  - URL: {base_url}/multiplewishlist/report_customer_wishlist
+- [Orders]
+  - Description: Description of Orders
+  - URL: {base_url}/reports/report_sales/sales
+- [Tax]
+  - Description: Description of Tax
+  - URL: {base_url}/reports/report_sales/tax
+- [Invoiced]
+  - Description: Description of Invoiced
+  - URL: {base_url}/reports/report_sales/invoiced
+- [Shipping]
+  - Description: Description of Shipping
+  - URL: {base_url}/reports/report_sales/shipping
+- [Refunds]
+  - Description: Description of Refunds
+  - URL: {base_url}/reports/report_sales/refunded
+- [Coupons]
+  - Description: Description of Coupons
+  - URL: {base_url}/reports/report_sales/coupons
+- [Products in Cart]
+  - Description: Description of Products in Cart
+  - URL: {base_url}/reports/report_shopcart/product
+- [Abandoned Carts]
+  - Description: Description of Abandoned Carts
+  - URL: {base_url}/reports/report_shopcart/abandoned
+- [Bestsellers]
+  - Description: Description of Bestsellers
+  - URL: {base_url}/reports/report_sales/bestsellers
+- [Ordered]
+  - Description: Description of Ordered
+  - URL: {base_url}/reports/report_product/sold
+- [Views]
+  - Description: Description of Views
+  - URL: {base_url}/reports/report_product/viewed
+- [Low Stock]
+  - Description: Description of Low Stock
+  - URL: {base_url}/reports/report_product/lowstock
+- [New]
+  - Description: Description of New
+  - URL: {base_url}/reports/report_customer/accounts
+- [Order Total]
+  - Description: Description of Order Total
+  - URL: {base_url}/reports/report_customer/totals
+- [Order Count]
+  - Description: Description of Order Count
+  - URL: {base_url}/reports/report_customer/orders
+- [Refresh Statistics]
+  - Description: Description of Refresh Statistics
+  - URL: {base_url}/reports/report_statistics
+- [Search Terms]
+  - Description: Description of Search Terms
+  - URL: {base_url}/search/term/report
+- [Payment Services]
+  - Description: Description of Payment Services
+  - URL: {base_url}/paymentservicesdashboard/dashboard/index
+- [Report]
+  - Description: Description of Report
+  - URL: {base_url}/adminhtml/logging
+- [Archive]
+  - Description: Description of Archive
+  - URL: {base_url}/adminhtml/logging/archive
+- [Bulk Actions]
+  - Description: Description of Bulk Actions
+  - URL: {base_url}/bulk/index/
+- [Backups]
+  - Description: Description of Backups
+  - URL: {base_url}/backup/index
+- [Find Partners & Extensions]
+  - Description: Description of Find Partners & Extensions
+  - URL: {base_url}/marketplace/index
+- [Configuration]
+  - Description: Description of Configuration
+  - URL: {base_url}/theme/design_config
+- [Themes]
+  - Description: Description of Themes
+  - URL: {base_url}/adminhtml/system_design_theme
+- [Orders]
+  - Description: Description of Orders
+  - URL: {base_url}/sales/order
+- [Invoices]
+  - Description: Description of Invoices
+  - URL: {base_url}/sales/invoice
+- [Shipments]
+  - Description: Description of Shipments
+  - URL: {base_url}/sales/shipment
+- [Credit Memos]
+  - Description: Description of Credit Memos
+  - URL: {base_url}/sales/creditmemo
+- [Transactions]
+  - Description: Description of Transactions
+  - URL: {base_url}/sales/transactions
+- [Order Status]
+  - Description: Description of Order Status
+  - URL: {base_url}/sales/order_status
+- [Integrations]
+  - Description: Description of Integrations
+  - URL: {base_url}/adminhtml/integration
+- [Products]
+  - Description: Description of Products
+  - URL: {base_url}/catalog/product/
+- [Categories]
+  - Description: Description of Categories
+  - URL: {base_url}/catalog/category/
+- [Product]
+  - Description: Description of Product
+  - URL: {base_url}/catalog/product_attribute/
+- [Attribute Set]
+  - Description: Description of Attribute Set
+  - URL: {base_url}/catalog/product_set/
+- [Cart Price Rules]
+  - Description: Description of Cart Price Rules
+  - URL: {base_url}/sales_rule/promo_quote/
+- [PayPal Settlement]
+  - Description: Description of PayPal Settlement
+  - URL: {base_url}/paypal/paypal_reports
+- [Billing Agreements]
+  - Description: Description of Billing Agreements
+  - URL: {base_url}/paypal/billing_agreement
+- [Schedule]
+  - Description: Description of Schedule
+  - URL: {base_url}/adminhtml/system_design
+- [Currency]
+  - Description: Description of Currency
+  - URL: {base_url}/adminhtml/system_currency
+- [All Stores]
+  - Description: Description of All Stores
+  - URL: {base_url}/adminhtml/system_store/
+- [Dashboard]
+  - Description: Description of Dashboard
+  - URL: {base_url}/adminhtml/dashboard
+- [Cache Management]
+  - Description: Description of Cache Management
+  - URL: {base_url}/adminhtml/cache
+- [Dynamic Blocks]
+  - Description: Description of Dynamic Blocks
+  - URL: {base_url}/adminhtml/banner
+- [Email Reminders]
+  - Description: Description of Email Reminders
+  - URL: {base_url}/adminhtml/reminder
+- [Events]
+  - Description: Description of Events
+  - URL: {base_url}/adminhtml/catalog_event
+- [Related Products Rules]
+  - Description: Description of Related Products Rules
+  - URL: {base_url}/adminhtml/targetrule/
+- [Rating]
+  - Description: Description of Rating
+  - URL: {base_url}/review/rating/
+- [Pending Reviews]
+  - Description: Description of Pending Reviews
+  - URL: {base_url}/review/product/pending
+- [All Reviews]
+  - Description: Description of All Reviews
+  - URL: {base_url}/review/product/index
+- [By Customers]
+  - Description: Description of By Customers
+  - URL: {base_url}/reports/report_review/customer
+- [By Products]
+  - Description: Description of By Products
+  - URL: {base_url}/reports/report_review/product
+- [Terms and Conditions]
+  - Description: Description of Terms and Conditions
+  - URL: {base_url}/checkout/agreement/
+- [Search Terms]
+  - Description: Description of Search Terms
+  - URL: {base_url}/search/term/index
+- [Search Synonyms]
+  - Description: Description of Search Synonyms
+  - URL: {base_url}/search/synonyms/index
+- [Custom Variables]
+  - Description: Description of Custom Variables
+  - URL: {base_url}/adminhtml/system_variable
+- [Customer]
+  - Description: Description of Customer
+  - URL: {base_url}/adminhtml/customer_attribute
+- [Customer Address]
+  - Description: Description of Customer Address
+  - URL: {base_url}/adminhtml/customer_address_attribute
+- [Dashboard]
+  - Description: Description of Dashboard
+  - URL: {base_url}/staging/update/
+- [Templates]
+  - Description: Description of Templates
+  - URL: {base_url}/pagebuilder/template
+- [Feeds]
+  - Description: Description of Feeds
+  - URL: {base_url}/mst_feed/feed/index
+- [Templates]
+  - Description: Description of Templates
+  - URL: {base_url}/mst_feed/template/index
+- [Manage Filters]
+  - Description: Description of Manage Filters
+  - URL: {base_url}/mst_feed/rule/index
+- [Dynamic Attributes]
+  - Description: Description of Dynamic Attributes
+  - URL: {base_url}/mst_feed/dynamic_attribute/index
+- [Category Mapping]
+  - Description: Description of Category Mapping
+  - URL: {base_url}/mst_feed/dynamic_category/index
+- [Dynamic Variables]
+  - Description: Description of Dynamic Variables
+  - URL: {base_url}/mst_feed/dynamic_variable/index
+- [Reports]
+  - Description: Description of Reports
+  - URL: {base_url}/mst_feed/report/view
+- [Import/Export Data]
+  - Description: Description of Import/Export Data
+  - URL: {base_url}/mst_feed/import/index
+- [Extensions]
+  - Description: Description of Extensions
+  - URL: {base_url}/adminhtml/system_config/edit/section/mst_core
+- [Mirasvit Marketplace]
+  - Description: Description of Mirasvit Marketplace
+  - URL: {base_url}/mstcore/marketplace
+- [Overview]
+  - Description: Description of Overview
+  - URL: {base_url}/fbeadmin/setup/index
+- [Configuration]
+  - Description: Description of Configuration
+  - URL: {base_url}/adminhtml/system_config/edit/section/facebook_business_extension
 
 ## System Configuration Items
 - **[General Configuration](#general-configuration)**
