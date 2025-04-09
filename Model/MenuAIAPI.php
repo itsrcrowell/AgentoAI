@@ -76,6 +76,7 @@ class MenuAIAPI implements MenuAIAPIInterface
             $menuContext .= "\n" . $additionalContext;
 
             // Add the current query to the message history
+            $messageHistory = []; // Disabling history 
             $this->addToMessageHistory($query);
 
             // Prepare messages array for API with clear roles
@@ -109,13 +110,14 @@ class MenuAIAPI implements MenuAIAPIInterface
             // Remove URL from content
             $cleanContent = $content;
             $hash = null;
+        
             if ($url) {
                 $hash = explode('#', $url)[1] ?? null;
                 if($hash){
                     $url = explode('#', $url)[0];
                 }
                 $parts = explode('/', $url);
-                if(count($parts) > 3){
+                if(count($parts) > 2){
                 
                 //dd($parts);
             
@@ -129,10 +131,11 @@ class MenuAIAPI implements MenuAIAPIInterface
                 $parts[3]             // action
             );
         }  else {
+
             $secretKey = $this->urlBuilder->getSecretKey(
                 $parts[1],       // frontName
                 $parts[2],   // controller
-                $parts[3]             // action
+                $parts[3] ?? 'index'            // action
             );
         }
 
@@ -144,7 +147,7 @@ class MenuAIAPI implements MenuAIAPIInterface
             }
             //dd([$parts, $params, $hash]);
 
-            $url = $this->urlBuilder->getUrl($parts[1].'/'.$parts[2].'/'.$parts[3], $params);
+            $url = $this->urlBuilder->getUrl($parts[1].'/'.$parts[2].'/'.($parts[3] ?? 'index'), $params);
             //dd($url);
         }
         }
