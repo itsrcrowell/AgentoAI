@@ -10,12 +10,19 @@
     
     <!-- Add custom styles -->
     <link rel="stylesheet" href="<?= $block->getViewFileUrl('Genaker_MagentoMcpAi::css/styles.css'); ?>">
+    
+    <!-- Add DataTables CSS from CDN -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css">
 </head>
 <body>
     <!-- Simple app container div -->
     <div id="app"></div>
     
-    <!-- Using module script as requested -->
+
+    
+    <!-- Include jQuery and DataTables JS from CDN -->
+    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+    
     <script type="module">
         // Import preact-htm-signals-standalone
         import {
@@ -26,6 +33,7 @@
             effect
         } from "<?= $block->getViewFileUrl('Genaker_MagentoMcpAi/js/lib/standalone.js'); ?>";
         
+      
         // Get API key from Magento configuration
         const apiKey = "<?= $block->getApiKey() ?>";
         

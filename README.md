@@ -349,3 +349,163 @@ This module is licensed under the [MIT License](LICENSE).
 3. Commit your changes
 4. Push to the branch
 5. Create a Pull Request
+
+## Advanced Media Processing Features
+
+### 1. Image Recognition (Google Cloud Vision)
+- Recognize objects, labels, and text in images
+- Multiple detection types in a single request:
+  - LABEL_DETECTION: Identify objects, locations, activities
+  - TEXT_DETECTION: Extract text from images
+  - OBJECT_LOCALIZATION: Find and locate objects with bounding boxes
+  - DOCUMENT_TEXT_DETECTION: OCR optimized for dense text
+- AI analysis of recognized content
+- Comprehensive response formatting with confidence scores
+- Support for handwritten text detection
+
+#### Usage Examples:
+```php
+// Basic image recognition
+$imageData = $openAiService->recognizeImage(
+    '/path/to/image.jpg',
+    $googleAccessToken
+);
+
+// Extract text from documents (OCR)
+$textData = $openAiService->extractTextFromImage(
+    '/path/to/document.jpg',
+    $googleAccessToken
+);
+
+// AI analysis of image content
+$analysis = $openAiService->recognizeImageWithAiAnalysis(
+    '/path/to/image.jpg',
+    $googleAccessToken,
+    $openAiApiKey,
+    'Describe what you see in this image. Labels detected: {{LABELS}}. Text found: {{TEXT}}.'
+);
+```
+
+### 2. Speech-to-Text Processing (Google Cloud Speech)
+- Convert audio files to text transcripts
+- Multiple audio format support (LINEAR16, MP3, etc.)
+- Language detection and multi-language support
+- Automatic punctuation insertion
+- Confidence scoring for transcription accuracy
+- AI analysis of transcribed content
+
+#### Usage Examples:
+```php
+// Basic speech-to-text conversion
+$transcript = $openAiService->speechToText(
+    '/path/to/audio.mp3',
+    $googleAccessToken,
+    'en-US',
+    'MP3',
+    44100
+);
+
+// Speech transcription with AI analysis
+$analysis = $openAiService->speechToTextWithAiResponse(
+    '/path/to/audio.mp3',
+    $googleAccessToken,
+    $openAiApiKey,
+    "Please summarize this transcription: ",
+    'gpt-3.5-turbo',
+    'en-US'
+);
+```
+
+### 3. File Processing (OpenAI Files API)
+- Upload files to OpenAI for analysis and reference
+- Support for multiple file formats (PDF, TXT, DOCX, etc.)
+- Batch upload for multiple files
+- File-based question answering
+- Multi-file analysis and comparison
+- Comprehensive error handling with detailed messages
+- Assistants API integration for complex file operations
+
+#### Usage Examples:
+```php
+// Upload a single file
+$fileData = $openAiService->uploadFile(
+    '/path/to/document.pdf',
+    'assistants',
+    $openAiApiKey
+);
+
+// Upload multiple files in batch
+$batchResults = $openAiService->batchUploadFiles(
+    ['/path/to/doc1.pdf', '/path/to/doc2.pdf'],
+    'assistants',
+    $openAiApiKey
+);
+
+// Ask questions about a file
+$answer = $openAiService->getFileAnswers(
+    'What is the main topic discussed in this document?',
+    $fileData['id'],
+    $openAiApiKey
+);
+
+// Compare information across multiple files
+$comparison = $openAiService->getFileAnswers(
+    'What are the key differences between these documents?',
+    [$fileId1, $fileId2, $fileId3],
+    $openAiApiKey
+);
+```
+
+### 4. Integration Capabilities
+- Seamless workflow between different media types
+- Extract text from images and analyze with AI
+- Transcribe audio and generate intelligent responses
+- Combine file analysis with image recognition
+- Multi-modal processing pipeline support
+
+#### Cross-Modal Examples:
+```php
+// Extract text from image and use it with file reference
+$textData = $openAiService->extractTextFromImage('/path/to/image.jpg', $googleAccessToken);
+$messages = [
+    ['role' => 'system', 'content' => 'Compare the text from this image with the uploaded document.'],
+    ['role' => 'user', 'content' => 'Image text: ' . $textData['text']]
+];
+$comparison = $openAiService->sendFileReferenceChatRequest($messages, $fileId, 'gpt-4', $openAiApiKey);
+
+// Convert speech to text and then analyze with AI
+$transcript = $openAiService->speechToText('/path/to/audio.mp3', $googleAccessToken);
+$messages = [
+    ['role' => 'system', 'content' => 'You are an expert content analyzer.'],
+    ['role' => 'user', 'content' => 'Analyze this transcript: ' . $transcript['transcript']]
+];
+$analysis = $openAiService->sendChatRequest($messages, 'gpt-3.5-turbo', $openAiApiKey);
+```
+
+### 5. Configuration 
+
+#### Google Cloud API Setup
+1. Create a Google Cloud project
+2. Enable Vision API and Speech-to-Text API
+3. Create service account credentials
+4. Generate access token using:
+```php
+// Example code to get Google access token
+$accessToken = $googleAuthService->getAccessToken($serviceAccountKeyFile);
+```
+
+#### OpenAI Files API Setup
+1. Configure OpenAI API key in admin panel
+2. Set appropriate file size limits
+3. Configure allowed file types:
+```
+pdf,txt,csv,json,docx,xlsx
+```
+
+### 6. Security Considerations
+- All media files are processed with strict validation
+- No permanent storage of sensitive data
+- Temporary file handling with secure cleanup
+- Rate limiting for API requests
+- Access control based on admin permissions
+- Audit logging for all media processing operations

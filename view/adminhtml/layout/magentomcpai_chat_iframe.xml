@@ -10,6 +10,7 @@
         <referenceBlock name="menu" remove="true"/>
         <referenceBlock name="header" remove="true"/>
         <referenceBlock name="footer" remove="true"/>
+        <referenceBlock name="head.additional" remove="true"/>
         <referenceContainer name="global.notices" remove="true"/>
         <referenceContainer name="notices.wrapper" remove="true"/>
         <referenceContainer name="header.container" remove="true"/>
