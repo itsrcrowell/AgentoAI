@@ -1,4 +1,4 @@
-# Magento MCP AI Assistant
+# Agento - Magento MCP AI Assistant Agent
 
 A powerful AI assistant for Magento 2 that helps you interact with your store's data using natural language queries.
 
