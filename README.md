@@ -456,7 +456,67 @@ $comparison = $openAiService->getFileAnswers(
 );
 ```
 
-### 4. Integration Capabilities
+### 4. Text Embeddings (OpenAI Embeddings API)
+- Generate vector embeddings from text for semantic similarity comparison
+- Supports state-of-the-art embedding models (text-embedding-ada-002)
+- Used for semantic search, content recommendations, and similarity matching
+- Handles both single text inputs and batch processing in a unified way
+
+#### Basic cURL Example:
+```bash
+curl https://api.openai.com/v1/embeddings \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "input": "I love cats",
+    "model": "text-embedding-ada-002"
+  }'
+```
+
+#### Batch Processing Example:
+```bash
+curl https://api.openai.com/v1/embeddings \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "input": ["I love cats", "I love dogs", "Pets are great"],
+    "model": "text-embedding-ada-002"
+  }'
+```
+
+The embeddings API returns vector representations of text that can be used to measure 
+semantic similarity between pieces of text. This is useful for:
+- Building semantic search systems
+- Classifying content by similarity
+- Recommending products based on descriptions
+- Clustering similar content
+
+### 5. Image Generation (DALL-E)
+- Create custom product images, promotional materials, and marketing content
+- Support for both DALL-E 2 and DALL-E 3 models
+- Adjustable image sizes, quality, and style
+- Options for vivid or natural aesthetics
+- Perfect for:
+  - Creating product imagery without professional photography
+  - Generating promotional banners and social media content
+  - Visualizing custom product configurations
+  - Creating lifestyle images showing products in use
+
+#### Basic cURL Example:
+```bash
+curl https://api.openai.com/v1/images/generations \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "prompt": "Promotional image of a high-security gray TL-30 burglary safe on orange background with price $4,250",
+    "n": 1,
+    "size": "1024x1024"
+  }'
+```
+
+The image generation API creates vivid, detailed images based on your text prompts, opening up new possibilities for e-commerce visual content creation without the need for expensive photography or design resources.
+
+### 6. Integration Capabilities
 - Seamless workflow between different media types
 - Extract text from images and analyze with AI
 - Transcribe audio and generate intelligent responses
@@ -482,7 +542,70 @@ $messages = [
 $analysis = $openAiService->sendChatRequest($messages, 'gpt-3.5-turbo', $openAiApiKey);
 ```
 
-### 5. Configuration 
+### 7. Cache-Augmented Generation (CAG)
+- Combines the power of LLMs with cached results for efficiency and accuracy
+- Reduces API usage costs by reusing previous responses for similar queries
+- Improves response speed for common or repeated questions
+- Perfect for:
+  - Product information retrieval scenarios
+  - Customer service FAQ responses
+  - Category description generation
+  - Order status explanations
+
+#### Implementation Areas:
+- **Customer Service Chatbots**: Cache common product questions and support responses
+- **Product Description Generation**: Store and reuse stylistically similar descriptions
+- **Search Query Understanding**: Cache interpretations of similar search queries
+- **Content Recommendations**: Store previously generated recommendations for similar user profiles
+
+#### Benefits in Magento:
+- Significantly reduced API costs for repetitive operations
+- Lower latency for customer-facing AI features
+- Consistent responses for similar queries
+- Ability to handle higher request volumes without throttling
+- Fine-tuned control over when to generate new content vs. use cached responses
+
+Cache-Augmented Generation works by:
+1. Checking if a similar query exists in the cache
+2. Retrieving and adapting cached responses when appropriate
+3. Only calling the AI API for truly novel requests
+4. Gradually building a knowledge repository specific to your store
+
+This approach is especially valuable in e-commerce where many customer questions follow predictable patterns and where response speed directly impacts conversion rates.
+
+### 8. Retrieval-Augmented Generation (RAG)
+- Enhances AI responses with real-time data retrieved from your Magento database and documents
+- Combines the reasoning capabilities of LLMs with factual, store-specific information
+- Ensures AI responses reflect your current product catalog, inventory, and policies
+- Reduces hallucinations and increases accuracy of AI-generated content
+
+#### Implementation Areas:
+- **Product Information Assistants**: Provide accurate, up-to-date product details by retrieving data from your catalog
+- **Order Support**: Pull real customer order data to answer shipping, return, and order status questions
+- **Policy Compliance**: Ground responses in your actual store policies by retrieving relevant documentation
+- **Inventory-Aware Recommendations**: Suggest alternatives based on current stock levels
+
+#### How RAG Works in Magento:
+1. Customer query is analyzed to identify information needs
+2. Relevant data is retrieved from your Magento database or document store
+3. Retrieved information is fed to the LLM as context alongside the query
+4. AI generates a response that incorporates the retrieved facts
+5. Result is an answer that's both helpful and factually accurate about your specific store
+
+#### Benefits Over Standard LLM Responses:
+- **Up-to-date information**: Responses reflect your current catalog and pricing
+- **Store-specific accuracy**: AI answers reference your actual policies and procedures
+- **Reduced hallucinations**: Minimizes AI tendency to generate plausible but incorrect information
+- **Custom knowledge**: Incorporates your unique product knowledge and business rules
+- **Better customer experience**: More precise and trustworthy assistance
+
+RAG is particularly valuable for Magento stores with:
+- Large or frequently changing product catalogs
+- Complex product specifications
+- Custom policies or shipping rules
+- Need for personalized customer service at scale
+
+### 9. Configuration
 
 #### Google Cloud API Setup
 1. Create a Google Cloud project
@@ -502,7 +625,7 @@ $accessToken = $googleAuthService->getAccessToken($serviceAccountKeyFile);
 pdf,txt,csv,json,docx,xlsx
 ```
 
-### 6. Security Considerations
+### 10. Security Considerations
 - All media files are processed with strict validation
 - No permanent storage of sensitive data
 - Temporary file handling with secure cleanup

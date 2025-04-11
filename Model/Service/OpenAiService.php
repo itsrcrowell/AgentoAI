@@ -14,6 +14,7 @@ class OpenAiService
     const COMPLETIONS_API_ENDPOINT = 'https://api.openai.com/v1/completions';
     const ASSISTANTS_API_ENDPOINT = 'https://api.openai.com/v1/assistants';
     const EMBEDDINGS_API_ENDPOINT = 'https://api.openai.com/v1/embeddings';
+    const IMAGES_API_ENDPOINT = 'https://api.openai.com/v1/images/generations';
     const GOOGLE_SPEECH_API_ENDPOINT = 'https://speech.googleapis.com/v1/speech:recognize';
     const GOOGLE_VISION_API_ENDPOINT = 'https://vision.googleapis.com/v1/images:annotate';
 
@@ -1469,6 +1470,113 @@ class OpenAiService
         } catch (\Exception $e) {
             throw new LocalizedException(
                 __('Failed to generate embeddings: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * Generate images using OpenAI DALL-E model
+     *
+     * @param string $prompt The text prompt to generate an image from
+     * @param string $apiKey OpenAI API key
+     * @param int $n Number of images to generate (1-10)
+     * @param string $size Size of the generated image(s): 256x256, 512x512, or 1024x1024
+     * @param string $responseFormat Format of the generated image(s): url or b64_json
+     * @param string $model The model to use for image generation (dall-e-2 or dall-e-3)
+     * @param string $quality The quality of the image (standard or hd, only for dall-e-3)
+     * @param string $style The style of the image (vivid or natural, only for dall-e-3)
+     * @return array Response containing generated image data
+     * @throws LocalizedException
+     */
+    public function generateImage(
+        string $prompt,
+        string $apiKey,
+        int $n = 1,
+        string $size = '1024x1024',
+        string $responseFormat = 'url',
+        string $model = 'dall-e-3',
+        string $quality = 'standard',
+        string $style = 'vivid'
+    ): array {
+        try {
+            // Validate parameters
+            if (strlen($prompt) < 1) {
+                throw new LocalizedException(
+                    __('Image prompt must not be empty')
+                );
+            }
+            
+            if ($n < 1 || $n > 10) {
+                throw new LocalizedException(
+                    __('Number of images must be between 1 and 10')
+                );
+            }
+            
+            if (!in_array($size, ['256x256', '512x512', '1024x1024', '1792x1024', '1024x1792'])) {
+                throw new LocalizedException(
+                    __('Invalid image size. Valid sizes are: 256x256, 512x512, 1024x1024, 1792x1024, 1024x1792')
+                );
+            }
+            
+            if (!in_array($responseFormat, ['url', 'b64_json'])) {
+                throw new LocalizedException(
+                    __('Invalid response format. Valid formats are: url, b64_json')
+                );
+            }
+            
+            // Prepare the request data
+            $data = [
+                'prompt' => $prompt,
+                'n' => $n,
+                'size' => $size,
+                'response_format' => $responseFormat,
+                'model' => $model
+            ];
+            
+            // Add additional parameters for dall-e-3
+            if ($model === 'dall-e-3') {
+                if (!in_array($quality, ['standard', 'hd'])) {
+                    throw new LocalizedException(
+                        __('Invalid quality. Valid qualities are: standard, hd')
+                    );
+                }
+                
+                if (!in_array($style, ['vivid', 'natural'])) {
+                    throw new LocalizedException(
+                        __('Invalid style. Valid styles are: vivid, natural')
+                    );
+                }
+                
+                $data['quality'] = $quality;
+                $data['style'] = $style;
+            }
+            
+            // Set up headers
+            $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
+            $this->curl->addHeader('Content-Type', 'application/json');
+            
+            // Send request to OpenAI Images API
+            $this->curl->post(self::IMAGES_API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
+            
+            // Get response
+            $response = $this->curl->getBody();
+            $statusCode = $this->curl->getStatus();
+            
+            $responseData = $this->jsonHelper->jsonDecode($response, true);
+            
+            if ($statusCode >= 400 || isset($responseData['error'])) {
+                $errorMessage = isset($responseData['error']) 
+                    ? $responseData['error']['message'] 
+                    : "HTTP Error: $statusCode";
+                throw new LocalizedException(
+                    __('OpenAI Image Generation API Error: %1', $errorMessage)
+                );
+            }
+            
+            return $responseData;
+        } catch (\Exception $e) {
+            throw new LocalizedException(
+                __('Failed to generate image: %1', $e->getMessage())
             );
         }
     }
