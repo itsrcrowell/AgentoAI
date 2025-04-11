@@ -15,6 +15,8 @@ class OpenAiService
     const ASSISTANTS_API_ENDPOINT = 'https://api.openai.com/v1/assistants';
     const EMBEDDINGS_API_ENDPOINT = 'https://api.openai.com/v1/embeddings';
     const IMAGES_API_ENDPOINT = 'https://api.openai.com/v1/images/generations';
+    const AUDIO_TRANSCRIPTION_API_ENDPOINT = 'https://api.openai.com/v1/audio/transcriptions';
+    const AUDIO_SPEECH_API_ENDPOINT = 'https://api.openai.com/v1/audio/speech';
     const GOOGLE_SPEECH_API_ENDPOINT = 'https://speech.googleapis.com/v1/speech:recognize';
     const GOOGLE_VISION_API_ENDPOINT = 'https://vision.googleapis.com/v1/images:annotate';
 
@@ -105,15 +107,15 @@ class OpenAiService
      * Upload a file to OpenAI API
      *
      * @param string $filePath Path to the file to upload
-     * @param string $purpose Purpose of the file ('assistants', 'fine-tune', etc.)
      * @param string $apiKey OpenAI API key
+     * @param string $purpose Purpose of the file ('assistants', 'fine-tune', etc.)
      * @return array Response with file ID and other details
      * @throws LocalizedException
      */
     public function uploadFile(
         string $filePath,
-        string $purpose = 'assistants',
-        string $apiKey
+        string $apiKey,
+        string $purpose = 'assistants'
     ): array {
         try {
             // Validate file exists
@@ -882,7 +884,7 @@ class OpenAiService
         
         foreach ($filePaths as $index => $filePath) {
             try {
-                $fileData = $this->uploadFile($filePath, $purpose, $apiKey);
+                $fileData = $this->uploadFile($filePath, $apiKey, $purpose);
                 $results[$filePath] = $fileData;
             } catch (\Exception $e) {
                 $errors[$filePath] = $e->getMessage();
@@ -1672,6 +1674,252 @@ class OpenAiService
         } catch (\Exception $e) {
             throw new LocalizedException(
                 __('Failed to send function calling request: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * Transcribe audio to text using OpenAI's Whisper model
+     *
+     * @param string $audioFilePath Path to the audio file to transcribe
+     * @param string $apiKey OpenAI API key
+     * @param string $model The model to use (e.g., 'whisper-1')
+     * @param string|null $language Language of the audio (optional, e.g., 'en')
+     * @param string|null $prompt Optional text to guide the model's style or continue a previous audio segment
+     * @param string $responseFormat The format of the transcript output (json, text, srt, verbose_json, or vtt)
+     * @param float|null $temperature The sampling temperature between 0 and 1
+     * @return array Response containing the transcription
+     * @throws LocalizedException
+     */
+    public function transcribeAudio(
+        string $audioFilePath,
+        string $apiKey,
+        string $model = 'whisper-1',
+        ?string $language = null,
+        ?string $prompt = null,
+        string $responseFormat = 'json',
+        ?float $temperature = null
+    ): array {
+        try {
+            // Validate file exists
+            if (!$this->file->fileExists($audioFilePath)) {
+                throw new LocalizedException(
+                    __('Audio file does not exist: %1', $audioFilePath)
+                );
+            }
+            
+            // Validate response format
+            $validFormats = ['json', 'text', 'srt', 'verbose_json', 'vtt'];
+            if (!in_array($responseFormat, $validFormats)) {
+                throw new LocalizedException(
+                    __('Invalid response format. Valid formats are: %1', implode(', ', $validFormats))
+                );
+            }
+            
+            // Get file info
+            $fileInfo = $this->file->getPathInfo($audioFilePath);
+            $fileName = $fileInfo['basename'];
+            
+            // Prepare multipart boundary
+            $boundary = '-------------' . uniqid();
+            
+            // Build multipart request body
+            $body = '';
+            
+            // Add file data
+            $body .= '--' . $boundary . "\r\n";
+            $body .= 'Content-Disposition: form-data; name="file"; filename="' . $fileName . '"' . "\r\n";
+            $body .= 'Content-Type: audio/mpeg' . "\r\n\r\n";
+            $body .= file_get_contents($audioFilePath) . "\r\n";
+            
+            // Add model parameter
+            $body .= '--' . $boundary . "\r\n";
+            $body .= 'Content-Disposition: form-data; name="model"' . "\r\n\r\n";
+            $body .= $model . "\r\n";
+            
+            // Add optional parameters if provided
+            if ($language !== null) {
+                $body .= '--' . $boundary . "\r\n";
+                $body .= 'Content-Disposition: form-data; name="language"' . "\r\n\r\n";
+                $body .= $language . "\r\n";
+            }
+            
+            if ($prompt !== null) {
+                $body .= '--' . $boundary . "\r\n";
+                $body .= 'Content-Disposition: form-data; name="prompt"' . "\r\n\r\n";
+                $body .= $prompt . "\r\n";
+            }
+            
+            // Add response format
+            $body .= '--' . $boundary . "\r\n";
+            $body .= 'Content-Disposition: form-data; name="response_format"' . "\r\n\r\n";
+            $body .= $responseFormat . "\r\n";
+            
+            if ($temperature !== null) {
+                $body .= '--' . $boundary . "\r\n";
+                $body .= 'Content-Disposition: form-data; name="temperature"' . "\r\n\r\n";
+                $body .= $temperature . "\r\n";
+            }
+            
+            // Close multipart body
+            $body .= '--' . $boundary . '--';
+            
+            // Set up headers
+            $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
+            $this->curl->addHeader('Content-Type', 'multipart/form-data; boundary=' . $boundary);
+            $this->curl->addHeader('Content-Length', strlen($body));
+            
+            // Send request
+            $this->curl->post(self::AUDIO_TRANSCRIPTION_API_ENDPOINT, $body);
+            
+            // Get response
+            $response = $this->curl->getBody();
+            $statusCode = $this->curl->getStatus();
+            
+            // Parse response based on format
+            if ($responseFormat === 'json' || $responseFormat === 'verbose_json') {
+                $responseData = $this->jsonHelper->jsonDecode($response, true);
+            } else {
+                // For text, srt, or vtt formats
+                $responseData = ['text' => $response];
+            }
+            
+            if ($statusCode >= 400) {
+                // Try to parse error message from JSON response
+                try {
+                    $errorData = $this->jsonHelper->jsonDecode($response, true);
+                    $errorMessage = isset($errorData['error']) 
+                        ? $errorData['error']['message'] 
+                        : "HTTP Error: $statusCode";
+                } catch (\Exception $e) {
+                    $errorMessage = "HTTP Error: $statusCode";
+                }
+                
+                throw new LocalizedException(
+                    __('OpenAI Audio Transcription API Error: %1', $errorMessage)
+                );
+            }
+            
+            return $responseData;
+        } catch (\Exception $e) {
+            throw new LocalizedException(
+                __('Failed to transcribe audio: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * Generate speech from text using OpenAI's TTS models
+     *
+     * @param string $text The text to convert to speech
+     * @param string $apiKey OpenAI API key
+     * @param string $model The TTS model to use (e.g., 'tts-1', 'tts-1-hd')
+     * @param string $voice The voice to use (alloy, echo, fable, onyx, nova, or shimmer)
+     * @param string $responseFormat The format of the audio output (mp3, opus, aac, or flac)
+     * @param float|null $speed The speed of the generated audio (0.25 to 4.0)
+     * @param string|null $outputFilePath Optional path to save the audio file (if not provided, returns base64 audio)
+     * @return array|string Response containing the audio data or path to saved file
+     * @throws LocalizedException
+     */
+    public function generateSpeech(
+        string $text,
+        string $apiKey,
+        string $model = 'tts-1',
+        string $voice = 'alloy',
+        string $responseFormat = 'mp3',
+        ?float $speed = null,
+        ?string $outputFilePath = null
+    ) {
+        try {
+            // Validate parameters
+            if (empty($text)) {
+                throw new LocalizedException(
+                    __('Text cannot be empty')
+                );
+            }
+            
+            $validVoices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'];
+            if (!in_array($voice, $validVoices)) {
+                throw new LocalizedException(
+                    __('Invalid voice. Valid voices are: %1', implode(', ', $validVoices))
+                );
+            }
+            
+            $validFormats = ['mp3', 'opus', 'aac', 'flac'];
+            if (!in_array($responseFormat, $validFormats)) {
+                throw new LocalizedException(
+                    __('Invalid response format. Valid formats are: %1', implode(', ', $validFormats))
+                );
+            }
+            
+            if ($speed !== null && ($speed < 0.25 || $speed > 4.0)) {
+                throw new LocalizedException(
+                    __('Speed must be between 0.25 and 4.0')
+                );
+            }
+            
+            // Prepare request data
+            $data = [
+                'model' => $model,
+                'input' => $text,
+                'voice' => $voice,
+                'response_format' => $responseFormat
+            ];
+            
+            if ($speed !== null) {
+                $data['speed'] = $speed;
+            }
+            
+            // Set up headers
+            $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
+            $this->curl->addHeader('Content-Type', 'application/json');
+            
+            // Send request
+            $this->curl->post(self::AUDIO_SPEECH_API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
+            
+            // Get response
+            $response = $this->curl->getBody();
+            $statusCode = $this->curl->getStatus();
+            
+            if ($statusCode >= 400) {
+                // Try to parse error message from JSON response
+                try {
+                    $errorData = $this->jsonHelper->jsonDecode($response, true);
+                    $errorMessage = isset($errorData['error']) 
+                        ? $errorData['error']['message'] 
+                        : "HTTP Error: $statusCode";
+                } catch (\Exception $e) {
+                    $errorMessage = "HTTP Error: $statusCode";
+                }
+                
+                throw new LocalizedException(
+                    __('OpenAI Text-to-Speech API Error: %1', $errorMessage)
+                );
+            }
+            
+            // If output file path is provided, save the audio
+            if ($outputFilePath !== null) {
+                try {
+                    $this->file->write($outputFilePath, $response);
+                    return [
+                        'success' => true,
+                        'file_path' => $outputFilePath
+                    ];
+                } catch (\Exception $e) {
+                    throw new LocalizedException(
+                        __('Failed to save audio file: %1', $e->getMessage())
+                    );
+                }
+            }
+            
+            // Return the binary audio data as base64
+            return [
+                'audio_data' => base64_encode($response),
+                'format' => $responseFormat
+            ];
+        } catch (\Exception $e) {
+            throw new LocalizedException(
+                __('Failed to generate speech: %1', $e->getMessage())
             );
         }
     }

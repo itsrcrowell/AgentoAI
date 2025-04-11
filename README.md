@@ -673,7 +673,53 @@ AI Response (converts natural language to structured function call):
 
 Function calling bridges the gap between conversational AI and your Magento backend systems, enabling rich, action-oriented customer experiences while maintaining control over business logic and data access.
 
-### 10. Configuration
+### 10. Audio Transcription (Whisper)
+- Convert spoken content into text with high accuracy
+- Support for multiple output formats (JSON, text, SRT, VTT)
+- Language detection and multi-language support
+- Perfect for:
+  - Transcribing customer service calls
+  - Converting video tutorials into text content
+  - Creating accessible content for product videos
+  - Processing voice notes from sales teams
+
+#### Basic cURL Example:
+```bash
+curl https://api.openai.com/v1/audio/transcriptions \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: multipart/form-data" \
+  -F file=@audio.mp3 \
+  -F model=whisper-1
+```
+
+The Audio Transcription API uses OpenAI's Whisper model to accurately convert spoken audio to text, supporting multiple languages and various output formats for different use cases.
+
+### 11. Text-to-Speech (TTS)
+- Generate natural-sounding speech from text
+- Multiple voice options (alloy, echo, fable, onyx, nova, shimmer)
+- Support for various audio formats (MP3, Opus, AAC, FLAC)
+- Adjustable speech speed for different use cases
+- Perfect for:
+  - Creating audio product descriptions
+  - Adding voice prompts to your store interface
+  - Building voice notifications for order status
+  - Making content accessible to visually impaired customers
+
+#### Basic cURL Example:
+```bash
+curl https://api.openai.com/v1/audio/speech \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "tts-1",
+    "voice": "alloy",
+    "input": "Your Magento order has been confirmed and will be shipped within 24 hours. Thank you for shopping with us!"
+  }'
+```
+
+The Text-to-Speech API transforms written text into natural-sounding speech, enabling you to create audio content dynamically from your Magento store's data.
+
+### 12. Configuration
 
 #### Google Cloud API Setup
 1. Create a Google Cloud project
@@ -693,7 +739,7 @@ $accessToken = $googleAuthService->getAccessToken($serviceAccountKeyFile);
 pdf,txt,csv,json,docx,xlsx
 ```
 
-### 11. Security Considerations
+### 13. Security Considerations
 - All media files are processed with strict validation
 - No permanent storage of sensitive data
 - Temporary file handling with secure cleanup
