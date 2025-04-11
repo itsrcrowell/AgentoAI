@@ -1580,4 +1580,99 @@ class OpenAiService
             );
         }
     }
+
+    /**
+     * Send chat request with function calling capability
+     *
+     * @param array $messages Array of message objects with role and content
+     * @param array $functions Array of function definitions
+     * @param string $model The model to use (e.g., gpt-4, gpt-3.5-turbo)
+     * @param string $apiKey OpenAI API key
+     * @param string|null $functionCall Control when functions are called (auto, none, or specific function object)
+     * @param float $temperature Temperature parameter for response randomness
+     * @param int $maxTokens Maximum tokens to generate
+     * @return array Response from OpenAI with potential function call
+     * @throws LocalizedException
+     */
+    public function sendFunctionCallingRequest(
+        array $messages,
+        array $functions,
+        string $model,
+        string $apiKey,
+        $functionCall = 'auto',
+        float $temperature = 0.7,
+        int $maxTokens = 1000
+    ): array {
+        try {
+            // Validate inputs
+            if (empty($messages)) {
+                throw new LocalizedException(
+                    __('Messages array cannot be empty')
+                );
+            }
+            
+            if (empty($functions)) {
+                throw new LocalizedException(
+                    __('Functions array cannot be empty')
+                );
+            }
+            
+            // Prepare request data
+            $data = [
+                'model' => $model,
+                'messages' => $messages,
+                'functions' => $functions,
+                'temperature' => $temperature,
+                'max_tokens' => $maxTokens
+            ];
+            
+            // Add function_call parameter if specified
+            if ($functionCall !== null) {
+                $data['function_call'] = $functionCall;
+            }
+            
+            // Set up headers
+            $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
+            $this->curl->addHeader('Content-Type', 'application/json');
+            
+            // Send request to OpenAI API
+            $this->curl->post(self::API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
+            
+            // Get response
+            $response = $this->curl->getBody();
+            $statusCode = $this->curl->getStatus();
+            
+            $responseData = $this->jsonHelper->jsonDecode($response, true);
+            
+            if ($statusCode >= 400 || isset($responseData['error'])) {
+                $errorMessage = isset($responseData['error']) 
+                    ? $responseData['error']['message'] 
+                    : "HTTP Error: $statusCode";
+                throw new LocalizedException(
+                    __('OpenAI API Error: %1', $errorMessage)
+                );
+            }
+            
+            // Format the response to include function call information
+            $result = [
+                'content' => $responseData['choices'][0]['message']['content'] ?? null,
+                'usage' => $responseData['usage'] ?? [
+                    'prompt_tokens' => 0,
+                    'completion_tokens' => 0,
+                    'total_tokens' => 0
+                ]
+            ];
+            
+            // Add function call data if present
+            if (isset($responseData['choices'][0]['message']['function_call'])) {
+                $result['function_call'] = $responseData['choices'][0]['message']['function_call'];
+            }
+            
+            return $result;
+        } catch (\Exception $e) {
+            throw new LocalizedException(
+                __('Failed to send function calling request: %1', $e->getMessage())
+            );
+        }
+    }
 } 

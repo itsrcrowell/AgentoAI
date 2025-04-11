@@ -605,7 +605,75 @@ RAG is particularly valuable for Magento stores with:
 - Custom policies or shipping rules
 - Need for personalized customer service at scale
 
-### 9. Configuration
+### 9. Function Calling
+- Enables AI to call specific Magento functions based on user requests
+- Bridges natural language requests with structured API calls
+- Perfect for enabling AI assistants to take actions within your store
+- Provides structured data extraction from natural language queries
+
+#### How Function Calling Works:
+1. Define functions that represent actions in your Magento store
+2. The AI analyzes user requests to determine which function to call
+3. AI extracts parameters from natural language and formats them correctly
+4. Your application receives structured function calls rather than raw text
+5. Execute the function with the provided parameters and return results
+
+#### Implementation Areas:
+- **Product Search**: Convert natural language to structured search parameters
+- **Order Operations**: Process return requests, order lookups, or shipping changes
+- **Customer Account Management**: Update preferences, addresses, or subscriptions
+- **Inventory Queries**: Check stock levels or availability based on conversational requests
+
+#### Example Function Call:
+```bash
+curl https://api.openai.com/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -d '{
+    "model": "gpt-4",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Find me a gun safe under $2000"
+      }
+    ],
+    "functions": [
+      {
+        "name": "search_safes",
+        "description": "Search safes by type and price",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "description": "The type of safe (gun, jewelry, document)"
+            },
+            "max_price": {
+              "type": "number",
+              "description": "Maximum price in USD"
+            }
+          },
+          "required": ["type", "max_price"]
+        }
+      }
+    ],
+    "function_call": "auto"
+  }'
+```
+
+AI Response (converts natural language to structured function call):
+```json
+{
+  "function_call": {
+    "name": "search_safes",
+    "arguments": "{\"type\":\"gun\",\"max_price\":2000}"
+  }
+}
+```
+
+Function calling bridges the gap between conversational AI and your Magento backend systems, enabling rich, action-oriented customer experiences while maintaining control over business logic and data access.
+
+### 10. Configuration
 
 #### Google Cloud API Setup
 1. Create a Google Cloud project
@@ -625,7 +693,7 @@ $accessToken = $googleAuthService->getAccessToken($serviceAccountKeyFile);
 pdf,txt,csv,json,docx,xlsx
 ```
 
-### 10. Security Considerations
+### 11. Security Considerations
 - All media files are processed with strict validation
 - No permanent storage of sensitive data
 - Temporary file handling with secure cleanup
