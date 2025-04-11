@@ -10,9 +10,10 @@ class OpenAiService
 {
     const API_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
     const FILES_API_ENDPOINT = 'https://api.openai.com/v1/files';
-    const ANSWERS_API_ENDPOINT = 'https://api.openai.com/v1/answers';
+    const ANSWERS_API_ENDPOINT = 'https://api.openai.com/v1/answers'; // Depricated
     const COMPLETIONS_API_ENDPOINT = 'https://api.openai.com/v1/completions';
     const ASSISTANTS_API_ENDPOINT = 'https://api.openai.com/v1/assistants';
+    const EMBEDDINGS_API_ENDPOINT = 'https://api.openai.com/v1/embeddings';
     const GOOGLE_SPEECH_API_ENDPOINT = 'https://speech.googleapis.com/v1/speech:recognize';
     const GOOGLE_VISION_API_ENDPOINT = 'https://vision.googleapis.com/v1/images:annotate';
 
@@ -110,7 +111,7 @@ class OpenAiService
      */
     public function uploadFile(
         string $filePath,
-        string $purpose,
+        string $purpose = 'assistants',
         string $apiKey
     ): array {
         try {
@@ -1410,6 +1411,64 @@ class OpenAiService
         } catch (\Exception $e) {
             throw new LocalizedException(
                 __('Failed to extract text from image: %1', $e->getMessage())
+            );
+        }
+    }
+    
+    /**
+     * Generate embeddings for text or multiple texts using OpenAI Embeddings API
+     *
+     * @param string|array $input Single text string or array of texts to generate embeddings for
+     * @param string $apiKey OpenAI API key
+     * @param string $model The embedding model to use
+     * @return array Response with embedding vectors
+     * @throws LocalizedException
+     */
+    public function generateEmbeddings(
+        $input,
+        string $apiKey,
+        string $model = 'text-embedding-ada-002'
+    ): array {
+        try {
+            // Validate input
+            if (is_array($input) && empty($input)) {
+                throw new LocalizedException(
+                    __('No texts provided for embedding generation')
+                );
+            }
+            
+            // Prepare request data
+            $data = [
+                'model' => $model,
+                'input' => $input
+            ];
+            
+            // Set up headers
+            $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
+            $this->curl->addHeader('Content-Type', 'application/json');
+            
+            // Send request to OpenAI Embeddings API
+            $this->curl->post(self::EMBEDDINGS_API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
+            
+            // Get response
+            $response = $this->curl->getBody();
+            $statusCode = $this->curl->getStatus();
+            
+            $responseData = $this->jsonHelper->jsonDecode($response, true);
+            
+            if ($statusCode >= 400 || isset($responseData['error'])) {
+                $errorMessage = isset($responseData['error']) 
+                    ? $responseData['error']['message'] 
+                    : "HTTP Error: $statusCode";
+                throw new LocalizedException(
+                    __('OpenAI Embeddings API Error: %1', $errorMessage)
+                );
+            }
+            
+            return $responseData;
+        } catch (\Exception $e) {
+            throw new LocalizedException(
+                __('Failed to generate embeddings: %1', $e->getMessage())
             );
         }
     }
