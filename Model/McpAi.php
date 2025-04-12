@@ -31,6 +31,7 @@ class McpAi implements McpAiInterface
     const CACHE_KEY_PREFIX = 'mcpai_conversation_';
     const MAX_HISTORY_MESSAGES = 10;
     const SESSION_KEY = 'mcpai_session_id';
+    const XML_PATH_SEND_MAGENTO_DATA_TO_AI = 'magentomcpai/general/send_magento_data_to_ai';
 
     protected $scopeConfig;
     protected $jsonHelper;
@@ -280,9 +281,14 @@ class McpAi implements McpAiInterface
                     $result = $connection->fetchAll($query);
                     //dd($result);
 
-
+                    // Check if sending Magento data to AI is enabled
+                    $sendMagentoData = $this->scopeConfig->isSetFlag(
+                        self::XML_PATH_SEND_MAGENTO_DATA_TO_AI,
+                        \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                    );
+                    
                     // Add SQL data to CAG history with role user
-                    if (false) { // TODO: uncomment this when we have a way to store the SQL data or add to the config 
+                    if ($sendMagentoData) { // TODO: uncomment this when we have a way to store the SQL data or add to the config 
                         $this->addToHistory($sessionId, 'user', "SQL Resulr data: " . json_encode($result));
                     }
                     
@@ -294,8 +300,14 @@ class McpAi implements McpAiInterface
                         'token_usage' => $tokenUsage
                     ];
                 } catch (Zend_Db_Statement_Exception $e) {
+                    // Check if sending Magento data to AI is enabled
+                    // TODO: probably need separate config for this
+                    $sendMagentoData = $this->scopeConfig->isSetFlag(
+                        self::XML_PATH_SEND_MAGENTO_DATA_TO_AI,
+                        \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+                    );
                     // Add SQL Error to CAG history with role user
-                    if (false) { // TODO: uncomment this when we have a way to store the SQL data or add to the config 
+                    if ($sendMagentoData) { // TODO: uncomment this when we have a way to store the SQL data or add to the config 
                         $this->addToHistory($sessionId, 'user', "SQL Error: " . $e->getMessage());
                     }
                     return [
