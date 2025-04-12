@@ -346,7 +346,7 @@ class McpAi implements McpAiInterface
                 'success' => false,
                 'type' => 'error',
                 'content' => $content ?: 'An error occurred while processing your query.',
-                'result' => $e->getMessage() . ' ' . $e->getTraceAsString(),
+                'result' => $e->getMessage(),
                 'token_usage' => $tokenUsage
             ];
         }
