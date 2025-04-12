@@ -5,7 +5,7 @@
              title="AI Assistant" 
              module="Genaker_MagentoMcpAi" 
              sortOrder="100" 
-             parent="Magento_Analytics::business_intelligence" 
+             parent="Magento_Backend::marketing" 
              resource="Genaker_MagentoMcpAi::ai_assistant"/>
              
         <add id="Genaker_MagentoMcpAi::mcpai"
