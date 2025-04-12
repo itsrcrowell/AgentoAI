@@ -78,8 +78,10 @@ class OpenAiService
 
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
+            
             $this->curl->post(self::API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
 
+           
             $response = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
 
             if (isset($response['error'])) {

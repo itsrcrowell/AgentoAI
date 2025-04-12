@@ -12,6 +12,7 @@ use Magento\Framework\App\CacheInterface;
 use Magento\Framework\App\DeploymentConfig;
 use Magento\Framework\Session\SessionManagerInterface;
 use Genaker\MagentoMcpAi\Model\Service\OpenAiService;
+use Psr\Log\LoggerInterface;
 
 class McpAi implements McpAiInterface
 {
@@ -40,6 +41,7 @@ class McpAi implements McpAiInterface
     protected $deploymentConfig;
     protected $sessionManager;
     protected $openAiService;
+    protected $logger;
 
     public function __construct(
         ScopeConfigInterface $scopeConfig,
@@ -50,7 +52,8 @@ class McpAi implements McpAiInterface
         CacheInterface $cache,
         DeploymentConfig $deploymentConfig,
         SessionManagerInterface $sessionManager,
-        OpenAiService $openAiService
+        OpenAiService $openAiService,
+        LoggerInterface $logger
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->jsonHelper = $jsonHelper;
@@ -61,6 +64,7 @@ class McpAi implements McpAiInterface
         $this->deploymentConfig = $deploymentConfig;
         $this->sessionManager = $sessionManager;
         $this->openAiService = $openAiService;
+        $this->logger = $logger;
     }
 
     protected function getSessionId()
@@ -114,7 +118,7 @@ class McpAi implements McpAiInterface
             self::XML_PATH_AI_RULES,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        return $rules ? $this->jsonHelper->jsonDecode($rules) : [];
+        return $rules ?: [];
     }
 
     protected function getDocumentation()
@@ -123,7 +127,7 @@ class McpAi implements McpAiInterface
             self::XML_PATH_DOCUMENTATION,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        return $docs ? $this->jsonHelper->jsonDecode($docs) : [];
+        return $docs ?: [];
     }
 
     protected function buildSystemMessage()
@@ -131,15 +135,13 @@ class McpAi implements McpAiInterface
         $rules = $this->getAiRules();
         $documentation = $this->getDocumentation();
         
-        $systemMessage = 'You are a SQL query generator for Magento 2 database. Your role is to assist with database queries while maintaining security. Rules:';
+        $systemMessage = 'You are a SQL query generator for Magento 2 database. Your role is to assist with database queries while maintaining security. ';
         
         // Add configured rules
         if (!empty($rules)) {
-            dd($rules);
-            foreach ($rules as $rule) {
-                $systemMessage .= "\n" . $rule;
-            }
+            $systemMessage .= "\n Rules: " . $rules;
         } else {
+            // Default rules
             $systemMessage .= "\n1. Generate only SELECT or DESCRIBE queries";
             $systemMessage .= "\n2. Validate each generated query";
             $systemMessage .= "\n3. Start responses with SQL in triple backticks: ```sql SELECT * FROM table; ```";
@@ -152,10 +154,8 @@ class McpAi implements McpAiInterface
         
         // Add documentation context
         if (!empty($documentation)) {
-            $systemMessage .= "\n\nDocumentation Context:";
-            foreach ($documentation as $doc) {
-                $systemMessage .= "\n" . $doc;
-            }
+            $systemMessage .= "\n\nDocumentation Context:" . $documentation;
+            
         }
         
         return $systemMessage;
@@ -286,11 +286,13 @@ class McpAi implements McpAiInterface
                         'token_usage' => $tokenUsage
                     ];
                 } catch (LocalizedException $e) {
+                    $this->logger->error('An error occurred while processing your query: ' . $e->getMessage());
+
                     return [
                         'success' => false,
                         'type' => 'error',
                         'content' => $content,
-                        'result' => $e->getMessage(),
+                        'result' => $e->getMessage() . ' : ' .$e->getTraceAsString(),
                         'token_usage' => $tokenUsage
                     ];
                 }
@@ -305,11 +307,13 @@ class McpAi implements McpAiInterface
                 'token_usage' => $tokenUsage
             ];
         } catch (\Exception $e) {
+            $this->logger->error('An error occurred while processing your query: ' . $e->getMessage());
+
             return [
                 'success' => false,
                 'type' => 'error',
                 'content' => $content ?: 'An error occurred while processing your query.',
-                'result' => $e->getMessage(),
+                'result' => $e->getMessage() . ' : ' .$e->getTraceAsString(),
                 'token_usage' => $tokenUsage
             ];
         }
@@ -335,11 +339,15 @@ class McpAi implements McpAiInterface
                 'result' => $result
             ];
         } catch (\Exception $e) {
+            // Log the error
+            $this->logger->error('An error occurred while processing your query: ' . $e->getMessage());
+
             return [
                 'success' => false,
                 'type' => 'error',
-                'content' => $content ?: 'Error executing query.',
-                'result' => $e->getMessage()
+                'content' => $content ?: 'An error occurred while processing your query.',
+                'result' => $e->getMessage() . ' ' . $e->getTraceAsString(),
+                'token_usage' => $tokenUsage
             ];
         }
     }

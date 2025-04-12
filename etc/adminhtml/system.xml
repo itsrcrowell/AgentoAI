@@ -39,12 +39,11 @@
                 <field id="ai_rules" translate="label" type="textarea" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>AI Rules</label>
                     <comment>Define rules and guidelines for the AI assistant</comment>
-                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <!-- <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model> -->
                 </field>
                 <field id="documentation" translate="label" type="textarea" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Documentation</label>
                     <comment>Add relevant documentation and context for the AI assistant</comment>
-                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
                 </field>
             </group>
             <group id="security" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
