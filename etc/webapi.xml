@@ -19,4 +19,10 @@
             <resource ref="anonymous"/>
         </resources>
     </route>
-</routes> 
+    <route url="/V1/magentomcpai/chatbot/query" method="POST">
+        <service class="Genaker\MagentoMcpAi\Api\CustomerChatbotInterface" method="processQuery"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+</routes>
