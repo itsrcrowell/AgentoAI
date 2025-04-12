@@ -282,7 +282,7 @@ class McpAi implements McpAiInterface
 
 
                     // Add SQL data to CAG history with role user
-                    if (true) { // TODO: uncomment this when we have a way to store the SQL data or add to the config 
+                    if (false) { // TODO: uncomment this when we have a way to store the SQL data or add to the config 
                         $this->addToHistory($sessionId, 'user', "SQL Resulr data: " . json_encode($result));
                     }
                     
@@ -294,6 +294,10 @@ class McpAi implements McpAiInterface
                         'token_usage' => $tokenUsage
                     ];
                 } catch (Zend_Db_Statement_Exception $e) {
+                    // Add SQL Error to CAG history with role user
+                    if (false) { // TODO: uncomment this when we have a way to store the SQL data or add to the config 
+                        $this->addToHistory($sessionId, 'user', "SQL Error: " . $e->getMessage());
+                    }
                     return [
                         'success' => false,
                         'type' => 'error',
