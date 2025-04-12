@@ -51,7 +51,42 @@
                     <comment>Enable or disable sending Magento data to AI. Disabled by default.</comment>
                 </field>
             </group>
-            <group id="security" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="chatbot" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Customer Chatbot Configuration</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Customer Chatbot</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Chatbot Title</label>
+                    <comment>Title displayed in the chatbot header</comment>
+                </field>
+                <field id="welcome_message" translate="label" type="textarea" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Welcome Message</label>
+                    <comment>Initial message displayed when the chatbot opens</comment>
+                </field>
+                <field id="model" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>AI Model for Chatbot</label>
+                    <source_model>Genaker\MagentoMcpAi\Model\Config\Source\Model</source_model>
+                    <comment>Select the AI model to use for chatbot responses</comment>
+                </field>
+                <field id="suggested_queries" translate="label" type="textarea" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Suggested Queries</label>
+                    <comment>List of suggested queries (one per line) to show in the chatbot</comment>
+                </field>
+                <field id="logo" translate="label" type="image" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Chatbot Logo</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Image</backend_model>
+                    <upload_dir config="system/filesystem/media" scope_info="1">magentomcpai/chatbot</upload_dir>
+                    <base_url type="media" scope_info="1">magentomcpai/chatbot</base_url>
+                    <comment>Logo displayed in the chatbot (recommended size: 64x64px)</comment>
+                </field>
+                <field id="faqs" translate="label" type="textarea" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Frequently Asked Questions</label>
+                    <comment>Common questions and answers to cache for the chatbot (in Q&amp;A format)</comment>
+                </field>
+            </group>
+            <group id="security" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Security Settings</label>
                 <field id="max_query_length" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Maximum Query Length</label>
@@ -66,4 +101,4 @@
             </group>
         </section>
     </system>
-</config> 
+</config>
