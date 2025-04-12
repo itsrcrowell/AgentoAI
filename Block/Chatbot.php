@@ -41,6 +41,29 @@ class Chatbot extends Template
     }
 
     /**
+     * Get theme type
+     *
+     * @return string
+     */
+    public function getThemeType()
+    {
+        return $this->scopeConfig->getValue(
+            'magentomcpai/chatbot/theme_type',
+            ScopeInterface::SCOPE_STORE
+        ) ?: 'standard';
+    }
+
+    /**
+     * Check if Hyva theme should be used
+     *
+     * @return bool
+     */
+    public function isHyvaTheme()
+    {
+        return $this->getThemeType() === 'hyva';
+    }
+
+    /**
      * Get chatbot title
      *
      * @return string
@@ -149,5 +172,35 @@ class Chatbot extends Template
             'phone' => $storePhone,
             'email' => $storeEmail
         ];
+    }
+
+    /**
+     * Get store context as JSON
+     *
+     * @return string
+     */
+    public function getStoreContextJson()
+    {
+        return json_encode($this->getStoreContext());
+    }
+
+    /**
+     * Get suggested queries as JSON
+     * 
+     * @return string
+     */
+    public function getSuggestedQueriesJson()
+    {
+        return json_encode($this->getSuggestedQueries());
+    }
+
+    /**
+     * Get chat button text
+     * 
+     * @return string
+     */
+    public function getChatButtonText()
+    {
+        return __('Try our virtual assistant');
     }
 }

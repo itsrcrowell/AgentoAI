@@ -4,250 +4,284 @@
  */
 ?>
 <?php if ($block->isEnabled()): ?>
-<div x-data="chatbot()" 
-     x-init="initChatbot()" 
-     class="fixed bottom-4 right-4 z-50 font-sans">
-    <!-- Chatbot Button -->
-    <div x-show="!isChatOpen" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 transform scale-90"
-         x-transition:enter-end="opacity-100 transform scale-100"
-         x-transition:leave="transition ease-in duration-300"
-         x-transition:leave-start="opacity-100 transform scale-100"
-         x-transition:leave-end="opacity-0 transform scale-90"
-         @click="toggleChat()" 
-         class="flex items-center space-x-2 bg-gradient-to-r from-red-500 to-purple-600 text-white py-3 px-6 rounded-full cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300">
-        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-white p-1 flex items-center justify-center">
-            <img src="<?= $block->escapeUrl($block->getLogoUrl()) ?>" class="w-6 h-6 object-contain" alt="Chatbot">
-        </div>
-        <span class="font-medium">Try our virtual assistant</span>
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-        </svg>
-    </div>
-
-    <!-- Chat Window -->
-    <div x-show="isChatOpen" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 transform translate-y-4"
-         x-transition:enter-end="opacity-100 transform translate-y-0"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100 transform translate-y-0"
-         x-transition:leave-end="opacity-0 transform translate-y-4"
-         class="w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden" style="max-height: 600px;">
-        
-        <!-- Chat Header -->
-        <div class="bg-gradient-to-r from-red-500 to-purple-600 p-4 text-white flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <div class="w-8 h-8 rounded-full bg-white p-1 flex items-center justify-center">
+    <?php if ($block->isHyvaTheme()): ?>
+        <!-- Hyva Theme Implementation (Alpine.js & Tailwind CSS) -->
+        <div x-data="chatbot()" 
+             x-init="initChatbot()" 
+             class="fixed bottom-4 right-4 z-50 font-sans">
+            <!-- Chatbot Button -->
+            <div x-show="!isChatOpen" 
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 transform scale-90"
+                 x-transition:enter-end="opacity-100 transform scale-100"
+                 x-transition:leave="transition ease-in duration-300"
+                 x-transition:leave-start="opacity-100 transform scale-100"
+                 x-transition:leave-end="opacity-0 transform scale-90"
+                 @click="toggleChat()" 
+                 class="flex items-center space-x-2 bg-gradient-to-r from-red-500 to-purple-600 text-white py-3 px-6 rounded-full cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300">
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-white p-1 flex items-center justify-center">
                     <img src="<?= $block->escapeUrl($block->getLogoUrl()) ?>" class="w-6 h-6 object-contain" alt="Chatbot">
                 </div>
-                <h3 class="font-medium"><?= $block->escapeHtml($block->getChatbotTitle()) ?></h3>
-            </div>
-            <button @click="toggleChat()" class="text-white hover:text-gray-200 focus:outline-none">
-                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <span class="font-medium"><?= $block->escapeHtml($block->getChatButtonText()) ?></span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
-            </button>
-        </div>
-        
-        <!-- Chat Body -->
-        <div class="h-96 overflow-y-auto p-4 bg-gray-50" id="chat-messages" x-ref="chatMessages">
-            <!-- Welcome Message -->
-            <div class="flex items-start mb-4">
-                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-purple-600 p-1 flex items-center justify-center">
-                    <img src="<?= $block->escapeUrl($block->getLogoUrl()) ?>" class="w-6 h-6 object-contain" alt="Chatbot">
-                </div>
-                <div class="ml-2 py-2 px-3 bg-white rounded-lg shadow max-w-xs">
-                    <p class="text-sm text-gray-800"><?= $block->escapeHtml($block->getWelcomeMessage()) ?></p>
-                </div>
             </div>
-            
-            <!-- Messages Container -->
-            <template x-for="(message, index) in messages" :key="index">
-                <div class="flex items-start mb-4" :class="message.isUser ? 'justify-end' : ''">
-                    <template x-if="!message.isUser">
+
+            <!-- Chat Window -->
+            <div x-show="isChatOpen" 
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 transform translate-y-4"
+                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 transform translate-y-0"
+                 x-transition:leave-end="opacity-0 transform translate-y-4"
+                 class="w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden" style="max-height: 600px;">
+                
+                <!-- Chat Header -->
+                <div class="bg-gradient-to-r from-red-500 to-purple-600 p-4 text-white flex justify-between items-center">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-white p-1 flex items-center justify-center">
+                            <img src="<?= $block->escapeUrl($block->getLogoUrl()) ?>" class="w-6 h-6 object-contain" alt="Chatbot">
+                        </div>
+                        <h3 class="font-medium"><?= $block->escapeHtml($block->getChatbotTitle()) ?></h3>
+                    </div>
+                    <button @click="toggleChat()" class="text-white hover:text-gray-200 focus:outline-none">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Chat Body -->
+                <div class="h-96 overflow-y-auto p-4 bg-gray-50" id="chat-messages" x-ref="chatMessages">
+                    <!-- Welcome Message -->
+                    <div class="flex items-start mb-4">
                         <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-purple-600 p-1 flex items-center justify-center">
                             <img src="<?= $block->escapeUrl($block->getLogoUrl()) ?>" class="w-6 h-6 object-contain" alt="Chatbot">
                         </div>
+                        <div class="ml-2 py-2 px-3 bg-white rounded-lg shadow max-w-xs">
+                            <p class="text-sm text-gray-800"><?= $block->escapeHtml($block->getWelcomeMessage()) ?></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Messages Container -->
+                    <template x-for="(message, index) in messages" :key="index">
+                        <div class="flex items-start mb-4" :class="message.isUser ? 'justify-end' : ''">
+                            <template x-if="!message.isUser">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-purple-600 p-1 flex items-center justify-center">
+                                    <img src="<?= $block->escapeUrl($block->getLogoUrl()) ?>" class="w-6 h-6 object-contain" alt="Chatbot">
+                                </div>
+                            </template>
+                            <div class="mx-2 py-2 px-3 rounded-lg shadow max-w-xs"
+                                 :class="message.isUser ? 'bg-gradient-to-r from-red-500 to-purple-600 text-white' : 'bg-white text-gray-800'">
+                                <p class="text-sm" x-html="formatMessage(message.text)"></p>
+                            </div>
+                        </div>
                     </template>
-                    <div class="mx-2 py-2 px-3 rounded-lg shadow max-w-xs"
-                         :class="message.isUser ? 'bg-gradient-to-r from-red-500 to-purple-600 text-white' : 'bg-white text-gray-800'">
-                        <p class="text-sm" x-html="formatMessage(message.text)"></p>
+                    
+                    <!-- Loading Indicator -->
+                    <div x-show="isLoading" class="flex items-start mb-4">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-purple-600 p-1 flex items-center justify-center">
+                            <img src="<?= $block->escapeUrl($block->getLogoUrl()) ?>" class="w-6 h-6 object-contain" alt="Chatbot">
+                        </div>
+                        <div class="ml-2 py-3 px-4 bg-white rounded-lg shadow">
+                            <div class="flex space-x-1">
+                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.3s"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </template>
-            
-            <!-- Loading Indicator -->
-            <div x-show="isLoading" class="flex items-start mb-4">
-                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-purple-600 p-1 flex items-center justify-center">
-                    <img src="<?= $block->escapeUrl($block->getLogoUrl()) ?>" class="w-6 h-6 object-contain" alt="Chatbot">
-                </div>
-                <div class="ml-2 py-3 px-4 bg-white rounded-lg shadow">
-                    <div class="flex space-x-1">
-                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.3s"></div>
+                
+                <!-- Suggested Queries -->
+                <div x-show="showSuggestions" class="p-3 bg-white border-t border-gray-200">
+                    <p class="text-xs text-gray-500 mb-2">Suggested Questions:</p>
+                    <div class="flex flex-wrap gap-2">
+                        <?php foreach ($block->getSuggestedQueries() as $query): ?>
+                            <button @click="sendSuggestedQuery('<?= $block->escapeHtmlAttr($query) ?>')" 
+                                    class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 py-1 px-3 rounded-full transition-colors">
+                                <?= $block->escapeHtml($query) ?>
+                            </button>
+                        <?php endforeach; ?>
                     </div>
+                </div>
+                
+                <!-- Chat Input -->
+                <div class="p-3 bg-white border-t border-gray-200">
+                    <form @submit.prevent="sendMessage" class="flex">
+                        <input x-model="userInput" 
+                               @keydown.enter.prevent="sendMessage"
+                               type="text" 
+                               placeholder="Ask me anything" 
+                               class="flex-1 py-2 px-3 bg-gray-100 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                               :disabled="isLoading">
+                        <button type="submit" 
+                                class="bg-gradient-to-r from-red-500 to-purple-600 text-white p-2 rounded-r-lg focus:outline-none hover:opacity-90 disabled:opacity-50"
+                                :disabled="isLoading || !userInput.trim()">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Chat Footer -->
+                <div class="px-3 py-2 bg-gray-50 text-center text-xs text-gray-500 border-t border-gray-200">
+                    <p>Virtual Assistant responses are automated, not from a real person, so it might make mistakes. Please double-check important information.</p>
                 </div>
             </div>
         </div>
-        
-        <!-- Suggested Queries -->
-        <div x-show="showSuggestions" class="p-3 bg-white border-t border-gray-200">
-            <p class="text-xs text-gray-500 mb-2">Suggested Questions:</p>
-            <div class="flex flex-wrap gap-2">
-                <?php foreach ($block->getSuggestedQueries() as $query): ?>
-                    <button @click="sendSuggestedQuery('<?= $block->escapeHtmlAttr($query) ?>')" 
-                            class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 py-1 px-3 rounded-full transition-colors">
-                        <?= $block->escapeHtml($query) ?>
-                    </button>
-                <?php endforeach; ?>
-            </div>
-        </div>
-        
-        <!-- Chat Input -->
-        <div class="p-3 bg-white border-t border-gray-200">
-            <form @submit.prevent="sendMessage" class="flex">
-                <input x-model="userInput" 
-                       @keydown.enter.prevent="sendMessage"
-                       type="text" 
-                       placeholder="Ask me anything" 
-                       class="flex-1 py-2 px-3 bg-gray-100 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                       :disabled="isLoading">
-                <button type="submit" 
-                        class="bg-gradient-to-r from-red-500 to-purple-600 text-white p-2 rounded-r-lg focus:outline-none hover:opacity-90 disabled:opacity-50"
-                        :disabled="isLoading || !userInput.trim()">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-            </form>
-        </div>
-        
-        <!-- Chat Footer -->
-        <div class="px-3 py-2 bg-gray-50 text-center text-xs text-gray-500 border-t border-gray-200">
-            <p>Virtual Assistant responses are automated, not from a real person, so it might make mistakes. Please double-check important information.</p>
-        </div>
-    </div>
-</div>
 
-<script>
-    function chatbot() {
-        return {
-            isChatOpen: false,
-            isLoading: false,
-            showSuggestions: true,
-            messages: [],
-            userInput: '',
-            chatHistory: [],
-            
-            initChatbot() {
-                // Load chat history from localStorage if available
-                const savedHistory = localStorage.getItem('chatbot_history');
-                if (savedHistory) {
-                    try {
-                        this.chatHistory = JSON.parse(savedHistory);
-                    } catch (e) {
-                        console.error('Error loading chat history:', e);
-                        this.chatHistory = [];
-                    }
-                }
-                
-                // Check if we should auto-open chatbot based on URL parameters
-                const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.get('open_chat') === 'true') {
-                    this.toggleChat();
-                }
-            },
-            
-            toggleChat() {
-                this.isChatOpen = !this.isChatOpen;
-                if (this.isChatOpen && this.messages.length === 0) {
-                    // Initialize chat with welcome message if no messages yet
-                    this.showSuggestions = true;
-                }
-                
-                // Scroll to bottom when opening chat
-                if (this.isChatOpen) {
-                    this.$nextTick(() => {
-                        this.scrollToBottom();
-                    });
-                }
-            },
-            
-            sendMessage() {
-                if (!this.userInput.trim() || this.isLoading) return;
-                
-                const userMessage = this.userInput.trim();
-                this.addMessage(userMessage, true);
-                this.userInput = '';
-                this.showSuggestions = false;
-                this.fetchResponse(userMessage);
-            },
-            
-            sendSuggestedQuery(query) {
-                this.userInput = query;
-                this.sendMessage();
-            },
-            
-            addMessage(text, isUser = false) {
-                this.messages.push({ text, isUser });
-                this.chatHistory.push({ text, isUser, timestamp: new Date().toISOString() });
-                
-                // Save to localStorage
-                localStorage.setItem('chatbot_history', JSON.stringify(this.chatHistory.slice(-50))); // Keep last 50 messages
-                
-                this.$nextTick(() => {
-                    this.scrollToBottom();
-                });
-            },
-            
-            scrollToBottom() {
-                if (this.$refs.chatMessages) {
-                    this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
-                }
-            },
-            
-            fetchResponse(query) {
-                this.isLoading = true;
-                
-                // Get the store context
-                const storeContext = <?= json_encode($block->getStoreContext()) ?>;
-                
-                fetch('<?= $block->getUrl('magentomcpai/chat/query') ?>', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
+        <script>
+            function chatbot() {
+                return {
+                    isChatOpen: false,
+                    isLoading: false,
+                    showSuggestions: true,
+                    messages: [],
+                    userInput: '',
+                    chatHistory: [],
+                    
+                    initChatbot() {
+                        // Load chat history from localStorage if available
+                        const savedHistory = localStorage.getItem('chatbot_history');
+                        if (savedHistory) {
+                            try {
+                                this.chatHistory = JSON.parse(savedHistory);
+                            } catch (e) {
+                                console.error('Error loading chat history:', e);
+                                this.chatHistory = [];
+                            }
+                        }
+                        
+                        // Check if we should auto-open chatbot based on URL parameters
+                        const urlParams = new URLSearchParams(window.location.search);
+                        if (urlParams.get('open_chat') === 'true') {
+                            this.toggleChat();
+                        }
                     },
-                    body: JSON.stringify({
-                        query: query,
-                        context: storeContext
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    this.isLoading = false;
-                    if (data.success) {
-                        this.addMessage(data.message);
-                    } else {
-                        this.addMessage('Sorry, I encountered an error. Please try again later.');
+                    
+                    toggleChat() {
+                        this.isChatOpen = !this.isChatOpen;
+                        if (this.isChatOpen && this.messages.length === 0) {
+                            // Initialize chat with welcome message if no messages yet
+                            this.showSuggestions = true;
+                        }
+                        
+                        // Scroll to bottom when opening chat
+                        if (this.isChatOpen) {
+                            this.$nextTick(() => {
+                                this.scrollToBottom();
+                            });
+                        }
+                    },
+                    
+                    sendMessage() {
+                        if (!this.userInput.trim() || this.isLoading) return;
+                        
+                        const userMessage = this.userInput.trim();
+                        this.addMessage(userMessage, true);
+                        this.userInput = '';
+                        this.showSuggestions = false;
+                        this.fetchResponse(userMessage);
+                    },
+                    
+                    sendSuggestedQuery(query) {
+                        this.userInput = query;
+                        this.sendMessage();
+                    },
+                    
+                    addMessage(text, isUser = false) {
+                        this.messages.push({ text, isUser });
+                        this.chatHistory.push({ text, isUser, timestamp: new Date().toISOString() });
+                        
+                        // Save to localStorage
+                        localStorage.setItem('chatbot_history', JSON.stringify(this.chatHistory.slice(-50))); // Keep last 50 messages
+                        
+                        this.$nextTick(() => {
+                            this.scrollToBottom();
+                        });
+                    },
+                    
+                    scrollToBottom() {
+                        if (this.$refs.chatMessages) {
+                            this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
+                        }
+                    },
+                    
+                    fetchResponse(query) {
+                        this.isLoading = true;
+                        
+                        // Get the store context
+                        const storeContext = <?= $block->getStoreContextJson() ?>;
+                        
+                        fetch('<?= $block->getUrl('magentomcpai/chat/query') ?>', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({
+                                query: query,
+                                context: storeContext
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            this.isLoading = false;
+                            if (data.success) {
+                                this.addMessage(data.message);
+                            } else {
+                                this.addMessage('Sorry, I encountered an error. Please try again later.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            this.isLoading = false;
+                            this.addMessage('Sorry, I encountered an error. Please try again later.');
+                        });
+                    },
+                    
+                    formatMessage(text) {
+                        // Convert URLs to links
+                        const urlRegex = /(https?:\/\/[^\s]+)/g;
+                        return text.replace(urlRegex, url => `<a href="${url}" target="_blank" class="underline">${url}</a>`);
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    this.isLoading = false;
-                    this.addMessage('Sorry, I encountered an error. Please try again later.');
-                });
-            },
-            
-            formatMessage(text) {
-                // Convert URLs to links
-                const urlRegex = /(https?:\/\/[^\s]+)/g;
-                return text.replace(urlRegex, url => `<a href="${url}" target="_blank" class="underline">${url}</a>`);
+                }
+            }
+        </script>
+    <?php else: ?>
+        <!-- Standard Magento Implementation (KnockoutJS) -->
+        <div id="customer-chatbot-container" data-bind="scope: 'chatbot'">
+            <!-- ko template: getTemplate() --><!-- /ko -->
+        </div>
+
+        <script type="text/x-magento-init">
+        {
+            "#customer-chatbot-container": {
+                "Magento_Ui/js/core/app": {
+                    "components": {
+                        "chatbot": {
+                            "component": "Genaker_MagentoMcpAi/js/chatbot",
+                            "template": "Genaker_MagentoMcpAi/chatbot",
+                            "config": {
+                                "logoUrl": "<?= $block->escapeJs($block->getLogoUrl()) ?>",
+                                "title": "<?= $block->escapeJs($block->getChatbotTitle()) ?>",
+                                "welcomeMessage": "<?= $block->escapeJs($block->getWelcomeMessage()) ?>",
+                                "buttonText": "<?= $block->escapeJs($block->getChatButtonText()) ?>",
+                                "suggestedQueries": <?= $block->getSuggestedQueriesJson() ?>,
+                                "storeContext": <?= $block->getStoreContextJson() ?>,
+                                "apiUrl": "<?= $block->escapeJs($block->getUrl('magentomcpai/chat/query')) ?>"
+                            }
+                        }
+                    }
+                }
             }
         }
-    }
-</script>
+        </script>
+
+        <link rel="stylesheet" type="text/css" media="all" href="<?= $block->getViewFileUrl('Genaker_MagentoMcpAi::css/chatbot-standard.css') ?>" />
+    <?php endif; ?>
 <?php endif; ?>
