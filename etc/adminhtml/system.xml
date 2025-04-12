@@ -45,6 +45,11 @@
                     <label>Documentation</label>
                     <comment>Add relevant documentation and context for the AI assistant</comment>
                 </field>
+                <field id="send_magento_data_to_ai" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Send Magento Data to AI</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Enable or disable sending Magento data to AI. Disabled by default.</comment>
+                </field>
             </group>
             <group id="security" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Security Settings</label>

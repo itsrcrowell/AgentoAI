@@ -14,6 +14,7 @@
                 <max_query_length>1000</max_query_length>
                 <rate_limit>60</rate_limit>
             </security>
+            <send_magento_data_to_ai>0</send_magento_data_to_ai>
         </magentomcpai>
     </default>
 </config> 

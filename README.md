@@ -746,3 +746,33 @@ pdf,txt,csv,json,docx,xlsx
 - Rate limiting for API requests
 - Access control based on admin permissions
 - Audit logging for all media processing operations
+
+## Sending Magento Data to AI
+
+### Overview
+
+The "Send Magento Data to AI" configuration allows you to control whether Magento data is sent to the AI for processing. This setting is useful for managing data privacy and ensuring that only necessary data is shared with the AI.
+
+### Configuration
+
+- **Location:** The configuration can be found in the Magento admin panel under `Stores > Configuration > Genaker > Magento MCP AI > General Configuration`.
+- **Default Value:** Disabled (set to `No`).
+- **How to Enable:** To enable sending data to AI, set the "Send Magento Data to AI" option to `Yes`.
+
+### Usage
+
+When enabled, this configuration allows the AI to receive and process Magento data, which can be used to generate SQL queries or provide insights based on the data. The AI can assist with tasks such as:
+
+- Generating SQL queries for data analysis.
+- Providing recommendations based on historical data.
+- Enhancing decision-making processes with AI-driven insights.
+
+### Data Handling
+
+- **Security:** Ensure that sensitive data is handled securely and that only necessary data is shared with the AI.
+- **Data Storage:** Currently, the system does not store SQL data. Future updates may include options for storing or managing this data.
+
+### Important Notes
+
+- Always review the data being sent to ensure compliance with data privacy regulations.
+- Consider the implications of sharing data with external services and ensure that appropriate security measures are in place.
