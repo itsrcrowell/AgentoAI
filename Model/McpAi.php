@@ -278,6 +278,13 @@ class McpAi implements McpAiInterface
                     // Execute the query
                     $connection = $this->getConnection();
                     $result = $connection->fetchAll($query);
+                    //dd($result);
+
+
+                    // Add SQL data to CAG history with role user
+                    if (true) { // TODO: uncomment this when we have a way to store the SQL data or add to the config 
+                        $this->addToHistory($sessionId, 'user', "SQL Resulr data: " . json_encode($result));
+                    }
                     
                     return [
                         'success' => true,
