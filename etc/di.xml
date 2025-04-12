@@ -46,4 +46,6 @@
 
     <preference for="Genaker\MagentoMcpAi\Api\MenuAIAPIInterface" type="Genaker\MagentoMcpAi\Model\MenuAIAPI" />
 
-</config> 
+    <preference for="Genaker\MagentoMcpAi\Api\CustomerChatbotInterface" type="Genaker\MagentoMcpAi\Model\CustomerChatbot" />
+
+</config>
