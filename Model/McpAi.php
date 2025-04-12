@@ -286,13 +286,11 @@ class McpAi implements McpAiInterface
                         'token_usage' => $tokenUsage
                     ];
                 } catch (LocalizedException $e) {
-                    $this->logger->error('An error occurred while processing your query: ' . $e->getMessage());
-
                     return [
                         'success' => false,
                         'type' => 'error',
                         'content' => $content,
-                        'result' => $e->getMessage() . ' : ' .$e->getTraceAsString(),
+                        'result' => $e->getMessage(),
                         'token_usage' => $tokenUsage
                     ];
                 }
@@ -339,9 +337,6 @@ class McpAi implements McpAiInterface
                 'result' => $result
             ];
         } catch (\Exception $e) {
-            // Log the error
-            $this->logger->error('An error occurred while processing your query: ' . $e->getMessage());
-
             return [
                 'success' => false,
                 'type' => 'error',
