@@ -11,6 +11,10 @@ use Genaker\MagentoMcpAi\Model\Service\OpenAiService;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Api\FilterBuilder;
+use Magento\Sales\Api\Data\OrderInterface;
 
 class Query implements HttpPostActionInterface
 {
@@ -48,6 +52,21 @@ class Query implements HttpPostActionInterface
      * @var Json
      */
     private $json;
+    
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+    
+    /**
+     * @var SearchCriteriaBuilder
+     */
+    private $searchCriteriaBuilder;
+    
+    /**
+     * @var FilterBuilder
+     */
+    private $filterBuilder;
 
     /**
      * @param RequestInterface $request
@@ -57,6 +76,9 @@ class Query implements HttpPostActionInterface
      * @param LoggerInterface $logger
      * @param CacheInterface $cache
      * @param Json $json
+     * @param OrderRepositoryInterface $orderRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param FilterBuilder $filterBuilder
      */
     public function __construct(
         RequestInterface $request,
@@ -65,7 +87,10 @@ class Query implements HttpPostActionInterface
         OpenAiService $openAiService,
         LoggerInterface $logger,
         CacheInterface $cache,
-        Json $json
+        Json $json,
+        OrderRepositoryInterface $orderRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder,
+        FilterBuilder $filterBuilder
     ) {
         $this->request = $request;
         $this->resultJsonFactory = $resultJsonFactory;
@@ -74,6 +99,9 @@ class Query implements HttpPostActionInterface
         $this->logger = $logger;
         $this->cache = $cache;
         $this->json = $json;
+        $this->orderRepository = $orderRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->filterBuilder = $filterBuilder;
     }
 
     /**
@@ -96,6 +124,15 @@ class Query implements HttpPostActionInterface
             $storeContext = $requestData['context'] ?? [];
             $conversationHistory = $requestData['history'] ?? [];
             $conversationSummary = $requestData['summary'] ?? '';
+            
+            // Check if this is an order status lookup query
+            $orderLookupResponse = $this->handleOrderLookupQuery($userQuery, $conversationHistory);
+            if ($orderLookupResponse) {
+                return $resultJson->setData([
+                    'success' => true,
+                    'message' => $orderLookupResponse
+                ]);
+            }
             
             // Check if the response is cached
             $cacheKey = 'chatbot_response_' . md5($userQuery);
@@ -262,5 +299,178 @@ class Query implements HttpPostActionInterface
             'magentomcpai/chatbot/faqs',
             ScopeInterface::SCOPE_STORE
         ) ?: '';
+    }
+    
+    /**
+     * Securely retrieve order status
+     *
+     * @param string $orderNumber Order number/increment ID
+     * @param string $customerEmail Email associated with order
+     * @return array|false Order status information or false if validation fails
+     */
+    private function getSecureOrderStatus($orderNumber, $customerEmail)
+    {
+        // Validate input
+        if (empty($orderNumber) || empty($customerEmail) || !filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+        
+        // Check if order status lookup is enabled
+        $orderLookupEnabled = $this->scopeConfig->isSetFlag(
+            'magentomcpai/chatbot/enable_order_lookup',
+            ScopeInterface::SCOPE_STORE
+        );
+        
+        if (!$orderLookupEnabled) {
+            return false;
+        }
+        
+        // Implement rate limiting for security
+        $cacheKey = 'chatbot_order_lookup_' . md5($customerEmail . '_' . date('YmdH'));
+        $lookupCount = (int)$this->cache->load($cacheKey);
+        
+        // Limit to 5 attempts per hour per email
+        if ($lookupCount >= 5) {
+            return ['error' => 'rate_limit_exceeded'];
+        }
+        
+        try {
+            // Get the order by increment ID and email
+            $this->searchCriteriaBuilder
+                ->addFilter('increment_id', $orderNumber, 'eq')
+                ->addFilter('customer_email', $customerEmail, 'eq');
+            
+            $searchCriteria = $this->searchCriteriaBuilder->create();
+            $orders = $this->orderRepository->getList($searchCriteria)->getItems();
+            
+            // Update rate limit counter
+            $this->cache->save(
+                (string)($lookupCount + 1),
+                $cacheKey,
+                ['CHATBOT_CACHE'],
+                3600 // 1 hour
+            );
+            
+            // If we have a matching order
+            if (count($orders) > 0) {
+                /** @var OrderInterface $order */
+                $order = reset($orders);
+                
+                // Get shipping info if available
+                $shippingInfo = '';
+                if ($order->getShippingDescription()) {
+                    $shippingInfo = $order->getShippingDescription();
+                    
+                    // Include tracking info if available
+                    $tracks = $order->getTracksCollection();
+                    if ($tracks && $tracks->getSize() > 0) {
+                        $trackingNumbers = [];
+                        foreach ($tracks as $track) {
+                            $trackingNumbers[] = $track->getTrackNumber();
+                        }
+                        $shippingInfo .= ' (Tracking: ' . implode(', ', $trackingNumbers) . ')';
+                    }
+                }
+                
+                // Get order items summary (limited to first 3 items)
+                $itemsSummary = [];
+                $itemsCollection = $order->getAllVisibleItems();
+                $itemCount = 0;
+                foreach ($itemsCollection as $item) {
+                    if ($itemCount < 3) {
+                        $itemsSummary[] = $item->getName() . ' x ' . (int)$item->getQtyOrdered();
+                        $itemCount++;
+                    } else {
+                        $remainingItems = count($itemsCollection) - 3;
+                        if ($remainingItems > 0) {
+                            $itemsSummary[] = "and {$remainingItems} more items";
+                        }
+                        break;
+                    }
+                }
+                
+                // Format dates for better readability
+                $createdAt = new \DateTime($order->getCreatedAt());
+                $formattedCreatedAt = $createdAt->format('F j, Y');
+                
+                // Return limited, safe information
+                return [
+                    'success' => true,
+                    'order_number' => $orderNumber,
+                    'status' => $order->getStatus(),
+                    'status_label' => $order->getStatusLabel(),
+                    'created_at' => $formattedCreatedAt,
+                    'total_items' => count($itemsCollection),
+                    'items_summary' => implode(', ', $itemsSummary),
+                    'shipping_info' => $shippingInfo,
+                    'grand_total' => $order->getGrandTotal(),
+                    'currency' => $order->getOrderCurrencyCode()
+                ];
+            }
+            
+            return ['error' => 'order_not_found'];
+        } catch (\Exception $e) {
+            $this->logger->error('Chatbot secure order query error: ' . $e->getMessage());
+            return ['error' => 'system_error'];
+        }
+    }
+    
+    /**
+     * Handle order lookup query
+     *
+     * @param string $query
+     * @param array $conversationHistory
+     * @return string|null
+     */
+    private function handleOrderLookupQuery($query, $conversationHistory)
+    {
+        // Check if the query is an order lookup request
+        if (strpos(strtolower($query), 'order status') !== false || strpos(strtolower($query), 'track order') !== false) {
+            // Extract order number and email from conversation history
+            $orderNumber = null;
+            $customerEmail = null;
+            foreach ($conversationHistory as $history) {
+                if ($history['role'] === 'user') {
+                    $message = $history['content'];
+                    if (preg_match('/#(\d+)/', $message, $matches)) {
+                        $orderNumber = $matches[1];
+                    }
+                    if (preg_match('/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/', $message, $matches)) {
+                        $customerEmail = $matches[1];
+                    }
+                }
+            }
+            
+            // If we have an order number and email, retrieve order status
+            if ($orderNumber && $customerEmail) {
+                $orderStatus = $this->getSecureOrderStatus($orderNumber, $customerEmail);
+                if ($orderStatus) {
+                    return $this->formatOrderStatusResponse($orderStatus);
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Format order status response
+     *
+     * @param array $orderStatus
+     * @return string
+     */
+    private function formatOrderStatusResponse($orderStatus)
+    {
+        if ($orderStatus['success']) {
+            $response = "Your order #{$orderStatus['order_number']} is currently {$orderStatus['status_label']}. ";
+            $response .= "It was placed on {$orderStatus['created_at']} and contains {$orderStatus['total_items']} items. ";
+            $response .= "The order total is {$orderStatus['grand_total']} {$orderStatus['currency']}. ";
+            if (!empty($orderStatus['shipping_info'])) {
+                $response .= "The shipping information is: {$orderStatus['shipping_info']}.";
+            }
+            return $response;
+        } else {
+            return "Sorry, we couldn't find your order. Please try again or contact our customer service.";
+        }
     }
 }

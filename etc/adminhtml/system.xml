@@ -98,6 +98,11 @@
                     <label>Customer Chatbot Documentation</label>
                     <comment>Add relevant documentation and context specifically for the customer-facing chatbot</comment>
                 </field>
+                <field id="enable_order_lookup" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Order Status Lookup</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Allow customers to check their order status via chatbot using order number and email</comment>
+                </field>
             </group>
             <group id="security" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Security Settings</label>
