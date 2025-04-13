@@ -15,6 +15,9 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Catalog\Api\Data\ProductInterface;
+use Magento\Catalog\Helper\Image as ImageHelper;
 
 class Query implements HttpPostActionInterface
 {
@@ -67,6 +70,16 @@ class Query implements HttpPostActionInterface
      * @var FilterBuilder
      */
     private $filterBuilder;
+    
+    /**
+     * @var ProductRepositoryInterface
+     */
+    private $productRepository;
+    
+    /**
+     * @var ImageHelper
+     */
+    private $imageHelper;
 
     /**
      * @param RequestInterface $request
@@ -79,6 +92,8 @@ class Query implements HttpPostActionInterface
      * @param OrderRepositoryInterface $orderRepository
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
+     * @param ProductRepositoryInterface $productRepository
+     * @param ImageHelper $imageHelper
      */
     public function __construct(
         RequestInterface $request,
@@ -90,7 +105,9 @@ class Query implements HttpPostActionInterface
         Json $json,
         OrderRepositoryInterface $orderRepository,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        FilterBuilder $filterBuilder
+        FilterBuilder $filterBuilder,
+        ProductRepositoryInterface $productRepository,
+        ImageHelper $imageHelper
     ) {
         $this->request = $request;
         $this->resultJsonFactory = $resultJsonFactory;
@@ -102,6 +119,8 @@ class Query implements HttpPostActionInterface
         $this->orderRepository = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder = $filterBuilder;
+        $this->productRepository = $productRepository;
+        $this->imageHelper = $imageHelper;
     }
 
     /**

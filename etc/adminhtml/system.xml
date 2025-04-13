@@ -103,6 +103,45 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Allow customers to check their order status via chatbot using order number and email</comment>
                 </field>
+                <field id="enable_product_lookup" translate="label" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Product Information Lookup</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Allow chatbot to answer specific questions about products when customers are on product pages</comment>
+                </field>
+                                <field id="include_all_attributes" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Include All Product Attributes</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>If set to Yes, the chatbot will have access to all product attributes, including those not visible in frontend. This provides more detailed product information but may share internal data.</comment>
+                    <depends>
+                        <field id="enable_product_lookup">1</field>
+                    </depends>
+                </field>
+                <field id="blocked_attributes" translate="label" type="textarea" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Blocked Product Attributes</label>
+                    <comment>Enter attribute codes that should never be accessible to the chatbot, one per line. Examples: cost, manufacturer_cost, dealer_price, internal_notes</comment>
+                    <depends>
+                        <field id="enable_product_lookup">1</field>
+                    </depends>
+                </field>
+                 <field id="enable_email_chat" translate="label" type="select" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Email Chat History</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Allow customers to email their chat history to store support</comment>
+                </field>
+                <field id="support_email" translate="label" type="text" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Support Email Address</label>
+                    <comment>Email address to send chat history to (if not specified, the store support email will be used)</comment>
+                    <depends>
+                        <field id="enable_email_chat">1</field>
+                    </depends>
+                </field>
+                <field id="email_subject" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Email Subject</label>
+                    <comment>Subject line for chat history emails. You can use {store_name} as a placeholder.</comment>
+                    <depends>
+                        <field id="enable_email_chat">1</field>
+                    </depends>
+                </field>
             </group>
             <group id="security" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Security Settings</label>

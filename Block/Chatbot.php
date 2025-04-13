@@ -5,6 +5,9 @@ use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\Registry;
+use Magento\Framework\Serialize\Serializer\Json;
 
 class Chatbot extends Template
 {
@@ -12,18 +15,42 @@ class Chatbot extends Template
      * @var ScopeConfigInterface
      */
     protected $scopeConfig;
+    
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $storeManager;
+    
+    /**
+     * @var Registry
+     */
+    protected $registry;
+    
+    /**
+     * @var Json
+     */
+    protected $json;
 
     /**
      * @param Context $context
      * @param ScopeConfigInterface $scopeConfig
+     * @param StoreManagerInterface $storeManager
+     * @param Registry $registry
+     * @param Json $json
      * @param array $data
      */
     public function __construct(
         Context $context,
         ScopeConfigInterface $scopeConfig,
+        StoreManagerInterface $storeManager,
+        Registry $registry,
+        Json $json,
         array $data = []
     ) {
         $this->scopeConfig = $scopeConfig;
+        $this->storeManager = $storeManager;
+        $this->registry = $registry;
+        $this->json = $json;
         parent::__construct($context, $data);
     }
 
@@ -146,6 +173,28 @@ class Chatbot extends Template
     }
     
     /**
+     * Get current product ID if on product page
+     *
+     * @return int|null
+     */
+    public function getCurrentProductId()
+    {
+        $product = $this->registry->registry('current_product');
+        return $product ? $product->getId() : null;
+    }
+    
+    /**
+     * Get current product name if on product page
+     *
+     * @return string|null
+     */
+    public function getCurrentProductName()
+    {
+        $product = $this->registry->registry('current_product');
+        return $product ? $product->getName() : null;
+    }
+    
+    /**
      * Get store information for context
      *
      * @return array
@@ -175,13 +224,22 @@ class Chatbot extends Template
     }
 
     /**
-     * Get store context as JSON
+     * Get store context as JSON for use in JavaScript
      *
      * @return string
      */
     public function getStoreContextJson()
     {
-        return json_encode($this->getStoreContext());
+        $store = $this->storeManager->getStore();
+        $storeContext = [
+            'name' => $store->getName(),
+            'phone' => $this->scopeConfig->getValue('general/store_information/phone', ScopeInterface::SCOPE_STORE),
+            'email' => $this->scopeConfig->getValue('trans_email/ident_support/email', ScopeInterface::SCOPE_STORE),
+            'product_id' => $this->getCurrentProductId(),
+            'product_name' => $this->getCurrentProductName()
+        ];
+        
+        return $this->json->serialize($storeContext);
     }
 
     /**
