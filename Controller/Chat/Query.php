@@ -228,6 +228,26 @@ class Query implements HttpPostActionInterface
         $prompt .= "If you don't know the answer to a question, suggest that the customer contact customer service directly. ";
         $prompt .= "Do not make up information you don't have.";
         
+        // Add customer chatbot specific AI rules if configured
+        $aiRules = $this->scopeConfig->getValue(
+            'magentomcpai/chatbot/ai_rules',
+            ScopeInterface::SCOPE_STORE
+        );
+        
+        if (!empty($aiRules)) {
+            $prompt .= "\n\nFollow these specific rules when responding to customers:\n" . $aiRules;
+        }
+        
+        // Add customer chatbot specific documentation if configured
+        $documentation = $this->scopeConfig->getValue(
+            'magentomcpai/chatbot/documentation',
+            ScopeInterface::SCOPE_STORE
+        );
+        
+        if (!empty($documentation)) {
+            $prompt .= "\n\nHere is additional information about our products and services:\n" . $documentation;
+        }
+        
         return $prompt;
     }
     

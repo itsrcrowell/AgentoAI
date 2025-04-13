@@ -90,6 +90,14 @@
                     <label>Frequently Asked Questions</label>
                     <comment>Common questions and answers to cache for the chatbot (in Q&amp;A format)</comment>
                 </field>
+                <field id="ai_rules" translate="label" type="textarea" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Customer Chatbot AI Rules</label>
+                    <comment>Define rules and guidelines specifically for the customer-facing chatbot assistant</comment>
+                </field>
+                <field id="documentation" translate="label" type="textarea" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Customer Chatbot Documentation</label>
+                    <comment>Add relevant documentation and context specifically for the customer-facing chatbot</comment>
+                </field>
             </group>
             <group id="security" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Security Settings</label>
