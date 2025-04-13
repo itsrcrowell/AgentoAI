@@ -19,6 +19,10 @@ class OpenAiService
     const AUDIO_SPEECH_API_ENDPOINT = 'https://api.openai.com/v1/audio/speech';
     const GOOGLE_SPEECH_API_ENDPOINT = 'https://speech.googleapis.com/v1/speech:recognize';
     const GOOGLE_VISION_API_ENDPOINT = 'https://vision.googleapis.com/v1/images:annotate';
+    const THREADS_API_ENDPOINT = 'https://api.openai.com/v1/threads';
+    const THREAD_MESSAGES_API_ENDPOINT = 'https://api.openai.com/v1/threads/%s/messages';
+    const THREAD_RUNS_API_ENDPOINT = 'https://api.openai.com/v1/threads/%s/runs';
+    const THREAD_RUN_STATUS_API_ENDPOINT = 'https://api.openai.com/v1/threads/%s/runs/%s';
 
     /**
      * @var Curl
@@ -1982,6 +1986,230 @@ class OpenAiService
         } catch (\Exception $e) {
             throw new LocalizedException(
                 __('Failed to get chat completion: %1', $e->getMessage())
+            );
+        }
+    }
+
+    // Method to upload a file to OpenAI
+    public function agentUploadFile(string $filePath, string $apiKey, string $purpose = 'assistants'): array {
+        try {
+            // Validate file exists
+            if (!$this->file->fileExists($filePath)) {
+                throw new LocalizedException(
+                    __('File does not exist: %1', $filePath)
+                );
+            }
+            
+            // Get file info
+            $fileInfo = $this->file->getPathInfo($filePath);
+            $fileName = $fileInfo['basename'];
+            
+            // Read file contents
+            $fileContents = file_get_contents($filePath);
+            if ($fileContents === false) {
+                throw new LocalizedException(
+                    __('Unable to read file: %1', $filePath)
+                );
+            }
+            
+            // Prepare multipart boundary
+            $boundary = '-------------' . uniqid();
+            
+            // Build multipart request body
+            $body = '';
+            
+            // Add purpose field
+            $body .= '--' . $boundary . "\r\n";
+            $body .= 'Content-Disposition: form-data; name="purpose"' . "\r\n\r\n";
+            $body .= $purpose . "\r\n";
+            
+            // Add file data
+            $body .= '--' . $boundary . "\r\n";
+            $body .= 'Content-Disposition: form-data; name="file"; filename="' . $fileName . '"' . "\r\n";
+            $body .= 'Content-Type: application/octet-stream' . "\r\n\r\n";
+            $body .= $fileContents . "\r\n";
+            
+            // Close multipart body
+            $body .= '--' . $boundary . '--';
+            
+            // Setup headers
+            $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
+            $this->curl->addHeader('Content-Type', 'multipart/form-data; boundary=' . $boundary);
+            $this->curl->addHeader('Content-Length', strlen($body));
+            
+            // Send request
+            $this->curl->post(self::FILES_API_ENDPOINT, $body);
+            
+            // Get response
+            $response = $this->curl->getBody();
+            $statusCode = $this->curl->getStatus();
+            
+            $responseData = $this->jsonHelper->jsonDecode($response, true);
+            
+            if ($statusCode >= 400 || isset($responseData['error'])) {
+                $errorMessage = isset($responseData['error']) 
+                    ? $responseData['error']['message'] 
+                    : "HTTP Error: $statusCode";
+                throw new LocalizedException(
+                    __('OpenAI API Error: %1', $errorMessage)
+                );
+            }
+            
+            return $responseData;
+        } catch (\Exception $e) {
+            throw new LocalizedException(
+                __('Failed to upload file to OpenAI API: %1', $e->getMessage())
+            );
+        }
+    }
+
+    // Method to create a thread
+    public function agentCreateThread(string $apiKey): array {
+        try {
+            $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
+            $this->curl->addHeader('Content-Type', 'application/json');
+            $this->curl->post(self::THREADS_API_ENDPOINT, '{}');
+            
+            $response = $this->curl->getBody();
+            $responseData = $this->jsonHelper->jsonDecode($response, true);
+            
+            if (isset($responseData['error'])) {
+                throw new LocalizedException(
+                    __('OpenAI API Error: %1', $responseData['error']['message'])
+                );
+            }
+            
+            return $responseData;
+        } catch (\Exception $e) {
+            throw new LocalizedException(
+                __('Failed to create thread: %1', $e->getMessage())
+            );
+        }
+    }
+
+    // Method to add a message to the thread
+    public function agentAddMessageToThread(string $threadId, string $message, array $fileIds, string $apiKey): array {
+        try {
+            $data = [
+                'role' => 'user',
+                'content' => $message,
+                'file_ids' => $fileIds
+            ];
+            
+            $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
+            $this->curl->addHeader('Content-Type', 'application/json');
+            $this->curl->post(sprintf(self::THREAD_MESSAGES_API_ENDPOINT, $threadId), $this->jsonHelper->jsonEncode($data));
+            
+            $response = $this->curl->getBody();
+            $responseData = $this->jsonHelper->jsonDecode($response, true);
+            
+            if (isset($responseData['error'])) {
+                throw new LocalizedException(
+                    __('OpenAI API Error: %1', $responseData['error']['message'])
+                );
+            }
+            
+            return $responseData;
+        } catch (\Exception $e) {
+            throw new LocalizedException(
+                __('Failed to add message to thread: %1', $e->getMessage())
+            );
+        }
+    }
+
+    // Method to run the assistant
+    public function agentRunAssistant(string $threadId, string $assistantId, string $apiKey): array {
+        try {
+            $data = [
+                'assistant_id' => $assistantId
+            ];
+            
+            $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
+            $this->curl->addHeader('Content-Type', 'application/json');
+            $this->curl->post(sprintf(self::THREAD_RUNS_API_ENDPOINT, $threadId), $this->jsonHelper->jsonEncode($data));
+            
+            $response = $this->curl->getBody();
+            $responseData = $this->jsonHelper->jsonDecode($response, true);
+            
+            if (isset($responseData['error'])) {
+                throw new LocalizedException(
+                    __('OpenAI API Error: %1', $responseData['error']['message'])
+                );
+            }
+            
+            return $responseData;
+        } catch (\Exception $e) {
+            throw new LocalizedException(
+                __('Failed to run assistant: %1', $e->getMessage())
+            );
+        }
+    }
+
+    // Method to check the run status
+    public function agentCheckRunStatus(string $threadId, string $runId, string $apiKey): array {
+        try {
+            $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
+            $this->curl->get(sprintf(self::THREAD_RUN_STATUS_API_ENDPOINT, $threadId, $runId));
+            
+            $response = $this->curl->getBody();
+            $responseData = $this->jsonHelper->jsonDecode($response, true);
+            
+            if (isset($responseData['error'])) {
+                throw new LocalizedException(
+                    __('OpenAI API Error: %1', $responseData['error']['message'])
+                );
+            }
+            
+            return $responseData;
+        } catch (\Exception $e) {
+            throw new LocalizedException(
+                __('Failed to check run status: %1', $e->getMessage())
+            );
+        }
+    }
+
+    // Method to list messages from a thread
+    public function agentListMessages(string $threadId, string $apiKey): array {
+        try {
+            $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
+            $this->curl->get(sprintf(self::THREAD_MESSAGES_API_ENDPOINT, $threadId));
+            
+            $response = $this->curl->getBody();
+            $responseData = $this->jsonHelper->jsonDecode($response, true);
+            
+            if (isset($responseData['error'])) {
+                throw new LocalizedException(
+                    __('OpenAI API Error: %1', $responseData['error']['message'])
+                );
+            }
+            
+            return $responseData;
+        } catch (\Exception $e) {
+            throw new LocalizedException(
+                __('Failed to list messages from thread: %1', $e->getMessage())
+            );
+        }
+    }
+
+    // Method to get the latest message from a thread
+    public function agentGetLatestMessage(string $threadId, string $apiKey): array {
+        try {
+            $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
+            $this->curl->get(sprintf(self::THREAD_MESSAGES_API_ENDPOINT, $threadId) . '?limit=1');
+            
+            $response = $this->curl->getBody();
+            $responseData = $this->jsonHelper->jsonDecode($response, true);
+            
+            if (isset($responseData['error'])) {
+                throw new LocalizedException(
+                    __('OpenAI API Error: %1', $responseData['error']['message'])
+                );
+            }
+            
+            return $responseData;
+        } catch (\Exception $e) {
+            throw new LocalizedException(
+                __('Failed to get the latest message from thread: %1', $e->getMessage())
             );
         }
     }
