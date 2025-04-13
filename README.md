@@ -187,7 +187,7 @@ Add the read-only user credentials to your `app/etc/env.php` file:
 ## Usage
 
 ### 1. Accessing the Assistant
-- Navigate to Reports > AI Assistant > MCP AI Assistant
+- Navigate to Marketing > AI Assistant > MCP AI Assistant
 - Or use the direct URL: `/admin/magentomcpai/chat/index`
 
 ### 2. Making Queries

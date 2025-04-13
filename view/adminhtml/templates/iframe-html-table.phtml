@@ -10,20 +10,12 @@
     
     <!-- Add custom styles -->
     <link rel="stylesheet" href="<?= $block->getViewFileUrl('Genaker_MagentoMcpAi::css/styles.css'); ?>">
-    
-    <!-- Add DataTables CSS from CDN -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css">
 </head>
 <body>
     <!-- Simple app container div -->
     <div id="app"></div>
-        
-    <!-- Include jQuery and DataTables JS from CDN -->
-    <script>
-        window.fullResultData = [];
-    </script>
-
     
+    <!-- Using module script as requested -->
     <script type="module">
         // Import preact-htm-signals-standalone
         import {
@@ -34,7 +26,6 @@
             effect
         } from "<?= $block->getViewFileUrl('Genaker_MagentoMcpAi/js/lib/standalone.js'); ?>";
         
-      
         // Get API key from Magento configuration
         const apiKey = "<?= $block->getApiKey() ?>";
         
@@ -70,7 +61,7 @@
             total_tokens: 0,
             cost: 0
         });
-        fullResultData = signal([]);
+        const fullResultData = signal([]);
         
         // Model pricing per 1K tokens (in USD)
         const MODEL_PRICING = {
@@ -186,7 +177,7 @@
                 
                 // Add export button
                 tableHtml += '<button class="export-csv-button" onclick="exportToCSV()">Export to CSV</button>';
-                tableHtml += '<button id="addFullResultToChat" class="action-primary" onclick="addFullResultToChat()" style="display: block;">Add Full Result to Chat</button>';
+                
                 resultGrid.value = tableHtml;
 
                 // Initialize column resizing after table is rendered
@@ -593,25 +584,6 @@
             document.body.removeChild(link);
         }
         
-        // Function to update the visibility of the "Add Full Result to Chat" button
-        function updateButtonVisibility() {
-            const button = document.getElementById('addFullResultToChat');
-            if (button) {
-                if (fullResultData.value.length > 0) {
-                    button.style.display = 'block'; // Show the button
-                } else {
-                    button.style.display = 'none'; // Hide the button
-                }
-            } else {
-                console.warn('Button with ID "addFullResultToChat" not found.');
-            }
-        }
-
-        // Watch for changes in fullResultData and update button visibility
-        effect(() => {
-            updateButtonVisibility();
-        });
-        
         // Main App component
         const App = () => html`
             <div class="mcpai-container">
@@ -662,7 +634,7 @@
                                     handleSend();
                                 }
                             }}
-                            placeholder="Ask me anything about your store data..." id="chatInput"
+                            placeholder="Ask me anything about your store data..."
                         ></textarea>
                         <div class="chat-buttons">
                             <button 
@@ -983,31 +955,6 @@
                     });
             }
         };
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const button = document.getElementById('addFullResultToChat');
-            const chatInput = document.getElementById('chatInput'); // Assume this is your chat input field
-
-            // Check if the button exists before adding the event listener
-            if (button) {
-                button.addEventListener('click', function() {
-                    addFullResultToChat();
-                });
-            }
-        });
-
-     
-    </script>
-    <script>
-        function addFullResultToChat() {
-            const chatInput = document.getElementById('chatInput');
-            const jsonData = JSON.stringify(fullResultData.value);
-            chatInput.value = "SQL Result: " + jsonData + "\n\nUser Question: "; // Set the chat input value
-            chatInput.scrollTop = chatInput.scrollHeight;
-
-            // Focus on the chat input field
-            chatInput.focus();
-        }
     </script>
 </body>
 </html> 
