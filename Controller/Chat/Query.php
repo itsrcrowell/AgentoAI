@@ -94,6 +94,8 @@ class Query implements HttpPostActionInterface
             
             $userQuery = $requestData['query'];
             $storeContext = $requestData['context'] ?? [];
+            $conversationHistory = $requestData['history'] ?? [];
+            $conversationSummary = $requestData['summary'] ?? '';
             
             // Check if the response is cached
             $cacheKey = 'chatbot_response_' . md5($userQuery);
@@ -102,7 +104,7 @@ class Query implements HttpPostActionInterface
             if ($cachedResponse) {
                 $response = $this->json->unserialize($cachedResponse);
             } else {
-                $response = $this->getAiResponse($userQuery, $storeContext);
+                $response = $this->getAiResponse($userQuery, $storeContext, $conversationHistory, $conversationSummary);
                 
                 // Cache the response for frequently asked questions (1 hour)
                 $this->cache->save(
@@ -137,9 +139,11 @@ class Query implements HttpPostActionInterface
      * 
      * @param string $query
      * @param array $storeContext
+     * @param array $conversationHistory
+     * @param string $conversationSummary
      * @return string
      */
-    private function getAiResponse($query, $storeContext)
+    private function getAiResponse($query, $storeContext, $conversationHistory, $conversationSummary = '')
     {
         $apiKey = $this->scopeConfig->getValue(
             'magentomcpai/general/api_key',
@@ -158,6 +162,11 @@ class Query implements HttpPostActionInterface
         // Build system prompt with store context and FAQs
         $systemPrompt = $this->buildSystemPrompt($storeContext);
         
+        // Add conversation summary if provided
+        if (!empty($conversationSummary)) {
+            $systemPrompt .= "\n\n" . $conversationSummary;
+        }
+        
         // Get FAQs
         $faqs = $this->getFaqs();
         
@@ -173,6 +182,14 @@ class Query implements HttpPostActionInterface
             $messages[] = [
                 'role' => 'system',
                 'content' => "Here are some common questions and answers to reference:\n" . $faqs
+            ];
+        }
+        
+        // Add conversation history
+        foreach ($conversationHistory as $history) {
+            $messages[] = [
+                'role' => $history['role'],
+                'content' => $history['content']
             ];
         }
         

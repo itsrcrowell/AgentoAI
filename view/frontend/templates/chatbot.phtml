@@ -217,6 +217,37 @@
                         // Get the store context
                         const storeContext = <?= $block->getStoreContextJson() ?>;
                         
+                        // Process conversation history
+                        let conversationHistory = [];
+                        let conversationSummary = '';
+                        
+                        if (this.chatHistory.length > 10) {
+                            // Create a summary of earlier messages (before the last 5)
+                            const earlierMessages = this.chatHistory.slice(0, -5);
+                            conversationSummary = 'Previous conversation summary: ';
+                            
+                            earlierMessages.forEach(msg => {
+                                conversationSummary += `${msg.isUser ? 'User' : 'Assistant'}: ${msg.text}. `;
+                            });
+                            
+                            // Get the last 5 messages for detailed context
+                            conversationHistory = this.chatHistory
+                                .slice(-5) // Get last 5 messages only
+                                .filter(msg => msg.text !== query) // Exclude current query
+                                .map(msg => ({
+                                    role: msg.isUser ? 'user' : 'assistant',
+                                    content: msg.text
+                                }));
+                        } else {
+                            // If we have 10 or fewer messages, send them all
+                            conversationHistory = this.chatHistory
+                                .filter(msg => msg.text !== query) // Exclude current query
+                                .map(msg => ({
+                                    role: msg.isUser ? 'user' : 'assistant',
+                                    content: msg.text
+                                }));
+                        }
+                        
                         fetch('<?= $block->getUrl('magentomcpai/chat/query') ?>', {
                             method: 'POST',
                             headers: {
@@ -225,7 +256,9 @@
                             },
                             body: JSON.stringify({
                                 query: query,
-                                context: storeContext
+                                context: storeContext,
+                                history: conversationHistory,
+                                summary: conversationSummary
                             })
                         })
                         .then(response => response.json())
