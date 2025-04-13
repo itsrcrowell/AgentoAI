@@ -3,13 +3,8 @@ namespace Genaker\MagentoMcpAi\Block;
 
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\Registry;
-use Magento\Catalog\Api\ProductRepositoryInterface;
-use Magento\Framework\Serialize\Serializer\Json;
-use Psr\Log\LoggerInterface;
+use Magento\Store\Model\ScopeInterface;
 
 class Chatbot extends Template
 {
@@ -19,48 +14,16 @@ class Chatbot extends Template
     protected $scopeConfig;
 
     /**
-     * @var Registry
-     */
-    protected $registry;
-
-    /**
-     * @var ProductRepositoryInterface
-     */
-    protected $productRepository;
-
-    /**
-     * @var StoreManagerInterface
-     */
-    protected $storeManager;
-
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-
-    /**
      * @param Context $context
      * @param ScopeConfigInterface $scopeConfig
-     * @param Registry $registry
-     * @param ProductRepositoryInterface $productRepository
-     * @param StoreManagerInterface $storeManager
-     * @param LoggerInterface $logger
      * @param array $data
      */
     public function __construct(
         Context $context,
         ScopeConfigInterface $scopeConfig,
-        Registry $registry,
-        ProductRepositoryInterface $productRepository,
-        StoreManagerInterface $storeManager,
-        LoggerInterface $logger,
         array $data = []
     ) {
         $this->scopeConfig = $scopeConfig;
-        $this->registry = $registry;
-        $this->productRepository = $productRepository;
-        $this->storeManager = $storeManager;
-        $this->logger = $logger;
         parent::__construct($context, $data);
     }
 
@@ -169,7 +132,7 @@ class Chatbot extends Template
      */
     public function getLogoUrl()
     {
-        $mediaUrl = $this->storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+        $mediaUrl = $this->_storeManager->getStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
         $customLogo = $this->scopeConfig->getValue(
             'magentomcpai/chatbot/logo',
             ScopeInterface::SCOPE_STORE
@@ -218,127 +181,7 @@ class Chatbot extends Template
      */
     public function getStoreContextJson()
     {
-        $storeInfo = [
-            'name' => $this->storeManager->getStore()->getName(),
-            'phone' => $this->scopeConfig->getValue('general/store_information/phone', ScopeInterface::SCOPE_STORE),
-            'email' => $this->scopeConfig->getValue('trans_email/ident_general/email', ScopeInterface::SCOPE_STORE),
-        ];
-        
-        return json_encode($storeInfo);
-    }
-    
-    /**
-     * Get current product if on a product page
-     *
-     * @return \Magento\Catalog\Api\Data\ProductInterface|null
-     */
-    public function getCurrentProduct()
-    {
-        return $this->registry->registry('current_product');
-    }
-    
-    /**
-     * Get product context as JSON
-     *
-     * @return string
-     */
-    public function getProductContextJson()
-    {
-        $product = $this->getCurrentProduct();
-        $productData = [];
-        
-        if ($product) {
-            try {
-                // Load full product to ensure we have all attributes
-                $product = $this->productRepository->getById($product->getId());
-                
-                // Get blacklisted attributes from configuration
-                $blacklistedAttributes = $this->getBlacklistedAttributes();
-                
-                // Get all product attributes
-                $attributes = $product->getAttributes();
-                $attributeData = [];
-                
-                foreach ($attributes as $attribute) {
-                    $attributeCode = $attribute->getAttributeCode();
-                    
-                    // Skip internal attributes and blacklisted attributes
-                    $skipAttributes = ['category_ids', 'options', 'media_gallery', 'tier_price', 'quantity_and_stock_status'];
-                    if (in_array($attributeCode, $skipAttributes) || in_array($attributeCode, $blacklistedAttributes)) {
-                        continue;
-                    }
-                    
-                    // Include all attributes, even those not visible in frontend
-                    if ($product->getData($attributeCode) !== null) {
-                        $value = $product->getData($attributeCode);
-                        $label = $attribute->getFrontendLabel() ?: $attributeCode; // Use code if no label
-                        
-                        // Handle select attributes (get option text instead of ID)
-                        if ($attribute->usesSource() && $value !== '') {
-                            try {
-                                $optionText = $attribute->getSource()->getOptionText($value);
-                                if ($optionText) {
-                                    $value = $optionText;
-                                }
-                            } catch (\Exception $e) {
-                                // Just use the raw value if there's an issue
-                            }
-                        }
-                        
-                        // Include even attributes without frontend labels
-                        if ($value !== '' && $value !== null) {
-                            $attributeData[$attributeCode] = [
-                                'label' => $label,
-                                'value' => $value,
-                                'is_visible' => (bool)$attribute->getIsVisibleOnFront()
-                            ];
-                        }
-                    }
-                }
-                
-                // Basic product data
-                $productData = [
-                    'id' => $product->getId(),
-                    'sku' => $product->getSku(),
-                    'name' => $product->getName(),
-                    'type' => $product->getTypeId(),
-                    'url' => $product->getProductUrl(),
-                    'price' => $product->getFinalPrice(),
-                    'description' => strip_tags($product->getDescription() ?: ''),
-                    'short_description' => strip_tags($product->getShortDescription() ?: ''),
-                    'in_stock' => $product->isAvailable(),
-                    'attributes' => $attributeData
-                ];
-            } catch (\Exception $e) {
-                // Log error but continue
-                $this->logger->error('Error fetching product context for chatbot: ' . $e->getMessage());
-            }
-        }
-        
-        return json_encode($productData);
-    }
-
-    /**
-     * Get blacklisted product attributes
-     *
-     * @return array
-     */
-    private function getBlacklistedAttributes()
-    {
-        $blacklistString = $this->scopeConfig->getValue(
-            'magentomcpai/chatbot/product_attributes_blacklist',
-            ScopeInterface::SCOPE_STORE
-        );
-        
-        if (!$blacklistString) {
-            // Default blacklist if none is configured
-            return ['cost', 'supplier_id', 'supplier_code', 'internal_notes', 'special_price_from_date', 
-                   'special_price_to_date', 'msrp', 'msrp_display_actual_price_type'];
-        }
-        
-        // Parse the blacklist string (one attribute code per line)
-        $blacklist = array_map('trim', explode("\n", $blacklistString));
-        return array_filter($blacklist); // Remove empty entries
+        return json_encode($this->getStoreContext());
     }
 
     /**
@@ -362,34 +205,112 @@ class Chatbot extends Template
     }
 
     /**
-     * Check if email support is enabled
+     * Check if product question answering is enabled
      *
      * @return bool
      */
-    public function isEmailSupportEnabled()
+    public function isProductQuestionsEnabled()
     {
-        return $this->scopeConfig->isSetFlag('magentomcpai/chatbot/enable_email_support', ScopeInterface::SCOPE_STORE);
+        return $this->scopeConfig->isSetFlag(
+            'magentomcpai/chatbot/enable_product_answers',
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * Get product attribute blacklist
+     *
+     * @return array
+     */
+    public function getProductAttributeBlacklist()
+    {
+        $blacklist = $this->scopeConfig->getValue(
+            'magentomcpai/chatbot/product_attribute_blacklist',
+            ScopeInterface::SCOPE_STORE
+        );
+        
+        if (!$blacklist) {
+            // Default blacklist for sensitive attributes
+            return ['cost', 'price_view', 'tier_price', 'special_price', 'wholesale_price', 
+                    'msrp', 'tax_class_id', 'inventory_source', 'stock_data', 'supplier_code'];
+        }
+        
+        return array_map('trim', explode("\n", $blacklist));
     }
     
     /**
-     * Get support email address
+     * Get product attribute blacklist as JSON
+     *
+     * @return string
+     */
+    public function getProductAttributeBlacklistJson()
+    {
+        return json_encode($this->getProductAttributeBlacklist());
+    }
+    
+    /**
+     * Check if email is required before chat
+     *
+     * @return bool
+     */
+    public function isEmailRequired()
+    {
+        return $this->scopeConfig->isSetFlag(
+            'magentomcpai/chatbot/require_email',
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+    
+    /**
+     * Get email collection message
+     *
+     * @return string
+     */
+    public function getEmailCollectionMessage()
+    {
+        $message = $this->scopeConfig->getValue(
+            'magentomcpai/chatbot/email_collection_message',
+            ScopeInterface::SCOPE_STORE
+        );
+        
+        return $message ?: __('To connect you with our team and ensure follow-up, please share your email.');
+    }
+    
+    /**
+     * Get support email
      *
      * @return string
      */
     public function getSupportEmail()
     {
-        return $this->scopeConfig->getValue('magentomcpai/chatbot/support_email', ScopeInterface::SCOPE_STORE)
-            ?: $this->scopeConfig->getValue('trans_email/ident_support/email', ScopeInterface::SCOPE_STORE);
+        $email = $this->scopeConfig->getValue(
+            'magentomcpai/chatbot/support_email',
+            ScopeInterface::SCOPE_STORE
+        );
+        
+        if (!$email) {
+            // Fall back to store general contact email
+            $email = $this->scopeConfig->getValue(
+                'trans_email/ident_general/email',
+                ScopeInterface::SCOPE_STORE
+            );
+        }
+        
+        return $email;
     }
     
     /**
-     * Get email subject
+     * Get inactive timeout in minutes
      *
-     * @return string
+     * @return int
      */
-    public function getEmailSubject()
+    public function getInactiveTimeout()
     {
-        return $this->scopeConfig->getValue('magentomcpai/chatbot/email_subject', ScopeInterface::SCOPE_STORE)
-            ?: 'Chatbot Conversation Transcript';
+        $timeout = (int)$this->scopeConfig->getValue(
+            'magentomcpai/chatbot/inactive_timeout',
+            ScopeInterface::SCOPE_STORE
+        );
+        
+        return $timeout > 0 ? $timeout : 15; // Default to 15 minutes
     }
 }

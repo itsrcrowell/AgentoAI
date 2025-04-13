@@ -1018,7 +1018,6 @@ class OpenAiService
      * @param string $openAiApiKey OpenAI API key
      * @param string $promptPrefix Additional prompt text to prepend before the transcript
      * @param string $model The OpenAI model to use
-     * @param string $languageCode Language code for speech recognition
      * @return array OpenAI response with transcript
      * @throws LocalizedException
      */
@@ -1027,11 +1026,10 @@ class OpenAiService
         string $googleAccessToken,
         string $openAiApiKey,
         string $promptPrefix = "Please analyze this transcription: ",
-        string $model = 'gpt-3.5-turbo',
-        string $languageCode = 'en-US'
+        string $model = 'gpt-3.5-turbo'
     ): array {
         // First, convert speech to text
-        $transcription = $this->speechToText($audioFilePath, $googleAccessToken, $languageCode);
+        $transcription = $this->speechToText($audioFilePath, $googleAccessToken);
         
         if (empty($transcription['transcript'])) {
             throw new LocalizedException(
@@ -1922,6 +1920,68 @@ class OpenAiService
         } catch (\Exception $e) {
             throw new LocalizedException(
                 __('Failed to generate speech: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * Get chat completion for simple queries without tracking token usage
+     *
+     * @param array $messages
+     * @param string $model
+     * @param string $apiKey
+     * @param float $temperature
+     * @param int $maxTokens
+     * @return string
+     * @throws LocalizedException
+     */
+    public function getChatCompletion(
+        array $messages,
+        string $model = 'gpt-3.5-turbo',
+        string $apiKey = null,
+        float $temperature = 0.7,
+        int $maxTokens = 1000
+    ): string {
+        try {
+            // If API key not provided, try to get from the current request
+            if ($apiKey === null) {
+                $httpHeaders = getallheaders();
+                if (isset($httpHeaders['Authorization'])) {
+                    $authHeader = $httpHeaders['Authorization'];
+                    if (strpos($authHeader, 'Bearer ') === 0) {
+                        $apiKey = substr($authHeader, 7);
+                    }
+                }
+                
+                if ($apiKey === null) {
+                    throw new LocalizedException(__('API key is required'));
+                }
+            }
+            
+            $data = [
+                'model' => $model,
+                'messages' => $messages,
+                'temperature' => $temperature,
+                'max_tokens' => $maxTokens
+            ];
+
+            $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
+            $this->curl->addHeader('Content-Type', 'application/json');
+            
+            $this->curl->post(self::API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
+            
+            $response = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
+
+            if (isset($response['error'])) {
+                throw new LocalizedException(
+                    __('OpenAI API Error: %1', $response['error']['message'])
+                );
+            }
+
+            return $response['choices'][0]['message']['content'] ?? '';
+        } catch (\Exception $e) {
+            throw new LocalizedException(
+                __('Failed to get chat completion: %1', $e->getMessage())
             );
         }
     }
