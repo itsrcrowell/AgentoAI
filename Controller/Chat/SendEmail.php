@@ -13,7 +13,7 @@ use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Framework\Translate\Inline\StateInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-class Email implements HttpPostActionInterface
+class SendEmail implements HttpPostActionInterface
 {
     /**
      * @var RequestInterface
@@ -95,64 +95,71 @@ class Email implements HttpPostActionInterface
         $resultJson = $this->resultJsonFactory->create();
 
         try {
-            // Check if email is enabled
-            $emailEnabled = $this->scopeConfig->isSetFlag(
-                'magentomcpai/chatbot/enable_email_chat',
+            $requestData = $this->json->unserialize($this->request->getContent());
+            
+            if (empty($requestData['customerEmail']) || !filter_var($requestData['customerEmail'], FILTER_VALIDATE_EMAIL)) {
+                throw new LocalizedException(__('Valid customer email is required'));
+            }
+            
+            if (empty($requestData['chatHistory'])) {
+                throw new LocalizedException(__('Chat history is required'));
+            }
+            
+            // Check if email support is enabled
+            $emailSupportEnabled = $this->scopeConfig->isSetFlag(
+                'magentomcpai/chatbot/enable_email_support',
                 ScopeInterface::SCOPE_STORE
             );
             
-            if (!$emailEnabled) {
-                throw new LocalizedException(__('Email chat history is not enabled.'));
+            if (!$emailSupportEnabled) {
+                throw new LocalizedException(__('Email support is not enabled'));
             }
             
-            $requestData = $this->json->unserialize($this->request->getContent());
-            
-            if (empty($requestData['email']) || !filter_var($requestData['email'], FILTER_VALIDATE_EMAIL)) {
-                throw new LocalizedException(__('Valid email address is required.'));
-            }
-            
-            if (empty($requestData['history']) || !is_array($requestData['history'])) {
-                throw new LocalizedException(__('Chat history is required.'));
-            }
-            
-            $customerEmail = $requestData['email'];
-            $chatHistory = $requestData['history'];
-            
-            // Get support email from config or fallback to default
+            // Get support email
             $supportEmail = $this->scopeConfig->getValue(
                 'magentomcpai/chatbot/support_email',
+                ScopeInterface::SCOPE_STORE
+            ) ?: $this->scopeConfig->getValue(
+                'trans_email/ident_support/email',
                 ScopeInterface::SCOPE_STORE
             );
             
             if (!$supportEmail) {
-                $supportEmail = $this->scopeConfig->getValue(
-                    'trans_email/ident_support/email',
-                    ScopeInterface::SCOPE_STORE
-                );
+                throw new LocalizedException(__('Support email is not configured'));
             }
             
-            // Get email subject from config or use default
+            // Prepare email template variables
+            $storeId = $this->storeManager->getStore()->getId();
+            $storeName = $this->storeManager->getStore()->getName();
+            
+            $customerEmail = $requestData['customerEmail'];
+            $customerName = $requestData['customerName'] ?? 'Customer';
+            $chatHistory = $requestData['chatHistory'];
+            $additionalComments = $requestData['additionalComments'] ?? '';
+            
+            // Format chat history for email
+            $formattedHistory = $this->formatChatHistory($chatHistory);
+            
+            // Get email subject
             $emailSubject = $this->scopeConfig->getValue(
                 'magentomcpai/chatbot/email_subject',
                 ScopeInterface::SCOPE_STORE
-            );
-            
-            $storeName = $this->storeManager->getStore()->getName();
-            if ($emailSubject) {
-                $emailSubject = str_replace('{store_name}', $storeName, $emailSubject);
-            } else {
-                $emailSubject = 'Chat History from ' . $storeName . ' Virtual Assistant';
-            }
-            
-            // Format chat history for email
-            $formattedChat = $this->formatChatHistory($chatHistory);
+            ) ?: 'Chatbot Conversation Transcript';
             
             // Send email
-            $this->sendEmail($supportEmail, $customerEmail, $emailSubject, $formattedChat);
+            $this->sendEmail(
+                $supportEmail,
+                $customerEmail,
+                $customerName,
+                $formattedHistory,
+                $additionalComments,
+                $emailSubject,
+                $storeName
+            );
             
             return $resultJson->setData([
                 'success' => true,
-                'message' => __('Chat history has been sent to our support team.')
+                'message' => __('Your conversation has been sent to our support team.')
             ]);
         } catch (LocalizedException $e) {
             $this->logger->error('Chatbot email error: ' . $e->getMessage());
@@ -164,7 +171,7 @@ class Email implements HttpPostActionInterface
             $this->logger->error('Chatbot email error: ' . $e->getMessage());
             return $resultJson->setData([
                 'success' => false,
-                'message' => __('An error occurred while sending the email.')
+                'message' => __('An error occurred while sending your conversation.')
             ]);
         }
     }
@@ -177,75 +184,71 @@ class Email implements HttpPostActionInterface
      */
     private function formatChatHistory($chatHistory)
     {
-        $formattedChat = '<h2>Chat History</h2>';
-        $formattedChat .= '<div style="margin-top: 20px; border: 1px solid #e0e0e0; padding: 15px; border-radius: 5px;">';
+        $formattedHistory = '';
         
         foreach ($chatHistory as $message) {
-            $role = isset($message['isUser']) && $message['isUser'] ? 'Customer' : 'Virtual Assistant';
-            $text = isset($message['text']) ? $message['text'] : '';
-            $time = isset($message['timestamp']) ? date('Y-m-d H:i:s', $message['timestamp'] / 1000) : '';
+            $sender = $message['isUser'] ? 'Customer' : 'Chatbot';
+            $text = $message['text'];
+            $time = isset($message['time']) ? date('Y-m-d H:i:s', $message['time'] / 1000) : '';
             
-            $style = $role === 'Customer' 
-                ? 'background-color: #f0f9ff; border-left: 4px solid #3b82f6;' 
-                : 'background-color: #f9fafb; border-left: 4px solid #6b7280;';
-            
-            $formattedChat .= '<div style="margin-bottom: 15px; padding: 10px; ' . $style . '">';
-            $formattedChat .= '<strong>' . $role . '</strong>';
-            if ($time) {
-                $formattedChat .= ' <span style="color: #6b7280; font-size: 12px;">(' . $time . ')</span>';
-            }
-            $formattedChat .= '<div style="margin-top: 5px;">' . nl2br(htmlspecialchars($text)) . '</div>';
-            $formattedChat .= '</div>';
+            $formattedHistory .= "$sender ($time): $text\n\n";
         }
         
-        $formattedChat .= '</div>';
-        return $formattedChat;
+        return $formattedHistory;
     }
     
     /**
-     * Send email with chat history
+     * Send email with conversation history
      *
      * @param string $supportEmail
      * @param string $customerEmail
+     * @param string $customerName
+     * @param string $chatHistory
+     * @param string $additionalComments
      * @param string $subject
-     * @param string $emailContent
+     * @param string $storeName
      * @return void
-     * @throws \Exception
      */
-    private function sendEmail($supportEmail, $customerEmail, $subject, $emailContent)
+    private function sendEmail($supportEmail, $customerEmail, $customerName, $chatHistory, $additionalComments, $subject, $storeName)
     {
-        $store = $this->storeManager->getStore()->getId();
-        $supportName = $this->scopeConfig->getValue(
-            'trans_email/ident_support/name',
-            ScopeInterface::SCOPE_STORE
-        );
-        
         try {
             $this->inlineTranslation->suspend();
             
+            $senderName = $this->scopeConfig->getValue(
+                'trans_email/ident_support/name',
+                ScopeInterface::SCOPE_STORE
+            ) ?: 'Support';
+            
+            $sender = [
+                'name' => $senderName,
+                'email' => $supportEmail
+            ];
+            
+            $templateVars = [
+                'store_name' => $storeName,
+                'customer_name' => $customerName,
+                'customer_email' => $customerEmail,
+                'chat_history' => nl2br($chatHistory),
+                'additional_comments' => $additionalComments
+            ];
+            
             $transport = $this->transportBuilder
-                ->setTemplateIdentifier('chatbot_email_template')
+                ->setTemplateIdentifier('magentomcpai_chatbot_transcript')
                 ->setTemplateOptions([
                     'area' => \Magento\Framework\App\Area::AREA_FRONTEND,
-                    'store' => $store
+                    'store' => $this->storeManager->getStore()->getId()
                 ])
-                ->setTemplateVars([
-                    'chat_history' => $emailContent,
-                    'customer_email' => $customerEmail,
-                    'subject' => $subject
-                ])
-                ->setFromByScope([
-                    'name' => $supportName,
-                    'email' => $supportEmail
-                ])
-                ->addTo($supportEmail, $supportName)
+                ->setTemplateVars($templateVars)
+                ->setFrom($sender)
+                ->addTo($supportEmail)
                 ->addCc($customerEmail)
                 ->getTransport();
-            
+                
             $transport->sendMessage();
+            
             $this->inlineTranslation->resume();
         } catch (\Exception $e) {
-            $this->inlineTranslation->resume();
+            $this->logger->error('Error sending chatbot transcript email: ' . $e->getMessage());
             throw $e;
         }
     }

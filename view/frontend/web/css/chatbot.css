@@ -8,7 +8,7 @@
 }
 
 .chatbot-icon {
-    @apply flex-shrink-0 w-8 h-8 rounded-full p-1 flex items-center justify-center;
+    @apply flex-shrink-0 w-8 h-8 rounded-full bg-white p-1 flex items-center justify-center;
 }
 
 .chatbot-window {

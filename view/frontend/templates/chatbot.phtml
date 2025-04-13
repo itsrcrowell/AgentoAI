@@ -7,7 +7,7 @@
     <?php if ($block->isHyvaTheme()): ?>
         <!-- Hyva Theme Implementation (Alpine.js & Tailwind CSS) -->
         <div x-data="chatbot()" 
-             x-init="initChatbot()" 
+             x-init="init()" 
              class="fixed bottom-4 right-4 z-50 font-sans">
             <!-- Chatbot Button -->
             <div x-show="!isChatOpen" 
@@ -19,7 +19,7 @@
                  x-transition:leave-end="opacity-0 transform scale-90"
                  @click="toggleChat()" 
                  class="flex items-center space-x-2 bg-gradient-to-r from-red-500 to-purple-600 text-white py-3 px-6 rounded-full cursor-pointer shadow-lg hover:shadow-xl transition-all duration-300">
-                <div class="flex-shrink-0 w-8 h-8 rounded-full p-1 flex items-center justify-center">
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-white p-1 flex items-center justify-center">
                     <img src="<?= $block->escapeUrl($block->getLogoUrl()) ?>" class="w-6 h-6 object-contain" alt="Chatbot">
                 </div>
                 <span class="font-medium"><?= $block->escapeHtml($block->getChatButtonText()) ?></span>
@@ -110,21 +110,57 @@
                 
                 <!-- Chat Input -->
                 <div class="p-3 bg-white border-t border-gray-200">
-                    <form @submit.prevent="sendMessage" class="flex">
-                        <input x-model="userInput" 
-                               @keydown.enter.prevent="sendMessage"
-                               type="text" 
-                               placeholder="Ask me anything" 
-                               class="flex-1 py-2 px-3 bg-gray-100 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                               :disabled="isLoading">
-                        <button type="submit" 
-                                class="bg-gradient-to-r from-red-500 to-purple-600 text-white p-2 rounded-r-lg focus:outline-none hover:opacity-90 disabled:opacity-50"
-                                :disabled="isLoading || !userInput.trim()">
-                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M5 12H19M19 12L13 6M19 12L13 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                    </form>
+                    <div class="chatbot-footer">
+                        <div x-show="!showEmailForm" class="chatbot-input-container">
+                            <textarea x-model="userInput" @keydown.enter.prevent="sendMessage()" placeholder="Type your message..." class="chatbot-input"></textarea>
+                            <div class="chatbot-buttons">
+                                <button @click="sendMessage()" class="chatbot-send-button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                    </svg>
+                                </button>
+                                <?php if ($block->isEmailSupportEnabled()): ?>
+                                <button @click="toggleEmailForm()" class="chatbot-email-button" title="Email this conversation">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                        <polyline points="22,6 12,13 2,6"></polyline>
+                                    </svg>
+                                </button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        
+                        <div x-show="showEmailForm" class="chatbot-email-form">
+                            <div x-show="!emailSent">
+                                <div class="chatbot-form-header">Send conversation to support</div>
+                                <div class="chatbot-form-group">
+                                    <label for="customerEmail">Your Email *</label>
+                                    <input type="email" id="customerEmail" x-model="customerEmail" class="chatbot-form-input" required/>
+                                </div>
+                                <div class="chatbot-form-group">
+                                    <label for="customerName">Your Name</label>
+                                    <input type="text" id="customerName" x-model="customerName" class="chatbot-form-input"/>
+                                </div>
+                                <div class="chatbot-form-group">
+                                    <label for="additionalComments">Additional Comments</label>
+                                    <textarea id="additionalComments" x-model="additionalComments" class="chatbot-form-textarea"></textarea>
+                                </div>
+                                <div class="chatbot-form-buttons">
+                                    <button @click="sendEmailTranscript()" class="chatbot-form-submit" :disabled="sendingEmail || !customerEmail">
+                                        <span x-show="!sendingEmail">Send</span>
+                                        <span x-show="sendingEmail">Sending...</span>
+                                    </button>
+                                    <button @click="toggleEmailForm()" class="chatbot-form-cancel">Cancel</button>
+                                </div>
+                            </div>
+                            <div x-show="emailSent" class="chatbot-email-sent">
+                                <div class="chatbot-email-sent-icon">✓</div>
+                                <div class="chatbot-email-sent-message">Your conversation has been sent to our support team.</div>
+                                <button @click="resetEmailForm()" class="chatbot-form-submit">Continue Chat</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Chat Footer -->
@@ -143,6 +179,24 @@
                     messages: [],
                     userInput: '',
                     chatHistory: [],
+                    currentProduct: <?= $block->getProductContextJson() ?>,
+                    showEmailForm: false,
+                    customerEmail: '',
+                    customerName: '',
+                    additionalComments: '',
+                    emailSent: false,
+                    sendingEmail: false,
+                    
+                    init() {
+                        // Load chatbot state immediately to prevent CLS issues
+                        const savedChatState = localStorage.getItem('chatbot_is_open');
+                        if (savedChatState === 'true') {
+                            this.isChatOpen = true;
+                        }
+                        
+                        // Continue with normal initialization
+                        this.initChatbot();
+                    },
                     
                     initChatbot() {
                         // Load chat history from localStorage if available
@@ -161,10 +215,29 @@
                         if (urlParams.get('open_chat') === 'true') {
                             this.toggleChat();
                         }
+                        
+                        // Check if we're on a product page
+                        this.checkCurrentProduct();
+                    },
+                    
+                    checkCurrentProduct() {
+                        if (this.currentProduct && Object.keys(this.currentProduct).length > 0) {
+                            console.log('Chatbot detected product:', this.currentProduct.name);
+                            // Add product welcome message in queue
+                            setTimeout(() => {
+                                if (this.isChatOpen && this.chatHistory.length <= 1) {
+                                    this.addMessage(`I see you're looking at ${this.currentProduct.name}. Feel free to ask me any questions about this product!`, false);
+                                }
+                            }, 1000);
+                        }
                     },
                     
                     toggleChat() {
                         this.isChatOpen = !this.isChatOpen;
+                        
+                        // Save chat state to localStorage
+                        localStorage.setItem('chatbot_is_open', this.isChatOpen.toString());
+                        
                         if (this.isChatOpen && this.messages.length === 0) {
                             // Initialize chat with welcome message if no messages yet
                             this.showSuggestions = true;
@@ -258,7 +331,8 @@
                                 query: query,
                                 context: storeContext,
                                 history: conversationHistory,
-                                summary: conversationSummary
+                                summary: conversationSummary,
+                                product: this.currentProduct
                             })
                         })
                         .then(response => response.json())
@@ -281,7 +355,75 @@
                         // Convert URLs to links
                         const urlRegex = /(https?:\/\/[^\s]+)/g;
                         return text.replace(urlRegex, url => `<a href="${url}" target="_blank" class="underline">${url}</a>`);
-                    }
+                    },
+                    
+                    toggleEmailForm() {
+                        this.showEmailForm = !this.showEmailForm;
+                        if (this.showEmailForm) {
+                            // Try to get email from localStorage if available
+                            const savedEmail = localStorage.getItem('chatbot_customer_email');
+                            if (savedEmail) {
+                                this.customerEmail = savedEmail;
+                            }
+                            const savedName = localStorage.getItem('chatbot_customer_name');
+                            if (savedName) {
+                                this.customerName = savedName;
+                            }
+                        }
+                    },
+                    
+                    resetEmailForm() {
+                        this.showEmailForm = false;
+                        this.emailSent = false;
+                        this.additionalComments = '';
+                    },
+                    
+                    sendEmailTranscript() {
+                        if (!this.customerEmail || this.sendingEmail) {
+                            return;
+                        }
+                        
+                        this.sendingEmail = true;
+                        
+                        // Save email and name to localStorage for future use
+                        localStorage.setItem('chatbot_customer_email', this.customerEmail);
+                        if (this.customerName) {
+                            localStorage.setItem('chatbot_customer_name', this.customerName);
+                        }
+                        
+                        fetch('<?= $block->getUrl('magentomcpai/chat/sendemail') ?>', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({
+                                customerEmail: this.customerEmail,
+                                customerName: this.customerName || 'Customer',
+                                chatHistory: this.chatHistory,
+                                additionalComments: this.additionalComments
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            this.sendingEmail = false;
+                            if (data.success) {
+                                this.emailSent = true;
+                                // Add message to chat that email was sent
+                                this.addMessage("I've sent a copy of our conversation to " + this.customerEmail + " and our support team.", false);
+                            } else {
+                                // Add error message to chat
+                                this.addMessage("Sorry, there was an error sending the email: " + data.message, false);
+                                this.resetEmailForm();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            this.sendingEmail = false;
+                            this.addMessage("Sorry, there was an error sending the email. Please try again later.", false);
+                            this.resetEmailForm();
+                        });
+                    },
                 }
             }
         </script>
@@ -306,7 +448,8 @@
                                 "buttonText": "<?= $block->escapeJs($block->getChatButtonText()) ?>",
                                 "suggestedQueries": <?= $block->getSuggestedQueriesJson() ?>,
                                 "storeContext": <?= $block->getStoreContextJson() ?>,
-                                "apiUrl": "<?= $block->escapeJs($block->getUrl('magentomcpai/chat/query')) ?>"
+                                "apiUrl": "<?= $block->escapeJs($block->getUrl('magentomcpai/chat/query')) ?>",
+                                "productContext": <?= $block->getProductContextJson() ?>
                             }
                         }
                     }

@@ -15,9 +15,6 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\FilterBuilder;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Catalog\Api\ProductRepositoryInterface;
-use Magento\Catalog\Api\Data\ProductInterface;
-use Magento\Catalog\Helper\Image as ImageHelper;
 
 class Query implements HttpPostActionInterface
 {
@@ -70,16 +67,6 @@ class Query implements HttpPostActionInterface
      * @var FilterBuilder
      */
     private $filterBuilder;
-    
-    /**
-     * @var ProductRepositoryInterface
-     */
-    private $productRepository;
-    
-    /**
-     * @var ImageHelper
-     */
-    private $imageHelper;
 
     /**
      * @param RequestInterface $request
@@ -92,8 +79,6 @@ class Query implements HttpPostActionInterface
      * @param OrderRepositoryInterface $orderRepository
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param FilterBuilder $filterBuilder
-     * @param ProductRepositoryInterface $productRepository
-     * @param ImageHelper $imageHelper
      */
     public function __construct(
         RequestInterface $request,
@@ -105,9 +90,7 @@ class Query implements HttpPostActionInterface
         Json $json,
         OrderRepositoryInterface $orderRepository,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        FilterBuilder $filterBuilder,
-        ProductRepositoryInterface $productRepository,
-        ImageHelper $imageHelper
+        FilterBuilder $filterBuilder
     ) {
         $this->request = $request;
         $this->resultJsonFactory = $resultJsonFactory;
@@ -119,8 +102,6 @@ class Query implements HttpPostActionInterface
         $this->orderRepository = $orderRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->filterBuilder = $filterBuilder;
-        $this->productRepository = $productRepository;
-        $this->imageHelper = $imageHelper;
     }
 
     /**
@@ -143,6 +124,7 @@ class Query implements HttpPostActionInterface
             $storeContext = $requestData['context'] ?? [];
             $conversationHistory = $requestData['history'] ?? [];
             $conversationSummary = $requestData['summary'] ?? '';
+            $productData = $requestData['product'] ?? null;
             
             // Check if this is an order status lookup query
             $orderLookupResponse = $this->handleOrderLookupQuery($userQuery, $conversationHistory);
@@ -160,7 +142,7 @@ class Query implements HttpPostActionInterface
             if ($cachedResponse) {
                 $response = $this->json->unserialize($cachedResponse);
             } else {
-                $response = $this->getAiResponse($userQuery, $storeContext, $conversationHistory, $conversationSummary);
+                $response = $this->getAiResponse($userQuery, $storeContext, $conversationHistory, $conversationSummary, $productData);
                 
                 // Cache the response for frequently asked questions (1 hour)
                 $this->cache->save(
@@ -197,9 +179,10 @@ class Query implements HttpPostActionInterface
      * @param array $storeContext
      * @param array $conversationHistory
      * @param string $conversationSummary
+     * @param array $productData
      * @return string
      */
-    private function getAiResponse($query, $storeContext, $conversationHistory, $conversationSummary = '')
+    private function getAiResponse($query, $storeContext, $conversationHistory, $conversationSummary = '', $productData = null)
     {
         $apiKey = $this->scopeConfig->getValue(
             'magentomcpai/general/api_key',
@@ -216,7 +199,7 @@ class Query implements HttpPostActionInterface
         ) ?: 'gpt-3.5-turbo';
         
         // Build system prompt with store context and FAQs
-        $systemPrompt = $this->buildSystemPrompt($storeContext);
+        $systemPrompt = $this->buildSystemPrompt($storeContext, $productData);
         
         // Add conversation summary if provided
         if (!empty($conversationSummary)) {
@@ -268,9 +251,10 @@ class Query implements HttpPostActionInterface
      * Build system prompt with store context
      * 
      * @param array $storeContext
+     * @param array $productData
      * @return string
      */
-    private function buildSystemPrompt($storeContext)
+    private function buildSystemPrompt($storeContext, $productData)
     {
         $storeName = $storeContext['name'] ?? 'our store';
         $storePhone = $storeContext['phone'] ?? 'our customer service';
@@ -302,6 +286,45 @@ class Query implements HttpPostActionInterface
         
         if (!empty($documentation)) {
             $prompt .= "\n\nHere is additional information about our products and services:\n" . $documentation;
+        }
+        
+        // Add product context if available
+        if (!empty($productData) && isset($productData['name'])) {
+            $prompt .= "\n\nThe customer is currently viewing this product:";
+            $prompt .= "\nProduct Name: " . $productData['name'];
+            $prompt .= "\nSKU: " . ($productData['sku'] ?? 'Not available');
+            $prompt .= "\nPrice: " . ($productData['price'] ?? 'Not available');
+            $prompt .= "\nDescription: " . ($productData['short_description'] ?? $productData['description'] ?? 'Not available');
+            
+            // Add visible product attributes
+            $visibleAttributes = [];
+            $hiddenAttributes = [];
+            
+            if (!empty($productData['attributes'])) {
+                foreach ($productData['attributes'] as $code => $attributeData) {
+                    if (isset($attributeData['label']) && isset($attributeData['value'])) {
+                        if (isset($attributeData['is_visible']) && $attributeData['is_visible']) {
+                            $visibleAttributes[] = "- " . $attributeData['label'] . ": " . $attributeData['value'];
+                        } else {
+                            $hiddenAttributes[] = "- " . $attributeData['label'] . ": " . $attributeData['value'];
+                        }
+                    }
+                }
+                
+                if (!empty($visibleAttributes)) {
+                    $prompt .= "\n\nVisible Product Attributes (shown to customers):";
+                    $prompt .= "\n" . implode("\n", $visibleAttributes);
+                }
+                
+                if (!empty($hiddenAttributes)) {
+                    $prompt .= "\n\nAdditional Product Attributes (from catalog):";
+                    $prompt .= "\n" . implode("\n", $hiddenAttributes);
+                }
+            }
+            
+            $prompt .= "\n\nWhen the customer asks about 'this product' or uses similar phrases, they are referring to the " . $productData['name'] . ". ";
+            $prompt .= "Answer questions specifically about this product using the above information, including both visible and hidden attributes when relevant. ";
+            $prompt .= "You have access to complete product specifications that may not be visible on the product page, so use this information to provide detailed answers.";
         }
         
         return $prompt;

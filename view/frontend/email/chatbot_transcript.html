@@ -1,0 +1,46 @@
+<!--@subject {{var subject|raw}} @-->
+<!--@vars {
+"var customer_name":"Customer Name",
+"var customer_email":"Customer Email",
+"var chat_history":"Chatbot Conversation History",
+"var additional_comments":"Additional Comments",
+"var store_name":"Store Name"
+} @-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Chatbot Conversation Transcript</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.5; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+            <h1 style="color: #444; margin-top: 0;">Chatbot Conversation Transcript</h1>
+            <p><strong>From:</strong> {{var customer_name}} ({{var customer_email}})</p>
+            <p><strong>Store:</strong> {{var store_name}}</p>
+            <p><strong>Date:</strong> {{var date|raw}}</p>
+        </div>
+
+        {{if additional_comments}}
+        <div style="margin-bottom: 20px;">
+            <h2 style="color: #444; font-size: 18px;">Customer Comments</h2>
+            <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #ddd;">
+                {{var additional_comments|raw}}
+            </div>
+        </div>
+        {{/if}}
+
+        <div>
+            <h2 style="color: #444; font-size: 18px;">Conversation History</h2>
+            <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #ddd;">
+                {{var chat_history|raw}}
+            </div>
+        </div>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #777;">
+            <p>This is an automated message from the chatbot system at {{var store_name}}.</p>
+        </div>
+    </div>
+</body>
+</html>
