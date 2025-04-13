@@ -48,6 +48,13 @@ A powerful AI assistant for Magento 2 that helps you interact with your store's 
 - Extensible design
 - Easy to customize and extend
 
+### 7. Customer Service Chatbot
+- AI-powered customer-facing chatbot for your storefront
+- Dual theme support (Hyva & Standard Magento)
+- Response caching for common questions
+- Customizable interface and suggested questions
+- Mobile responsive design
+
 ## Installation
 
 1. Install the module using Composer:
@@ -748,6 +755,47 @@ pdf,txt,csv,json,docx,xlsx
 - Audit logging for all media processing operations
 
 ## Sending Magento Data to AI
+
+## Customer Service Chatbot
+
+The Customer Service Chatbot is a powerful AI-powered interface for your storefront that helps answer customer questions, provide product information, and handle common support requests.
+
+### Key Features
+
+- **Dual Theme Support**: Works with both Hyva themes (Tailwind CSS & Alpine.js) and standard Magento themes
+- **AI-Powered Responses**: Leverages OpenAI's models to provide intelligent answers
+- **Response Caching**: Caches common questions for faster performance
+- **Suggested Questions**: Displays customizable question prompts to guide customers
+- **Mobile Responsive**: Fully responsive design works on all devices
+
+### Configuration
+
+1. Navigate to **Stores > Configuration > Genaker > Magento MCP AI > Customer Chatbot Configuration**
+2. Configure the following settings:
+   - **Enable Customer Chatbot**: Turn the chatbot on/off
+   - **Theme Type**: Choose between Standard Magento or Hyva Theme
+   - **Chatbot Title**: Set the title displayed in the header
+   - **Welcome Message**: Customize the initial message
+   - **AI Model**: Select which AI model to use for responses
+   - **Suggested Queries**: Define common questions to display
+   - **Chatbot Logo**: Upload a custom logo (64x64px recommended)
+   - **Frequently Asked Questions**: Add common Q&A to cache
+
+### Customer Experience
+
+Once configured, the chatbot appears as a floating button in the bottom-right corner of your store. Customers can:
+
+1. Click to open the chat interface
+2. Select from suggested questions or type their own
+3. Receive AI-powered responses about products, policies, etc.
+4. Maintain conversation history during their session
+
+### Technical Details
+
+- Uses the same OpenAI integration as the admin MCP AI Assistant
+- Implements caching to reduce API costs for common questions
+- Supports both Hyva and standard Magento themes through modular design
+- Includes REST API endpoints for headless implementation
 
 ### Overview
 
