@@ -724,7 +724,7 @@ class OpenAiService
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->post(
-                'https://api.openai.com/v1/threads', 
+                self::THREADS_API_ENDPOINT, 
                 $this->jsonHelper->jsonEncode([])
             );
             
@@ -742,7 +742,7 @@ class OpenAiService
                 $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
                 $this->curl->addHeader('Content-Type', 'application/json');
                 $this->curl->post(
-                    "https://api.openai.com/v1/threads/{$threadId}/messages",
+                    sprintf(self::THREAD_MESSAGES_API_ENDPOINT, $threadId),
                     $this->jsonHelper->jsonEncode($threadMessage)
                 );
                 
@@ -758,7 +758,7 @@ class OpenAiService
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->post(
-                "https://api.openai.com/v1/threads/{$threadId}/runs",
+                sprintf(self::THREAD_RUNS_API_ENDPOINT, $threadId),
                 $this->jsonHelper->jsonEncode($runData)
             );
             
@@ -772,7 +772,7 @@ class OpenAiService
             
             while ($attempts < $maxAttempts) {
                 $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
-                $this->curl->get("https://api.openai.com/v1/threads/{$threadId}/runs/{$runId}");
+                $this->curl->get(sprintf(self::THREAD_RUN_STATUS_API_ENDPOINT, $threadId, $runId));
                 
                 $runStatusResponse = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
                 $runStatus = $runStatusResponse['status'];
@@ -794,7 +794,7 @@ class OpenAiService
             
             // Step 6: Get the assistant's messages
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
-            $this->curl->get("https://api.openai.com/v1/threads/{$threadId}/messages?limit=1");
+            $this->curl->get(sprintf(self::THREAD_MESSAGES_API_ENDPOINT, $threadId));
             
             $messagesResponse = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
             $assistantMessage = '';
