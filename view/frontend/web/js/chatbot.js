@@ -17,7 +17,10 @@ define([
             buttonText: 'Try our virtual assistant',
             suggestedQueries: [],
             storeContext: {},
-            apiUrl: ''
+            apiUrl: '',
+            productPageDetection: true,
+            productQuestionsEnabled: false,
+            attributeBlacklist: []
         },
 
         // Observables
@@ -47,6 +50,11 @@ define([
             var urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('open_chat') === 'true') {
                 this.toggleChat();
+            }
+            
+            // Detect product information if enabled
+            if (this.productPageDetection) {
+                this.detectProductInformation();
             }
 
             return this;
@@ -130,6 +138,98 @@ define([
             });
         },
 
+        // Detect product information from the current page
+        detectProductInformation: function() {
+            try {
+                // Skip if product questions are disabled
+                if (!this.productQuestionsEnabled) {
+                    return;
+                }
+                
+                // First check if PRODUCT_INFO is defined globally
+                if (typeof PRODUCT_INFO !== 'undefined' && PRODUCT_INFO) {
+                    var filteredProduct = this.filterProductAttributes(PRODUCT_INFO);
+                    this.storeContext.current_product = filteredProduct;
+                    return;
+                }
+                
+                // Otherwise try to extract product data from the DOM
+                var productData = document.querySelector('[data-role="priceBox"]');
+                if (productData) {
+                    var productId = productData.getAttribute('data-product-id');
+                    if (productId) {
+                        var currentProduct = {
+                            id: productId,
+                            name: document.querySelector('.page-title span') ? 
+                                document.querySelector('.page-title span').textContent : '',
+                            price: document.querySelector('[data-price-type="finalPrice"] .price') ? 
+                                document.querySelector('[data-price-type="finalPrice"] .price').textContent : '',
+                            description: document.querySelector('.product.attribute.description .value') ? 
+                                document.querySelector('.product.attribute.description .value').textContent : '',
+                            attributes: {}
+                        };
+                        
+                        // Try to collect product attributes
+                        var attributes = document.querySelectorAll('.product.attribute');
+                        if (attributes && attributes.length) {
+                            attributes.forEach(function(attr) {
+                                var label = attr.querySelector('.label');
+                                var value = attr.querySelector('.value');
+                                if (label && value) {
+                                    var attrName = label.textContent.trim().replace(':', '');
+                                    currentProduct.attributes[attrName] = value.textContent.trim();
+                                }
+                            });
+                        }
+                        
+                        // Filter product attributes
+                        var filteredProduct = this.filterProductAttributes(currentProduct);
+                        
+                        // Add to store context
+                        if (!this.storeContext) {
+                            this.storeContext = {};
+                        }
+                        this.storeContext.current_product = filteredProduct;
+                    }
+                }
+            } catch (e) {
+                console.error('Error detecting product information:', e);
+            }
+        },
+        
+        // Filter product attributes based on blacklist
+        filterProductAttributes: function(productInfo) {
+            if (!productInfo) {
+                return {};
+            }
+            
+            // Create a copy to avoid modifying the original
+            var filteredInfo = JSON.parse(JSON.stringify(productInfo));
+            
+            // Get blacklist from config
+            var blacklist = this.attributeBlacklist || [];
+            
+            // Filter top-level attributes
+            for (var i = 0; i < blacklist.length; i++) {
+                var attribute = blacklist[i];
+                if (filteredInfo[attribute] !== undefined) {
+                    delete filteredInfo[attribute];
+                }
+            }
+            
+            // Filter nested attributes if they exist
+            if (filteredInfo.attributes && typeof filteredInfo.attributes === 'object') {
+                for (var j = 0; j < blacklist.length; j++) {
+                    var nestedAttr = blacklist[j];
+                    if (filteredInfo.attributes[nestedAttr] !== undefined) {
+                        delete filteredInfo.attributes[nestedAttr];
+                    }
+                }
+            }
+            
+            return filteredInfo;
+        },
+
         // Fetch AI response
         fetchResponse: function (query) {
             this.isLoading(true);
@@ -137,12 +237,53 @@ define([
             // Get store context
             var storeContext = this.storeContext || {};
             var apiUrl = this.apiUrl || urlBuilder.build('magentomcpai/chat/query');
+            
+            // Process conversation history for context
+            var conversationHistory = [];
+            var conversationSummary = '';
+            
+            var history = this.chatHistory();
+            // If we have more than 10 messages, include a summary instead of full history
+            if (history.length > 10) {
+                // Get the last 5 messages
+                var recentMessages = history.slice(-5);
+                
+                // Create a summary for older messages
+                conversationSummary = "Previous conversation summary: ";
+                var olderMessages = history.slice(0, -5);
+                for (var i = 0; i < olderMessages.length; i++) {
+                    var msg = olderMessages[i];
+                    conversationSummary += (msg.isUser ? "User: " : "Assistant: ") + msg.text + "; ";
+                }
+                
+                // Include only recent messages in the detailed history
+                conversationHistory = recentMessages
+                    .filter(function(msg) { return msg.text !== query; }) // Exclude current query
+                    .map(function(msg) {
+                        return {
+                            role: msg.isUser ? 'user' : 'assistant',
+                            content: msg.text
+                        };
+                    });
+            } else {
+                // If we have 10 or fewer messages, send them all
+                conversationHistory = history
+                    .filter(function(msg) { return msg.text !== query; }) // Exclude current query
+                    .map(function(msg) {
+                        return {
+                            role: msg.isUser ? 'user' : 'assistant',
+                            content: msg.text
+                        };
+                    });
+            }
 
             storage.post(
                 apiUrl,
                 JSON.stringify({
                     query: query,
-                    context: storeContext
+                    context: storeContext,
+                    history: conversationHistory,
+                    summary: conversationSummary
                 }),
                 true,
                 'application/json'
