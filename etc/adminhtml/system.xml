@@ -26,6 +26,10 @@
                     <label>Default AI Model</label>
                     <source_model>Genaker\MagentoMcpAi\Model\Config\Source\Model</source_model>
                 </field>
+                <field id="custom_model" translate="label" type="text" sortOrder="41" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Model (Override)</label>
+                    <comment>If set, this model will override the general model for all AI requests.</comment>
+                </field>
                 <field id="max_tokens" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Max Tokens</label>
                     <comment>Maximum number of tokens to generate (1-4000)</comment>

@@ -81,6 +81,32 @@ class OpenAiService
     }
 
     /**
+     * Get the default model from admin config
+     *
+     * Priority:
+     *   1. magentomcpai/general/custom_model (if set)
+     *   2. magentomcpai/general/model
+     *   3. 'gpt-3.5-turbo' (hardcoded fallback)
+     *
+     * @return string
+     */
+    protected function getDefaultModel(): string
+    {
+        $customModel = $this->scopeConfig->getValue(
+            'magentomcpai/general/custom_model',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        if ($customModel) {
+            return $customModel;
+        }
+        $model = $this->scopeConfig->getValue(
+            'magentomcpai/general/model',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        return $model ?: 'gpt-3.5-turbo';
+    }
+
+    /**
      * Send request to OpenAI API
      *
      * @param array $messages
@@ -99,6 +125,7 @@ class OpenAiService
         int $maxTokens = 4000
     ): array {
         try {
+            $model = $model ?: $this->getDefaultModel();
             $data = [
                 'model' => $model,
                 'messages' => $messages,
@@ -311,6 +338,7 @@ class OpenAiService
         int $maxTokens = 4000
     ): array {
         try {
+            $model = $model ?: $this->getDefaultModel();
             $data = [
                 'model' => $model,
                 'messages' => $messages,
@@ -371,6 +399,7 @@ class OpenAiService
         bool $returnMetadata = true
     ): array {
         try {
+            $model = $model ?: $this->getDefaultModel();
             // Convert single file ID to array for consistent handling
             $fileIds = is_array($fileId) ? $fileId : [$fileId];
             
@@ -581,6 +610,7 @@ class OpenAiService
         float $temperature = 0.7
     ): array {
         try {
+            $model = $model ?: $this->getDefaultModel();
             $data = [
                 'model' => $model,
                 'prompt' => $prompt,
@@ -636,6 +666,7 @@ class OpenAiService
         int $maxTokens = 4000
     ): array {
         try {
+            $model = $model ?: $this->getDefaultModel();
             // Validate that fileIds is not empty
             if (empty($fileIds)) {
                 throw new LocalizedException(
@@ -1060,6 +1091,7 @@ class OpenAiService
     ): array {
         // First, convert speech to text
         $transcription = $this->speechToText($audioFilePath, $googleAccessToken);
+        $model = $model ?: $this->getDefaultModel();
         
         if (empty($transcription['transcript'])) {
             throw new LocalizedException(
@@ -1248,6 +1280,7 @@ class OpenAiService
     ): array {
         // First, recognize the image
         $recognition = $this->recognizeImage($imageFilePath, $googleAccessToken);
+        $model = $model ?: $this->getDefaultModel();
         
         // Format the labels as a comma-separated list
         $labelsText = implode(', ', array_map(function ($label) {
@@ -1636,6 +1669,7 @@ class OpenAiService
         int $maxTokens = 1000
     ): array {
         try {
+            $model = $model ?: $this->getDefaultModel();
             // Validate inputs
             if (empty($messages)) {
                 throw new LocalizedException(
@@ -1988,6 +2022,7 @@ class OpenAiService
                 }
             }
             
+            $model = $model ?: $this->getDefaultModel();
             $data = [
                 'model' => $model,
                 'messages' => $messages,
@@ -2258,6 +2293,7 @@ class OpenAiService
         int $maxTokens = 150
     ): array {
         try {
+            $model = $model ?: $this->getDefaultModel();
             $allContents = [];
             foreach ($fileIds as $fileId) {
                 $fileInfo = $this->getFileContent($fileId, $apiKey);

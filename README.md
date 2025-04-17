@@ -89,12 +89,24 @@ bin/magento cache:clean
 - Define query generation behavior
 - Set response formatting rules
 
-### 3. Documentation
+### 3. Model Selection & Custom Model Override
+- **Default Model:** Set the default AI model in `Stores > Configuration > Genaker > Magento MCP AI > General Configuration > Default AI Model`.
+- **Custom Model (Override):** If you set a value in the `Custom Model (Override)` field, this model will be used for all AI requests, overriding the default model. Leave it blank to use the default model.
+- **Priority Order:**
+  1. If `Custom Model (Override)` is set, it is always used.
+  2. If not, the `Default AI Model` is used.
+  3. If both are empty, the fallback is `gpt-3.5-turbo`.
+
+**Example:**
+- Set `Custom Model (Override)` to `mistral-7b-instruct` to use that model for all requests, even if the default is set to `gpt-4`.
+- Leave `Custom Model (Override)` blank to use the default model selection logic.
+
+### 4. Documentation
 - Add store-specific documentation
 - Include table structures
 - Document custom attributes
 
-### 4. Database Connection
+### 5. Database Connection
 - Configure custom database connection in `app/etc/env.php`:
 ```php
 'db' => [
