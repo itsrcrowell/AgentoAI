@@ -824,3 +824,98 @@ When enabled, this configuration allows the AI to receive and process Magento da
 
 - Always review the data being sent to ensure compliance with data privacy regulations.
 - Consider the implications of sharing data with external services and ensure that appropriate security measures are in place.
+
+## Configurable OpenAI API Domain & Custom AI Engines
+
+### Overview
+
+Magento MCP AI allows you to configure the base domain for the OpenAI API. This means you can use not only the official OpenAI endpoints, but also self-hosted, proxy, or alternative OpenAI-compatible AI engines (such as local LLMs, OpenRouter, or other providers that implement the OpenAI API spec).
+
+### How to Configure the API Domain
+
+1. **Go to Magento Admin:**
+   - Navigate to `Stores > Configuration > Genaker > Magento MCP AI > General Configuration`.
+2. **Find the "AI API Domain" field:**
+   - Default: `https://api.openai.com`
+   - You can set this to any OpenAI-compatible endpoint, e.g.:
+     - Official: `https://api.openai.com`
+     - Local server: `http://localhost:8000`
+     - Proxy: `https://your-proxy.example.com`
+     - OpenRouter: `https://openrouter.ai/api/v1`
+3. **Save the configuration and flush cache.**
+
+### Example Use Cases
+
+- **Local Development:**
+  - Run a local OpenAI-compatible LLM server (e.g., [LocalAI](https://github.com/go-skynet/LocalAI), [Ollama](https://ollama.com/), [LM Studio](https://lmstudio.ai/))
+  - Set the domain to `http://localhost:8080` (or your local endpoint)
+- **Remote/Proxy AI Engines:**
+  - Use a proxy or gateway that implements the OpenAI API (e.g., OpenRouter, Azure OpenAI, custom reverse proxy)
+  - Set the domain to your proxy URL
+- **Alternative Providers:**
+  - Some providers (e.g., OpenRouter, Together, Replicate) offer OpenAI-compatible APIs. Set the domain to their endpoint.
+
+### Best Practices
+
+- **API Key:** Make sure to use the correct API key for the chosen endpoint. Some providers require different keys.
+- **Model Names:** Not all endpoints support all OpenAI models. Check the documentation for supported models.
+- **SSL/TLS:** For production, use HTTPS endpoints. For local development, HTTP is acceptable.
+- **CORS/Firewall:** Ensure your Magento server can reach the configured domain (check firewall, CORS, and network settings).
+- **Testing:** After changing the domain, test the AI assistant to ensure connectivity and compatibility.
+
+### Troubleshooting
+
+- If you see connection errors, verify the endpoint URL and that the server is reachable from your Magento instance.
+- Check logs for detailed error messages.
+- Some self-hosted engines may require additional configuration (e.g., model downloads, API enablement).
+
+### Example: Using LocalAI
+
+1. Start LocalAI on your server:
+   ```bash
+   local-ai --models-path /path/to/models --api-bind 0.0.0.0:8080
+   ```
+2. In Magento admin, set AI API Domain to:
+   ```
+   http://localhost:8080
+   ```
+3. Use a compatible model name (e.g., `gpt-3.5-turbo` if supported by your engine).
+
+### Example: Using OpenRouter
+
+1. Get your OpenRouter API key from https://openrouter.ai/
+2. Set AI API Domain to:
+   ```
+   https://openrouter.ai/api/v1
+   ```
+3. Use your OpenRouter API key in the API Key field.
+
+### Known OpenAI-Compatible API Providers & Engines
+
+Below is a list of popular AI engines and providers that implement the OpenAI API (chat/completions, embeddings, etc.) and can be used with Magento MCP AI by setting the API domain and using a compatible API key:
+
+#### Commercial/Cloud Providers
+- **[OpenAI](https://platform.openai.com/)** — The official provider for GPT-3.5, GPT-4, DALL-E, Whisper, etc.
+- **[Azure OpenAI Service](https://azure.microsoft.com/en-us/products/ai-services/openai-service/)** — Microsoft Azure's managed OpenAI API, supports enterprise features and regional hosting.
+- **[OpenRouter](https://openrouter.ai/)** — API gateway for multiple models (OpenAI, Anthropic, Google, Mistral, etc.) with a unified OpenAI-compatible API.
+- **[Together AI](https://www.together.ai/)** — Cloud provider for open-source LLMs (Mixtral, Llama, MPT, etc.) with OpenAI-compatible endpoints.
+- **[Groq](https://groq.com/)** — High-speed inference for Llama and Mixtral models, OpenAI API compatible.
+- **[Replicate](https://replicate.com/docs/openai-api)** — Offers a wide range of models (vision, language, etc.) via an OpenAI-compatible API.
+- **[Perplexity AI](https://docs.perplexity.ai/docs/openai-compatible-api)** — Provides OpenAI-compatible endpoints for their models.
+
+#### Open Source / Self-Hosted Engines
+- **[LocalAI](https://github.com/go-skynet/LocalAI)** — Self-hosted OpenAI API for running LLMs, Whisper, and more locally or on your own server.
+- **[Ollama](https://ollama.com/)** — Local LLM runner with OpenAI-compatible API, supports models like Llama, Mistral, Phi, etc.
+- **[LM Studio](https://lmstudio.ai/)** — Desktop app for running and chatting with local LLMs, exposes an OpenAI-compatible API.
+- **[llama.cpp server](https://github.com/ggerganov/llama.cpp/tree/master/examples/server)** — Lightweight C++ LLM server with OpenAI-compatible endpoints.
+- **[FastChat](https://github.com/lm-sys/FastChat)** — Multi-model, multi-user chat server with OpenAI API compatibility.
+- **[vLLM](https://github.com/vllm-project/vllm)** — High-throughput LLM inference engine with OpenAI-compatible API.
+
+#### Notes
+- Not all providers support every OpenAI model or feature (e.g., function calling, images, audio). Check their documentation for supported endpoints and models.
+- Some providers require special API keys or authentication methods.
+- For local/self-hosted engines, you may need to download models and configure the server before use.
+
+---
+
+This flexibility allows you to use the Magento MCP AI Assistant with a wide range of AI backends, including private, on-premise, or alternative cloud providers, as long as they are OpenAI API compatible.

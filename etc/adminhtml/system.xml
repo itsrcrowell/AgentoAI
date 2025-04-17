@@ -50,6 +50,10 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>Enable or disable sending Magento data to AI. Disabled by default.</comment>
                 </field>
+                <field id="api_domain" translate="label" type="text" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>AI API Domain</label>
+                    <comment>Enter the base domain for the AI API (e.g. https://api.openai.com)</comment>
+                </field>
             </group>
             <group id="chatbot" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Customer Chatbot Configuration</label>

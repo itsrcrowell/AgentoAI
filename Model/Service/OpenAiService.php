@@ -5,24 +5,28 @@ use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\Io\File;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 class OpenAiService
 {
-    const API_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
-    const FILES_API_ENDPOINT = 'https://api.openai.com/v1/files';
-    const ANSWERS_API_ENDPOINT = 'https://api.openai.com/v1/answers'; // Depricated
-    const COMPLETIONS_API_ENDPOINT = 'https://api.openai.com/v1/completions';
-    const ASSISTANTS_API_ENDPOINT = 'https://api.openai.com/v1/assistants';
-    const EMBEDDINGS_API_ENDPOINT = 'https://api.openai.com/v1/embeddings';
-    const IMAGES_API_ENDPOINT = 'https://api.openai.com/v1/images/generations';
-    const AUDIO_TRANSCRIPTION_API_ENDPOINT = 'https://api.openai.com/v1/audio/transcriptions';
-    const AUDIO_SPEECH_API_ENDPOINT = 'https://api.openai.com/v1/audio/speech';
-    const GOOGLE_SPEECH_API_ENDPOINT = 'https://speech.googleapis.com/v1/speech:recognize';
-    const GOOGLE_VISION_API_ENDPOINT = 'https://vision.googleapis.com/v1/images:annotate';
-    const THREADS_API_ENDPOINT = 'https://api.openai.com/v1/threads';
-    const THREAD_MESSAGES_API_ENDPOINT = 'https://api.openai.com/v1/threads/%s/messages';
-    const THREAD_RUNS_API_ENDPOINT = 'https://api.openai.com/v1/threads/%s/runs';
-    const THREAD_RUN_STATUS_API_ENDPOINT = 'https://api.openai.com/v1/threads/%s/runs/%s';
+
+      // Endpoint path constants
+      const CHAT_COMPLETIONS_PATH = '/v1/chat/completions';
+      const FILES_PATH = '/v1/files';
+      const ANSWERS_PATH = '/v1/answers'; // Deprecated
+      const COMPLETIONS_PATH = '/v1/completions';
+      const ASSISTANTS_PATH = '/v1/assistants';
+      const EMBEDDINGS_PATH = '/v1/embeddings';
+      const IMAGES_PATH = '/v1/images/generations';
+      const AUDIO_TRANSCRIPTION_PATH = '/v1/audio/transcriptions';
+      const AUDIO_SPEECH_PATH = '/v1/audio/speech';
+      const THREADS_PATH = '/v1/threads';
+      const THREAD_MESSAGES_PATH = '/v1/threads/%s/messages';
+      const THREAD_RUNS_PATH = '/v1/threads/%s/runs';
+      const THREAD_RUN_STATUS_PATH = '/v1/threads/%s/runs/%s';
+      // Google endpoints remain as constants
+      const GOOGLE_SPEECH_API_ENDPOINT = 'https://speech.googleapis.com/v1/speech:recognize';
+      const GOOGLE_VISION_API_ENDPOINT = 'https://vision.googleapis.com/v1/images:annotate';
 
     /**
      * @var Curl
@@ -40,18 +44,40 @@ class OpenAiService
     private $file;
 
     /**
+     * @var ScopeConfigInterface
+     */
+    private $scopeConfig;
+
+    /**
      * @param Curl $curl
      * @param JsonHelper $jsonHelper
      * @param File $file
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         Curl $curl,
         JsonHelper $jsonHelper,
-        File $file
+        File $file,
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->curl = $curl;
         $this->jsonHelper = $jsonHelper;
         $this->file = $file;
+        $this->scopeConfig = $scopeConfig;
+    }
+
+    /**
+     * Get the OpenAI API domain from config
+     *
+     * @return string
+     */
+    protected function getApiDomain(): string
+    {
+        $domain = $this->scopeConfig->getValue(
+            'magentomcpai/general/api_domain',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        return $domain ? rtrim($domain, '/') : 'https://api.openai.com';
     }
 
     /**
@@ -83,7 +109,7 @@ class OpenAiService
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             
-            $this->curl->post(self::API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
+            $this->curl->post($this->getApiDomain() . self::CHAT_COMPLETIONS_PATH, $this->jsonHelper->jsonEncode($data));
 
            
             $response = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
@@ -169,7 +195,7 @@ class OpenAiService
             $this->curl->addHeader('Content-Length', strlen($body));
             
             // Send request
-            $this->curl->post(self::FILES_API_ENDPOINT, $body);
+            $this->curl->post($this->getApiDomain() . self::FILES_PATH, $body);
             
             // Get response
             $response = $this->curl->getBody();
@@ -206,7 +232,7 @@ class OpenAiService
         try {
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
-            $this->curl->get(self::FILES_API_ENDPOINT);
+            $this->curl->get($this->getApiDomain() . self::FILES_PATH);
             
             $response = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
             
@@ -240,7 +266,7 @@ class OpenAiService
             $this->curl->addHeader('X-HTTP-Method-Override', 'DELETE');
             
             // Using POST with X-HTTP-Method-Override since Magento Curl doesn't directly support DELETE
-            $this->curl->post(self::FILES_API_ENDPOINT . '/' . $fileId, '');
+            $this->curl->post($this->getApiDomain() . self::FILES_PATH . '/' . $fileId, '');
             
             $response = $this->curl->getBody();
             $statusCode = $this->curl->getStatus();
@@ -295,7 +321,7 @@ class OpenAiService
             
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
-            $this->curl->post(self::API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
+            $this->curl->post($this->getApiDomain() . self::CHAT_COMPLETIONS_PATH, $this->jsonHelper->jsonEncode($data));
             
             $response = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
             
@@ -368,7 +394,7 @@ class OpenAiService
                     'max_tokens' => $maxTokens
                 ];
                 
-                $endpoint = self::API_ENDPOINT;
+                $endpoint = $this->getApiDomain() . self::CHAT_COMPLETIONS_PATH;
             } else {
                 // For single file, use the original approach
                 $data = [
@@ -381,7 +407,7 @@ class OpenAiService
                     'return_metadata' => $returnMetadata
                 ];
                 
-                $endpoint = self::ANSWERS_API_ENDPOINT;
+                $endpoint = $this->getApiDomain() . self::ANSWERS_PATH;
             }
             
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
@@ -481,7 +507,7 @@ class OpenAiService
             
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
-            $this->curl->post(self::API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
+            $this->curl->post($this->getApiDomain() . self::CHAT_COMPLETIONS_PATH, $this->jsonHelper->jsonEncode($data));
             
             $response = $this->curl->getBody();
             $responseData = $this->jsonHelper->jsonDecode($response, true);
@@ -519,7 +545,7 @@ class OpenAiService
         try {
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
-            $this->curl->get(self::FILES_API_ENDPOINT . '/' . $fileId);
+            $this->curl->get($this->getApiDomain() . self::FILES_PATH . '/' . $fileId);
             
             $response = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
             
@@ -564,7 +590,7 @@ class OpenAiService
             
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
-            $this->curl->post(self::COMPLETIONS_API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
+            $this->curl->post($this->getApiDomain() . self::COMPLETIONS_PATH, $this->jsonHelper->jsonEncode($data));
             
             $response = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
             
@@ -627,7 +653,7 @@ class OpenAiService
             
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
-            $this->curl->post(self::API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
+            $this->curl->post($this->getApiDomain() . self::CHAT_COMPLETIONS_PATH, $this->jsonHelper->jsonEncode($data));
             
             $response = $this->curl->getBody();
             $statusCode = $this->curl->getStatus();
@@ -708,7 +734,7 @@ class OpenAiService
             // Create the assistant
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
-            $this->curl->post(self::ASSISTANTS_API_ENDPOINT, $this->jsonHelper->jsonEncode($assistantData));
+            $this->curl->post($this->getApiDomain() . self::ASSISTANTS_PATH, $this->jsonHelper->jsonEncode($assistantData));
             
             $assistantResponse = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
             
@@ -724,7 +750,7 @@ class OpenAiService
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->post(
-                self::THREADS_API_ENDPOINT, 
+                $this->getApiDomain() . self::THREADS_PATH, 
                 $this->jsonHelper->jsonEncode([])
             );
             
@@ -742,7 +768,7 @@ class OpenAiService
                 $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
                 $this->curl->addHeader('Content-Type', 'application/json');
                 $this->curl->post(
-                    sprintf(self::THREAD_MESSAGES_API_ENDPOINT, $threadId),
+                    sprintf($this->getApiDomain() . self::THREAD_MESSAGES_PATH, $threadId),
                     $this->jsonHelper->jsonEncode($threadMessage)
                 );
                 
@@ -758,7 +784,7 @@ class OpenAiService
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->post(
-                sprintf(self::THREAD_RUNS_API_ENDPOINT, $threadId),
+                sprintf($this->getApiDomain() . self::THREAD_RUNS_PATH, $threadId),
                 $this->jsonHelper->jsonEncode($runData)
             );
             
@@ -772,7 +798,7 @@ class OpenAiService
             
             while ($attempts < $maxAttempts) {
                 $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
-                $this->curl->get(sprintf(self::THREAD_RUN_STATUS_API_ENDPOINT, $threadId, $runId));
+                $this->curl->get(sprintf($this->getApiDomain() . self::THREAD_RUN_STATUS_PATH, $threadId, $runId));
                 
                 $runStatusResponse = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
                 $runStatus = $runStatusResponse['status'];
@@ -794,7 +820,7 @@ class OpenAiService
             
             // Step 6: Get the assistant's messages
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
-            $this->curl->get(sprintf(self::THREAD_MESSAGES_API_ENDPOINT, $threadId));
+            $this->curl->get(sprintf($this->getApiDomain() . self::THREAD_MESSAGES_PATH, $threadId));
             
             $messagesResponse = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
             $assistantMessage = '';
@@ -814,7 +840,7 @@ class OpenAiService
             // Step 7: Clean up by deleting the assistant (optional, can be commented out if you want to keep the assistant)
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('X-HTTP-Method-Override', 'DELETE');
-            $this->curl->post(self::ASSISTANTS_API_ENDPOINT . '/' . $assistantId, '');
+            $this->curl->post($this->getApiDomain() . self::ASSISTANTS_PATH . '/' . $assistantId, '');
             
             // Format the response to match the chat completion API
             return [
@@ -1455,7 +1481,7 @@ class OpenAiService
             $this->curl->addHeader('Content-Type', 'application/json');
             
             // Send request to OpenAI Embeddings API
-            $this->curl->post(self::EMBEDDINGS_API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
+            $this->curl->post($this->getApiDomain() . self::EMBEDDINGS_PATH, $this->jsonHelper->jsonEncode($data));
             
             // Get response
             $response = $this->curl->getBody();
@@ -1562,7 +1588,7 @@ class OpenAiService
             $this->curl->addHeader('Content-Type', 'application/json');
             
             // Send request to OpenAI Images API
-            $this->curl->post(self::IMAGES_API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
+            $this->curl->post($this->getApiDomain() . self::IMAGES_PATH, $this->jsonHelper->jsonEncode($data));
             
             // Get response
             $response = $this->curl->getBody();
@@ -1642,7 +1668,7 @@ class OpenAiService
             $this->curl->addHeader('Content-Type', 'application/json');
             
             // Send request to OpenAI API
-            $this->curl->post(self::API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
+            $this->curl->post($this->getApiDomain() . self::CHAT_COMPLETIONS_PATH, $this->jsonHelper->jsonEncode($data));
             
             // Get response
             $response = $this->curl->getBody();
@@ -1774,7 +1800,7 @@ class OpenAiService
             $this->curl->addHeader('Content-Length', strlen($body));
             
             // Send request
-            $this->curl->post(self::AUDIO_TRANSCRIPTION_API_ENDPOINT, $body);
+            $this->curl->post($this->getApiDomain() . self::AUDIO_TRANSCRIPTION_PATH, $body);
             
             // Get response
             $response = $this->curl->getBody();
@@ -1879,7 +1905,7 @@ class OpenAiService
             $this->curl->addHeader('Content-Type', 'application/json');
             
             // Send request
-            $this->curl->post(self::AUDIO_SPEECH_API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
+            $this->curl->post($this->getApiDomain() . self::AUDIO_SPEECH_PATH, $this->jsonHelper->jsonEncode($data));
             
             // Get response
             $response = $this->curl->getBody();
@@ -1972,7 +1998,7 @@ class OpenAiService
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             
-            $this->curl->post(self::API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
+            $this->curl->post($this->getApiDomain() . self::CHAT_COMPLETIONS_PATH, $this->jsonHelper->jsonEncode($data));
             
             $response = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
 
@@ -2038,7 +2064,7 @@ class OpenAiService
             $this->curl->addHeader('Content-Length', strlen($body));
             
             // Send request
-            $this->curl->post(self::FILES_API_ENDPOINT, $body);
+            $this->curl->post($this->getApiDomain() . self::FILES_PATH, $body);
             
             // Get response
             $response = $this->curl->getBody();
@@ -2068,7 +2094,7 @@ class OpenAiService
         try {
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
-            $this->curl->post(self::THREADS_API_ENDPOINT, '{}');
+            $this->curl->post($this->getApiDomain() . self::THREADS_PATH, '{}');
             
             $response = $this->curl->getBody();
             $responseData = $this->jsonHelper->jsonDecode($response, true);
@@ -2098,7 +2124,7 @@ class OpenAiService
             
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
-            $this->curl->post(sprintf(self::THREAD_MESSAGES_API_ENDPOINT, $threadId), $this->jsonHelper->jsonEncode($data));
+            $this->curl->post(sprintf($this->getApiDomain() . self::THREAD_MESSAGES_PATH, $threadId), $this->jsonHelper->jsonEncode($data));
             
             $response = $this->curl->getBody();
             $responseData = $this->jsonHelper->jsonDecode($response, true);
@@ -2126,7 +2152,7 @@ class OpenAiService
             
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
-            $this->curl->post(sprintf(self::THREAD_RUNS_API_ENDPOINT, $threadId), $this->jsonHelper->jsonEncode($data));
+            $this->curl->post(sprintf($this->getApiDomain() . self::THREAD_RUNS_PATH, $threadId), $this->jsonHelper->jsonEncode($data));
             
             $response = $this->curl->getBody();
             $responseData = $this->jsonHelper->jsonDecode($response, true);
@@ -2149,7 +2175,7 @@ class OpenAiService
     public function agentCheckRunStatus(string $threadId, string $runId, string $apiKey): array {
         try {
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
-            $this->curl->get(sprintf(self::THREAD_RUN_STATUS_API_ENDPOINT, $threadId, $runId));
+            $this->curl->get(sprintf($this->getApiDomain() . self::THREAD_RUN_STATUS_PATH, $threadId, $runId));
             
             $response = $this->curl->getBody();
             $responseData = $this->jsonHelper->jsonDecode($response, true);
@@ -2172,7 +2198,7 @@ class OpenAiService
     public function agentListMessages(string $threadId, string $apiKey): array {
         try {
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
-            $this->curl->get(sprintf(self::THREAD_MESSAGES_API_ENDPOINT, $threadId));
+            $this->curl->get(sprintf($this->getApiDomain() . self::THREAD_MESSAGES_PATH, $threadId));
             
             $response = $this->curl->getBody();
             $responseData = $this->jsonHelper->jsonDecode($response, true);
@@ -2195,7 +2221,7 @@ class OpenAiService
     public function agentGetLatestMessage(string $threadId, string $apiKey): array {
         try {
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
-            $this->curl->get(sprintf(self::THREAD_MESSAGES_API_ENDPOINT, $threadId) . '?limit=1');
+            $this->curl->get(sprintf($this->getApiDomain() . self::THREAD_MESSAGES_PATH, $threadId) . '?limit=1');
             
             $response = $this->curl->getBody();
             $responseData = $this->jsonHelper->jsonDecode($response, true);
@@ -2211,6 +2237,53 @@ class OpenAiService
             throw new LocalizedException(
                 __('Failed to get the latest message from thread: %1', $e->getMessage())
             );
+        }
+    }
+
+    /**
+     * Fallback for getFileAnswers: Use completions API with multiple file contents as context
+     *
+     * @param string $question
+     * @param array $fileIds
+     * @param string $apiKey
+     * @param string $model
+     * @param int $maxTokens
+     * @return array
+     */
+    private function getFileCompletionAlternative(
+        string $question,
+        array $fileIds,
+        string $apiKey,
+        string $model = 'text-davinci-003',
+        int $maxTokens = 150
+    ): array {
+        try {
+            $allContents = [];
+            foreach ($fileIds as $fileId) {
+                $fileInfo = $this->getFileContent($fileId, $apiKey);
+                $fileContent = '';
+                if (isset($fileInfo['content'])) {
+                    $fileContent = $fileInfo['content'];
+                } elseif (isset($fileInfo['filename'])) {
+                    $fileContent = '[File content not available via API]';
+                }
+                $allContents[] = "--- File [$fileId] ---\n" . $fileContent;
+            }
+            $prompt = "Given the following file contents:\n" . implode("\n\n", $allContents) . "\n\nQuestion: " . $question . "\nAnswer:";
+            $completion = $this->getCompletion($prompt, $apiKey, $model, $maxTokens);
+            return [
+                'answers' => [$completion['completion'] ?? ''],
+                'file_ids' => $fileIds,
+                'usage' => $completion['usage'] ?? [],
+                'method' => 'completion_alternative'
+            ];
+        } catch (\Exception $e) {
+            return [
+                'answers' => ['Error: ' . $e->getMessage()],
+                'file_ids' => $fileIds,
+                'usage' => [],
+                'method' => 'completion_alternative_error'
+            ];
         }
     }
 } 
