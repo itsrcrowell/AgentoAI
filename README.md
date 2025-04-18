@@ -2,6 +2,8 @@
 
 A powerful AI assistant for Magento 2 that helps you interact with your store's data using natural language queries.
 
+![image](https://github.com/user-attachments/assets/ebf87bed-83e6-4443-a48e-775252fd5bfc)
+
 ## Features
 
 ### 1. Natural Language to SQL
