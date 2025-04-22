@@ -1,5 +1,5 @@
 {
-    "name": "genaker/magento-mcp-ai",
+    "name": "genaker/agento-ai",
     "description": "Magento MCP AI Assistant - A powerful AI assistant for Magento 2 that helps with store data queries and management",
     "type": "magento2-module",
     "version": "1.0.0",
