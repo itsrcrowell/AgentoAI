@@ -61,7 +61,7 @@ A powerful AI assistant for Magento 2 that helps you interact with your store's 
 
 1. Install the module using Composer:
 ```bash
-composer require genaker/magento-mcp-ai
+composer require genaker/agento-ai
 ```
 
 2. Enable the module:
