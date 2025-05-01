@@ -274,7 +274,7 @@ class Query implements HttpPostActionInterface
      * @param string $conversationSummary
      * @return string
      */
-    private function getAiResponse($query, $storeContext, $conversationHistory, $conversationSummary = '')
+    public function getAiResponse($query, $storeContext, $conversationHistory, $conversationSummary = '')
     {
         $apiKey = $this->scopeConfig->getValue(
             'magentomcpai/general/api_key',
