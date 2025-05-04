@@ -260,7 +260,7 @@ class Query implements HttpPostActionInterface
             $this->logger->critical('Chatbot error: ' . $e->getMessage());
             return $resultJson->setData([
                 'success' => false,
-                'message' => __('An error occurred while processing your request. Please try again.')
+                'message' => __('An error occurred while processing your request. Please try again: ' . $e->getMessage())
             ]);
         }
     }
@@ -350,7 +350,7 @@ class Query implements HttpPostActionInterface
             return $response['content'];
         } catch (\Exception $e) {
             $this->logger->error('Chatbot error: ' . $e->getMessage());
-            return __('An error occurred while processing your request.');
+            throw new \Exception('An error occurred while processing your request.: ' . $e->getMessage());
         }
     }
     
