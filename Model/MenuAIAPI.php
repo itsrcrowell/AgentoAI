@@ -11,6 +11,9 @@ use Magento\Store\Model\ScopeInterface;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\Session\SessionManagerInterface;
 use Magento\Framework\App\RequestInterface;
+use Magento\Backend\Model\UrlInterface;
+use Magento\Backend\Helper\Data as Helper;
+use Magento\Framework\Data\Form\FormKey;
 
 class MenuAIAPI implements MenuAIAPIInterface
 {
@@ -21,6 +24,8 @@ class MenuAIAPI implements MenuAIAPIInterface
     protected $session;
     protected $request;
     protected $urlBuilder;
+    protected $helper;
+    protected $formKey;
 
     const XML_PATH_API_KEY = 'magentomcpai/general/api_key';
     const MENU_MD_FILE = 'menu.md';
@@ -32,7 +37,9 @@ class MenuAIAPI implements MenuAIAPIInterface
         LoggerInterface $logger,
         SessionManagerInterface $session,
         RequestInterface $request,
-        \Magento\Backend\Model\UrlInterface  $urlBuilder
+        UrlInterface  $urlBuilder,
+        Helper $helper,
+        FormKey $formKey
     ) {
         $this->openAiService = $openAiService;
         $this->directoryList = $directoryList;
@@ -41,6 +48,8 @@ class MenuAIAPI implements MenuAIAPIInterface
         $this->session = $session;
         $this->request = $request;
         $this->urlBuilder = $urlBuilder;
+        $this->helper = $helper;
+        $this->formKey = $formKey;
     }
 
     public function sendRequestToChatGPT($query, $apiKey)
@@ -147,8 +156,26 @@ class MenuAIAPI implements MenuAIAPIInterface
             }
             //dd([$parts, $params, $hash]);
 
-            $url = $this->urlBuilder->getUrl($parts[1].'/'.$parts[2].'/'.($parts[3] ?? 'index'), $params);
-            //dd($url);
+           
+            // Build URL with security key for admin routes
+             if (strpos($parts[1], 'admin') !== false) {
+                if($parts[0] === '{base_url}'){
+                    unset($parts[0]);
+                }
+                $parts[1] = 'adminhtml';
+                //unset($parts[1]);
+                // Remove 'admin/' prefix and get the rest of the route
+                $adminRoute = '';
+                // Use the admin URL builder with proper parameters
+            $router = implode('/', $parts);
+            $formKey = $this->formKey->getFormKey();
+            #TODO: I give up magento sucks and AI can't fix it we need make secret key work i will just disable it. Will be fun to fix.
+            $url = $this->helper->getUrl(
+                $router, $params );
+            } else {
+                $router =  $parts[1].'/'.$parts[2].'/'.($parts[3] ?? 'index');
+                $url = $this->urlBuilder->getUrl($router);
+            }
         }
         }
 

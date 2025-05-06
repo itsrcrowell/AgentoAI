@@ -12,13 +12,15 @@
 // Get the ObjectManager instance
 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
 
-// Get the admin URL
+// Get the admin URL builder and helper
 $backendHelper = $objectManager->create('Magento\Backend\Helper\Data');
+$urlBuilder = $objectManager->get('Magento\Backend\Model\UrlInterface');
+
+// Get the admin base URL
 $adminBaseUrl = $backendHelper->getHomePageUrl();
 
-// Get the secret key
-$urlBuilder = $objectManager->get('Magento\Backend\Model\UrlInterface');
-$secretKey = $urlBuilder->getUrl('/');
+// Get the secret key for admin URLs
+$secretKey = $urlBuilder->getSecretKey('adminhtml', 'index', 'index');
 ?>
 <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {
@@ -55,8 +57,26 @@ $secretKey = $urlBuilder->getUrl('/');
                 },
                 body: JSON.stringify({ userQuery: userQuery, api_key: apiKey }) // Only include query and api_key in JSON
             })
-            .then(response => response.json())
+            .then(response => {
+                // Show loading state
+                document.getElementById('ai-response').innerHTML = `
+                    <div style="padding: 10px; text-align: center;">
+                        <div style="margin-bottom: 10px;">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                        <div style="color: #6c757d;">
+                            Processing your request...
+                        </div>
+                    </div>
+                `;
+                return response.json();
+            })
             .then(data => {
+                // Hide loading state
+                document.getElementById('ai-response').innerHTML = '';
+                // Process the response
                 var responseText = data[0];
                 var responseUrl = data[1];
                 var responseHash = data[2];
@@ -65,10 +85,31 @@ $secretKey = $urlBuilder->getUrl('/');
                 } else {
                     responseHash = "";
                 }
-                var responseHtml = '<strong>Response:</strong> ' + responseText;
-                if (responseUrl) {
-                    responseHtml += '<br><a href="' + responseUrl + responseHash + '" target="_blank">Go to URL: ' + responseUrl  + responseHash + '</a>';
-                }
+                var responseHtml = `
+                    <div style="padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
+                        <div style="margin-bottom: 10px;">
+                            <strong style="color: #2c3e50;">Response:</strong>
+                            <div style="margin-top: 5px; color: #34495e; line-height: 1.6;">
+                                ${responseText
+                                    .replace(/\[\[(.*?)\]\]\((.*?)\)/g, '<a href="$2" target="_blank" style="color: #3498db; text-decoration: none;">$1</a>')
+                                    .replace(/\n/g, '<br>')
+                                    .replace(/\n\n/g, '<p>')
+                                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                    .replace(/- \*(.*?)\n/g, '<li style="list-style-type: disc; margin-left: 20px;">• $1</li><br>')
+                                    .replace(/- \*(.*?)$/g, '<li style="list-style-type: disc; margin-left: 20px;">• $1</li>')}
+                            </div>
+                        </div>
+                        ${responseUrl ? `
+                            <div style="margin-top: 15px;">
+                                <a href="${responseUrl}${responseHash}" 
+                                   target="_blank" 
+                                   style="color: #3498db; text-decoration: none;">
+                                    🌐 Go to URL: ${responseUrl}${responseHash}
+                                </a>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
 
                 document.getElementById('ai-response').innerHTML = responseHtml;
             })
