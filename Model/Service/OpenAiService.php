@@ -6,6 +6,7 @@ use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\Io\File;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Genaker\MagentoMcpAi\RAG\StopWords;
 
 class OpenAiService
 {
@@ -47,6 +48,15 @@ class OpenAiService
      * @var ScopeConfigInterface
      */
     private $scopeConfig;
+
+
+    public $prompt_tokens;
+    public $completion_tokens;
+    public $total_tokens;
+    public $prompt_tokens_details;
+    public $cached_tokens;
+    public $audio_tokens;
+
 
     /**
      * @param Curl $curl
@@ -2036,6 +2046,12 @@ class OpenAiService
             $this->curl->post($this->getApiDomain() . self::CHAT_COMPLETIONS_PATH, $this->jsonHelper->jsonEncode($data));
             
             $response = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
+                
+            $this->completion_tokens = @$response['usage']['completion_tokens'];
+            $this->total_tokens = @$response['usage']['total_tokens'];
+            $this->prompt_tokens_details = @$response['usage']['prompt_tokens_details'];
+            $this->cached_tokens = @$response['usage']['prompt_tokens_details']['cached_tokens'];
+            $this->audio_tokens = @$response['usage']['prompt_tokens_details']['audio_tokens'];
 
             if (isset($response['error'])) {
                 throw new LocalizedException(
@@ -2122,6 +2138,24 @@ class OpenAiService
                 __('Failed to upload file to OpenAI API: %1', $e->getMessage())
             );
         }
+    }
+
+    public function getRAGData() {
+          // Check if products.md exists and include its content in the system prompt
+          $productsFile = __DIR__ . '/../../products.md';
+          $systemContent = '';
+          if (file_exists($productsFile)) {
+              $stopWords = new StopWords();
+              $productsContent = file_get_contents($productsFile);
+              $productsContent = $stopWords->removeStopWords($productsContent, 'en');
+              $systemContent = "\n\nHere is additional MD RAG CONTEXT information to help with your responses:\n" . $productsContent;
+          } else {
+              throw new LocalizedException(
+                  __('RAG products.md file not found')
+              );
+          }
+
+          return $systemContent;
     }
 
     // Method to create a thread

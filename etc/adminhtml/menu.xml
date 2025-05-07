@@ -23,5 +23,12 @@
              parent="Genaker_MagentoMcpAi::ai_assistant"
              action="magentomcpai/conversation/index"
              resource="Genaker_MagentoMcpAi::chatbot_conversations"/>
+        <add id="Genaker_MagentoMcpAi::product_chat"
+             title="Product Chat"
+             module="Genaker_MagentoMcpAi"
+             sortOrder="30"
+             parent="Genaker_MagentoMcpAi::ai_assistant"
+             action="magentomcpai/productchat/index"
+             resource="Genaker_MagentoMcpAi::mcpai"/>
     </menu>
 </config>

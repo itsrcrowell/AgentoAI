@@ -48,4 +48,6 @@
 
     <preference for="Genaker\MagentoMcpAi\Api\CustomerChatbotInterface" type="Genaker\MagentoMcpAi\Model\CustomerChatbot" />
 
+    <preference for="Magento\Framework\Phrase" type="Genaker\MagentoMcpAi\Framework\AiPhrase" />
+
 </config>
