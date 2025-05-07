@@ -55,6 +55,16 @@ A powerful AI assistant for Magento 2 that helps you interact with your store's 
 - Customizable interface and suggested questions
 - Mobile responsive design
 
+### 8. Product Chat with RAG
+- AI-powered product assistant in the admin panel
+- Retrieval Augmented Generation (RAG) for accurate product information
+- Maintains conversation history for context
+- Displays formatted content with images and links
+- Processes Markdown formatting for better readability
+- Stop words removal for optimized token usage
+- Token usage tracking and statistics
+- Responsive chat interface with modern styling
+
 ## Installation
 
 1. Install the module using Composer:
@@ -229,6 +239,15 @@ Add the read-only user credentials to your `app/etc/env.php` file:
 - It may suggest checking table structures
 - Follow the suggested fixes
 
+### 6. Using Product Chat
+- Navigate to Marketing > AI Assistant > Product Chat
+- Ask questions about your product catalog
+- The assistant uses RAG (Retrieval Augmented Generation) to provide accurate information
+- View product images and details directly in the chat
+- Get formatted responses with proper styling
+- Maintain conversation context for follow-up questions
+- Track token usage for each interaction
+
 ## Architecture
 
 ### 1. OpenAI Service
@@ -253,6 +272,16 @@ The token tracking system:
 - Maintains session statistics
 - Provides detailed usage breakdown
 - Supports all OpenAI model pricing tiers
+
+### 3. RAG Implementation
+The Retrieval Augmented Generation system:
+- Uses a products.md file as the knowledge base
+- Removes stop words to optimize token usage
+- Enhances responses with accurate product information
+- Supports multiple languages for stop words removal
+- Properly formats product details with images and links
+- Maintains conversation history for contextual responses
+- Tracks token usage including cached tokens
 
 ## Fine-Tuning the LLM
 
