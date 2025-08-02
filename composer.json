@@ -8,10 +8,7 @@
         "AFL-3.0"
     ],
     "require": {
-        "php": ">=8.0.0",
-        "magento/framework": ">=102.0.0",
-        "magento/module-backend": ">=102.0.0",
-        "magento/module-config": ">=102.0.0"
+        "php": ">=8.0.0"
     },
     "autoload": {
         "files": [
