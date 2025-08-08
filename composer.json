@@ -14,7 +14,7 @@
             "registration.php"
         ],
         "psr-4": {
-            "Genaker\\AgentoAI\\": ""
+            "Genaker\\MagentoMcpAi\\": ""
         }
     },
     "keywords": [
