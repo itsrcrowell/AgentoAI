@@ -104,9 +104,14 @@ class Process extends Action
             $systemContent = '1.You are a helpful product assistant for this online store selling gunsafes. 
             2.Provide concise and accurate information about products. 
             3.If not enought information from customer ask about more details
-            4.Provide image links for products
+            4.Provide image links for products and url to the product page
             5.Respond with 5 products if you have relevant information
+            5.1 if user ask showing more product show more products but not more than 10 
             6.Ask user when he want to buy 
+            6.1 use MD formate for response inks in the ([url]) format
+            6.2 image comes last in the product description
+            6.3 product name first starts with ###
+            6.4 add your thinking after the image about this safe as a sales person and expert in safes tell right away if it is cheap and not secure enough 
             7.Instruction to buy by phone call **911**';
             
             $systemContent .= $this->openAiService->getRAGData();
@@ -133,10 +138,8 @@ class Process extends Action
             // Add the current user query
             $messages[] = ['role' => 'user', 'content' => $query];
 
-            //dd($messages);
-            // Process the request through OpenAiService with GPT-4o mini model
-            $response = $this->openAiService->getChatCompletion($messages, 'gpt-4o-mini', $apiKey);
-            
+            // Process the request through OpenAiService with GPT-5 mini model
+            $response = $this->openAiService->getChatCompletion($messages, 'gpt-5-nano', $apiKey);
             // Extract the content from the response array
             $messageContent = is_array($response) && isset($response['content']) ? $response['content'] : $response;
             
@@ -221,6 +224,9 @@ class Process extends Action
         
         // Bold text between ** **
         $formatted = preg_replace('/\*\*([^*]+)\*\*/', '<strong>$1</strong>', $formatted);
+        
+        // Make "TEXT:" patterns bold (e.g., "Configuration:", "Status:", etc.)
+        $formatted = preg_replace('/\b([A-Z][A-Za-z\s]*):/', '<strong>$1:</strong>', $formatted);
         
         // Handle numbered lists
         $formatted = preg_replace('/(^|\n)(\d+\.)\s/', '$1<strong>$2</strong> ', $formatted);

@@ -1,8 +1,35 @@
+<style>
+.message.message:before {
+    position: absolute;
+    top: 15px !important;
+}
+
+.ai-loading-button {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 0.3;
+    }
+    100% {
+        opacity: 0.6;
+    }
+}
+
+.ai-input-disabled {
+    background-color: #f5f5f5 !important;
+    cursor: not-allowed !important;
+}
+</style>
 <div class="message message" style="background-color: #d2e8ff; padding: 0; margin 0; border-radius: 5px;">
     <div class="message-content">
-        <h2 style="display: inline-block; margin: 0; padding-left: 50px !important;">AI Assistant:</h2>
+        <h2 style="display: inline-block; margin: 0; padding-left: 50px !important;">AI Admin Assistant: </h2>
         <form id="ai-assistant-form"  style="margin: 0; display: inline-block;">
-            <input type="text" name="query" id="ai-query" required style="margin: 0; padding: 0; width: 400px;" />
+                            <input type="text" name="query" id="ai-query" required autocomplete="off" style="margin: 0; padding: 0; width: 400px;" />
             <button type="button" id="send-query">Think</button>
         </form>
         <div id="ai-response"></div>
@@ -50,6 +77,15 @@ $secretKey = $urlBuilder->getSecretKey('adminhtml', 'index', 'index');
             var userQuery = queryInput.value;
             var apiKey = '<?= $block->escapeHtml($block->getApiKey()) ?>'; // Get the API key from the block
 
+            // Show loading state on button
+            var originalButtonText = sendButton.textContent;
+            sendButton.innerHTML = '⏳ Thinking...';
+            sendButton.disabled = true;
+            sendButton.classList.add('ai-loading-button');
+            sendButton.style.cursor = 'not-allowed';
+            queryInput.disabled = true;
+            queryInput.classList.add('ai-input-disabled');
+
             fetch(apiUrl, {
                 method: 'POST',
                 headers: {
@@ -71,9 +107,36 @@ $secretKey = $urlBuilder->getSecretKey('adminhtml', 'index', 'index');
                         </div>
                     </div>
                 `;
+                
+                // Check for HTTP errors
+                if (!response.ok) {
+                    if (response.status === 500) {
+                        throw new Error(`Server Error (500): Internal server error occurred. Please check server logs.`);
+                    } else if (response.status === 404) {
+                        throw new Error(`Not Found (404): API endpoint not found.`);
+                    } else if (response.status === 403) {
+                        throw new Error(`Forbidden (403): Access denied. Check API permissions.`);
+                    } else if (response.status === 401) {
+                        throw new Error(`Unauthorized (401): Invalid API key or authentication failed.`);
+                    } else {
+                        throw new Error(`HTTP Error (${response.status}): ${response.statusText}`);
+                    }
+                }
+                
                 return response.json();
             })
             .then(data => {
+                // Restore button state
+                sendButton.innerHTML = originalButtonText;
+                sendButton.disabled = false;
+                sendButton.classList.remove('ai-loading-button');
+                sendButton.style.cursor = 'pointer';
+                queryInput.disabled = false;
+                queryInput.classList.remove('ai-input-disabled');
+                
+                // Clear input field after successful response
+                queryInput.value = '';
+                
                 // Hide loading state
                 document.getElementById('ai-response').innerHTML = '';
                 // Process the response
@@ -85,18 +148,22 @@ $secretKey = $urlBuilder->getSecretKey('adminhtml', 'index', 'index');
                 } else {
                     responseHash = "";
                 }
+                // Transform {base_url} patterns to actual admin URLs
+                var processedText = responseText
+              
+                    .replace(/\[\[(.*?)\]\]\((.*?)\)/g, '<a href="$2" target="_blank" style="color: #3498db; text-decoration: none; font-weight: bold;">🔗 $1</a>')
+                    .replace(/\n/g, '<br>')
+                    .replace(/\n\n/g, '<p>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/- \*(.*?)\n/g, '<li style="list-style-type: disc; margin-left: 20px;">• $1</li><br>')
+                    .replace(/- \*(.*?)$/g, '<li style="list-style-type: disc; margin-left: 20px;">• $1</li>');
+
                 var responseHtml = `
                     <div style="padding: 10px; background-color: #f8f9fa; border-radius: 4px;">
                         <div style="margin-bottom: 10px;">
                             <strong style="color: #2c3e50;">Response:</strong>
                             <div style="margin-top: 5px; color: #34495e; line-height: 1.6;">
-                                ${responseText
-                                    .replace(/\[\[(.*?)\]\]\((.*?)\)/g, '<a href="$2" target="_blank" style="color: #3498db; text-decoration: none;">$1</a>')
-                                    .replace(/\n/g, '<br>')
-                                    .replace(/\n\n/g, '<p>')
-                                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                                    .replace(/- \*(.*?)\n/g, '<li style="list-style-type: disc; margin-left: 20px;">• $1</li><br>')
-                                    .replace(/- \*(.*?)$/g, '<li style="list-style-type: disc; margin-left: 20px;">• $1</li>')}
+                                ${processedText}
                             </div>
                         </div>
                         ${responseUrl ? `
@@ -114,7 +181,32 @@ $secretKey = $urlBuilder->getSecretKey('adminhtml', 'index', 'index');
                 document.getElementById('ai-response').innerHTML = responseHtml;
             })
             .catch(error => {
-                document.getElementById('ai-response').innerHTML = '<strong>Error:</strong> ' + error;
+                // Restore button state
+                sendButton.innerHTML = originalButtonText;
+                sendButton.disabled = false;
+                sendButton.classList.remove('ai-loading-button');
+                sendButton.style.cursor = 'pointer';
+                queryInput.disabled = false;
+                queryInput.classList.remove('ai-input-disabled');
+                
+                // Enhanced error display
+                document.getElementById('ai-response').innerHTML = `
+                    <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin-top: 10px;">
+                        <div style="font-weight: bold; margin-bottom: 10px;">
+                            ❌ Request Failed
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            ${error.message || error}
+                        </div>
+                        <div style="font-size: 12px; color: #856404; background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 8px; border-radius: 3px;">
+                            <strong>💡 Troubleshooting Tips:</strong><br>
+                            • Check if the API key is correctly configured<br>
+                            • Verify server logs for detailed error information<br>
+                            • Ensure OpenAI API service is accessible<br>
+                            • Try refreshing the page and retry
+                        </div>
+                    </div>
+                `;
             });
         });
     });

@@ -343,7 +343,7 @@ class Query implements HttpPostActionInterface
             
             $response = $this->openAiService->sendChatRequest(
                 $messages,
-                'gpt-3.5-turbo',
+                'gpt-5-nano',
                 $apiKey
             );
             

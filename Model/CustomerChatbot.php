@@ -212,7 +212,7 @@ class CustomerChatbot implements CustomerChatbotInterface
         $model = $this->scopeConfig->getValue(
             'magentomcpai/chatbot/model',
             ScopeInterface::SCOPE_STORE
-        ) ?: 'gpt-3.5-turbo';
+        ) ?: 'gpt-5-nano';
         
         // Build system message
         $systemMessage = $this->buildSystemMessage($context);

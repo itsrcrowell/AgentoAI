@@ -113,7 +113,7 @@ class OpenAiService
             'magentomcpai/general/model',
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
-        return $model ?: 'gpt-3.5-turbo';
+        return $model ?: 'gpt-5-nano';
     }
 
     /**
@@ -136,12 +136,23 @@ class OpenAiService
     ): array {
         try {
             $model = $model ?: $this->getDefaultModel();
-            $data = [
-                'model' => $model,
-                'messages' => $messages,
-                'temperature' => $temperature,
-                'max_tokens' => $maxTokens
-            ];
+
+            if(in_array($model, ['o1', 'o3', 'o4-mini-high', 'gpt-5-chat', 'gpt-5-nano', 'gpt-5-mini'])){
+                $data = [
+                    'model' => $model,
+                    'messages' => $messages,
+                    'temperature' => 1, //$temperature,
+                    'max_completion_tokens' => $maxTokens
+                ];
+            } else {
+                $data = [
+                    'model' => $model,
+                    'messages' => $messages,
+                    'temperature' => $temperature,
+                    'max_tokens' => $maxTokens
+                ];
+            }
+           
 
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
@@ -2033,12 +2044,21 @@ class OpenAiService
             }
             
             $model = $model ?: $this->getDefaultModel();
-            $data = [
-                'model' => $model,
-                'messages' => $messages,
-                'temperature' => $temperature,
-                'max_tokens' => $maxTokens
-            ];
+            if(in_array($model, ['gpt-5-mini', 'gpt-5-nano'])){
+                $data = [
+                    'model' => $model,
+                    'messages' => $messages,
+                    'temperature' => 1,
+                    //'max_completion_tokens' => $maxTokens
+                ];
+            }else{
+                $data = [
+                    'model' => $model,
+                    'messages' => $messages,
+                    'temperature' => $temperature,
+                    'max_tokens' => $maxTokens
+                ];
+            }
 
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');

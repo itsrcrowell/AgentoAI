@@ -25,6 +25,7 @@
                 <field id="model" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default AI Model</label>
                     <source_model>Genaker\MagentoMcpAi\Model\Config\Source\Model</source_model>
+                    <comment><![CDATA[Shows only the latest version of each model family. Models are fetched from OpenAI API when API key is configured. Clear cache if models don't update.]]></comment>
                 </field>
                 <field id="custom_model" translate="label" type="text" sortOrder="41" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Custom Model (Override)</label>
