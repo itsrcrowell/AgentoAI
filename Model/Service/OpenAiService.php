@@ -137,7 +137,7 @@ class OpenAiService
         try {
             $model = $model ?: $this->getDefaultModel();
 
-            if(in_array($model, ['o1', 'o3', 'o4-mini-high', 'gpt-5-chat', 'gpt-5-nano', 'gpt-5-mini'])){
+            if(in_array($model, ['o1', 'o3', 'o4-mini-high', 'gpt-5', 'gpt-5-chat', 'gpt-5-nano', 'gpt-5-mini'])){
                 $data = [
                     'model' => $model,
                     'messages' => $messages,
@@ -2044,7 +2044,7 @@ class OpenAiService
             }
             
             $model = $model ?: $this->getDefaultModel();
-            if(in_array($model, ['gpt-5-mini', 'gpt-5-nano'])){
+            if(in_array($model, ['gpt-5-mini', 'gpt-5-nano', 'gpt-5'])){
                 $data = [
                     'model' => $model,
                     'messages' => $messages,
