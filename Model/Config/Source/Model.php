@@ -67,7 +67,7 @@ class Model implements ArrayInterface
     {
         // Try to get models from API first
         $dynamicModels = $this->getModelsFromApi();
-        
+       
         if (!empty($dynamicModels)) {
             return $dynamicModels;
         }
@@ -85,7 +85,7 @@ class Model implements ArrayInterface
     {
         try {
             // Check cache first
-            $cachedModels = $this->cache->load(self::CACHE_KEY);
+            $cachedModels = false; //$this->cache->load(self::CACHE_KEY);
             if ($cachedModels) {
                 return $this->jsonHelper->jsonDecode($cachedModels);
             }
@@ -110,7 +110,6 @@ class Model implements ArrayInterface
 
             $statusCode = $this->curl->getStatus();
             $response = $this->curl->getBody();
-
             if ($statusCode !== 200) {
                 $this->logger->warning('OpenAI API request failed', [
                     'status_code' => $statusCode,
@@ -188,7 +187,6 @@ class Model implements ArrayInterface
                 'date' => $model['created'] ?? 0
             ];
         }
-
         // Get the latest version from each family
         $latestModels = [];
         foreach ($modelFamilies as $family => $models) {
@@ -238,7 +236,7 @@ class Model implements ArrayInterface
 
         // For GPT models not caught above
         if (strpos($modelLower, 'gpt') === 0) {
-            return 'gpt-other';
+            return $modelLower;
         }
 
         return null;

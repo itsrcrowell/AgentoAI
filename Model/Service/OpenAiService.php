@@ -91,6 +91,28 @@ class OpenAiService
     }
 
     /**
+     * Get the OpenAI API key from config
+     *
+     * @return string
+     * @throws LocalizedException
+     */
+    public function getApiKey(): string
+    {
+        $key = $this->scopeConfig->getValue(
+            'magentomcpai/general/api_key',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        if(!$key){
+            throw new LocalizedException(
+                __('OpenAI API key is not set in the admin configuration')
+            );
+        }
+
+        return $key;
+    }
+
+    /**
      * Get the default model from admin config
      *
      * Priority:

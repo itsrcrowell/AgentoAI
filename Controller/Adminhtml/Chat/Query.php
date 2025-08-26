@@ -68,6 +68,8 @@ class Query extends Action
     public function execute()
     {
         $query = $this->getRequest()->getParam('query');
+        $context = $this->getRequest()->getParam('context');
+        
         if (!$query) {
             return $this->resultJsonFactory->create()->setData([
                 'error' => 'No query provided'
@@ -85,7 +87,11 @@ class Query extends Action
                 throw new \Exception('API key not configured');
             }
            
-            $systemContent = '1.You are Magento 2 Expert and Linux server expert. Please, provide short answer about the question related for magento performace and server configuration rejetc another one if not related to magento and servers ';
+            if ($context) {
+                $systemContent = $context;
+            } else {
+                $systemContent = '1.You are Magento 2 Expert and Linux server expert. Please, provide short answer about the question related for magento performace and server configuration rejetc another one if not related to magento and servers ';
+            }
                         
             // Create messages array for OpenAI
             $messages = [
