@@ -38,7 +38,7 @@ class OpenAiService
      * @var JsonHelper
      */
     private $jsonHelper;
-    
+
     /**
      * @var File
      */
@@ -174,14 +174,14 @@ class OpenAiService
                     'max_tokens' => $maxTokens
                 ];
             }
-           
+
 
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
-            
+
             $this->curl->post($this->getApiDomain() . self::CHAT_COMPLETIONS_PATH, $this->jsonHelper->jsonEncode($data));
 
-           
+
             $response = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
 
             if (isset($response['error'])) {
@@ -204,7 +204,7 @@ class OpenAiService
             );
         }
     }
-    
+
     /**
      * Upload a file to OpenAI API
      *
@@ -226,11 +226,11 @@ class OpenAiService
                     __('File does not exist: %1', $filePath)
                 );
             }
-            
+
             // Get file info
             $fileInfo = $this->file->getPathInfo($filePath);
             $fileName = $fileInfo['basename'];
-            
+
             // Read file contents
             $fileContents = file_get_contents($filePath);
             if ($fileContents === false) {
@@ -238,50 +238,50 @@ class OpenAiService
                     __('Unable to read file: %1', $filePath)
                 );
             }
-            
+
             // Prepare multipart boundary
             $boundary = '-------------' . uniqid();
-            
+
             // Build multipart request body
             $body = '';
-            
+
             // Add purpose field
             $body .= '--' . $boundary . "\r\n";
             $body .= 'Content-Disposition: form-data; name="purpose"' . "\r\n\r\n";
             $body .= $purpose . "\r\n";
-            
+
             // Add file data
             $body .= '--' . $boundary . "\r\n";
             $body .= 'Content-Disposition: form-data; name="file"; filename="' . $fileName . '"' . "\r\n";
             $body .= 'Content-Type: application/octet-stream' . "\r\n\r\n";
             $body .= $fileContents . "\r\n";
-            
+
             // Close multipart body
             $body .= '--' . $boundary . '--';
-            
+
             // Setup headers
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'multipart/form-data; boundary=' . $boundary);
             $this->curl->addHeader('Content-Length', strlen($body));
-            
+
             // Send request
             $this->curl->post($this->getApiDomain() . self::FILES_PATH, $body);
-            
+
             // Get response
             $response = $this->curl->getBody();
             $statusCode = $this->curl->getStatus();
-            
+
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if ($statusCode >= 400 || isset($responseData['error'])) {
-                $errorMessage = isset($responseData['error']) 
-                    ? $responseData['error']['message'] 
+                $errorMessage = isset($responseData['error'])
+                    ? $responseData['error']['message']
                     : "HTTP Error: $statusCode";
                 throw new LocalizedException(
                     __('OpenAI API Error: %1', $errorMessage)
                 );
             }
-            
+
             return $responseData;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -289,7 +289,7 @@ class OpenAiService
             );
         }
     }
-    
+
     /**
      * List all files uploaded to OpenAI
      *
@@ -303,15 +303,15 @@ class OpenAiService
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->get($this->getApiDomain() . self::FILES_PATH);
-            
+
             $response = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
-            
+
             if (isset($response['error'])) {
                 throw new LocalizedException(
                     __('OpenAI API Error: %1', $response['error']['message'])
                 );
             }
-            
+
             return $response;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -319,7 +319,7 @@ class OpenAiService
             );
         }
     }
-    
+
     /**
      * Delete a file from OpenAI
      *
@@ -334,24 +334,24 @@ class OpenAiService
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->addHeader('X-HTTP-Method-Override', 'DELETE');
-            
+
             // Using POST with X-HTTP-Method-Override since Magento Curl doesn't directly support DELETE
             $this->curl->post($this->getApiDomain() . self::FILES_PATH . '/' . $fileId, '');
-            
+
             $response = $this->curl->getBody();
             $statusCode = $this->curl->getStatus();
-            
+
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if ($statusCode >= 400 || isset($responseData['error'])) {
-                $errorMessage = isset($responseData['error']) 
-                    ? $responseData['error']['message'] 
+                $errorMessage = isset($responseData['error'])
+                    ? $responseData['error']['message']
                     : "HTTP Error: $statusCode";
                 throw new LocalizedException(
                     __('OpenAI API Error: %1', $errorMessage)
                 );
             }
-            
+
             return $responseData;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -359,10 +359,10 @@ class OpenAiService
             );
         }
     }
-    
+
     /**
      * Create a chat completion with file reference
-     * 
+     *
      * @param array $messages The messages to send
      * @param string $fileId The file ID to reference
      * @param string $model The model to use
@@ -389,19 +389,19 @@ class OpenAiService
                 'max_tokens' => $maxTokens,
                 'file_id' => $fileId
             ];
-            
+
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->post($this->getApiDomain() . self::CHAT_COMPLETIONS_PATH, $this->jsonHelper->jsonEncode($data));
-            
+
             $response = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
-            
+
             if (isset($response['error'])) {
                 throw new LocalizedException(
                     __('OpenAI API Error: %1', $response['error']['message'])
                 );
             }
-            
+
             return [
                 'content' => $response['choices'][0]['message']['content'] ?? '',
                 'usage' => $response['usage'] ?? [
@@ -445,7 +445,7 @@ class OpenAiService
             $model = $model ?: $this->getDefaultModel();
             // Convert single file ID to array for consistent handling
             $fileIds = is_array($fileId) ? $fileId : [$fileId];
-            
+
             // Check if we have multiple files
             if (count($fileIds) > 1) {
                 // For multiple files, use different approach
@@ -465,7 +465,7 @@ class OpenAiService
                     'temperature' => 0.7,
                     'max_tokens' => $maxTokens
                 ];
-                
+
                 $endpoint = $this->getApiDomain() . self::CHAT_COMPLETIONS_PATH;
             } else {
                 // For single file, use the original approach
@@ -478,19 +478,19 @@ class OpenAiService
                     'max_tokens' => $maxTokens,
                     'return_metadata' => $returnMetadata
                 ];
-                
+
                 $endpoint = $this->getApiDomain() . self::ANSWERS_PATH;
             }
-            
+
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->post($endpoint, $this->jsonHelper->jsonEncode($data));
-            
+
             $response = $this->curl->getBody();
             $statusCode = $this->curl->getStatus();
-            
+
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if ($statusCode >= 400 || isset($responseData['error'])) {
                 // If the API call fails, try the alternative approach
                 if (count($fileIds) === 1) {
@@ -500,7 +500,7 @@ class OpenAiService
                     return $this->getMultipleFilesCompletionAlternative($question, $fileIds, $apiKey, $model, $maxTokens);
                 }
             }
-            
+
             // For chat completions API, normalize the response format
             if (count($fileIds) > 1 && isset($responseData['choices'][0]['message']['content'])) {
                 return [
@@ -509,7 +509,7 @@ class OpenAiService
                     'usage' => $responseData['usage'] ?? []
                 ];
             }
-            
+
             return $responseData;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -517,7 +517,7 @@ class OpenAiService
             );
         }
     }
-    
+
     /**
      * Alternative method for getting answers about multiple files
      * Used as a fallback when the standard API call fails
@@ -531,8 +531,8 @@ class OpenAiService
      * @throws LocalizedException
      */
     private function getMultipleFilesCompletionAlternative(
-        string $question, 
-        array $fileIds, 
+        string $question,
+        array $fileIds,
         string $apiKey,
         string $model = 'gpt-3.5-turbo',
         int $maxTokens = 150
@@ -549,10 +549,10 @@ class OpenAiService
                     $fileInfo[] = ['id' => $id, 'error' => $e->getMessage()];
                 }
             }
-            
+
             // Create a context-aware message for ChatGPT
             $fileIdsString = implode(', ', $fileIds);
-            
+
             $messages = [
                 [
                     'role' => 'system',
@@ -563,12 +563,12 @@ class OpenAiService
                     'content' => "I have uploaded multiple documents with IDs: $fileIdsString. Here is my question about them: $question"
                 ]
             ];
-            
+
             // Add file info if available
             if (!empty($fileInfo)) {
                 $messages[1]['content'] .= "\n\nHere is information about the files: " . json_encode($fileInfo);
             }
-            
+
             // Use the chat completion API
             $data = [
                 'model' => $model,
@@ -576,20 +576,20 @@ class OpenAiService
                 'max_tokens' => $maxTokens,
                 'temperature' => 0.7
             ];
-            
+
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->post($this->getApiDomain() . self::CHAT_COMPLETIONS_PATH, $this->jsonHelper->jsonEncode($data));
-            
+
             $response = $this->curl->getBody();
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if (isset($responseData['error'])) {
                 throw new LocalizedException(
                     __('OpenAI API Error: %1', $responseData['error']['message'])
                 );
             }
-            
+
             // Format response similar to answers API
             return [
                 'answers' => [$responseData['choices'][0]['message']['content'] ?? ''],
@@ -603,7 +603,7 @@ class OpenAiService
             );
         }
     }
-    
+
     /**
      * Get file content or metadata from OpenAI
      *
@@ -618,25 +618,25 @@ class OpenAiService
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->get($this->getApiDomain() . self::FILES_PATH . '/' . $fileId);
-            
+
             $response = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
-            
+
             if (isset($response['error'])) {
                 throw new LocalizedException(
                     __('OpenAI API Error: %1', $response['error']['message'])
                 );
             }
-            
+
             return $response;
         } catch (\Exception $e) {
             // Just return empty array if we can't get the file content
             return [];
         }
     }
-    
+
     /**
      * Use OpenAI Completions API to get answers directly
-     * 
+     *
      * @param string $prompt The prompt to complete
      * @param string $apiKey OpenAI API key
      * @param string $model The model to use
@@ -660,19 +660,19 @@ class OpenAiService
                 'max_tokens' => $maxTokens,
                 'temperature' => $temperature
             ];
-            
+
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->post($this->getApiDomain() . self::COMPLETIONS_PATH, $this->jsonHelper->jsonEncode($data));
-            
+
             $response = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
-            
+
             if (isset($response['error'])) {
                 throw new LocalizedException(
                     __('OpenAI API Error: %1', $response['error']['message'])
                 );
             }
-            
+
             return [
                 'completion' => $response['choices'][0]['text'] ?? '',
                 'usage' => $response['usage'] ?? [
@@ -690,7 +690,7 @@ class OpenAiService
 
     /**
      * Create a chat completion with multiple file references
-     * 
+     *
      * @param array $messages The messages to send
      * @param array $fileIds Array of file IDs to reference
      * @param string $model The model to use
@@ -716,7 +716,7 @@ class OpenAiService
                     __('No file IDs provided for the multi-file chat request')
                 );
             }
-            
+
             $data = [
                 'model' => $model,
                 'messages' => $messages,
@@ -724,16 +724,16 @@ class OpenAiService
                 'max_tokens' => $maxTokens,
                 'file_ids' => $fileIds
             ];
-            
+
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->post($this->getApiDomain() . self::CHAT_COMPLETIONS_PATH, $this->jsonHelper->jsonEncode($data));
-            
+
             $response = $this->curl->getBody();
             $statusCode = $this->curl->getStatus();
-            
+
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if ($statusCode >= 400 || isset($responseData['error'])) {
                 // Check if we need to try a different approach
                 if (isset($responseData['error']) && (
@@ -743,15 +743,15 @@ class OpenAiService
                     // Try using the Assistant API which better supports multiple files
                     return $this->createMultiFileAssistantChat($messages, $fileIds, $model, $apiKey, $temperature, $maxTokens);
                 }
-                
-                $errorMessage = isset($responseData['error']) 
-                    ? $responseData['error']['message'] 
+
+                $errorMessage = isset($responseData['error'])
+                    ? $responseData['error']['message']
                     : "HTTP Error: $statusCode";
                 throw new LocalizedException(
                     __('OpenAI API Error: %1', $errorMessage)
                 );
             }
-            
+
             return [
                 'content' => $responseData['choices'][0]['message']['content'] ?? '',
                 'usage' => $responseData['usage'] ?? [
@@ -767,11 +767,11 @@ class OpenAiService
             );
         }
     }
-    
+
     /**
      * Create an assistant with multiple files and use it for a chat
      * For models that don't support file_ids directly in chat completions
-     * 
+     *
      * @param array $messages The messages to send
      * @param array $fileIds Array of file IDs to attach to the assistant
      * @param string $model The model to use
@@ -804,33 +804,33 @@ class OpenAiService
                 'temperature' => $temperature,
                 'max_tokens' => $maxTokens
             ];
-            
+
             // Create the assistant
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->post($this->getApiDomain() . self::ASSISTANTS_PATH, $this->jsonHelper->jsonEncode($assistantData));
-            
+
             $assistantResponse = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
-            
+
             if (isset($assistantResponse['error'])) {
                 throw new LocalizedException(
                     __('Error creating assistant: %1', $assistantResponse['error']['message'])
                 );
             }
-            
+
             $assistantId = $assistantResponse['id'];
-            
+
             // Step 2: Create a thread
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->post(
-                $this->getApiDomain() . self::THREADS_PATH, 
+                $this->getApiDomain() . self::THREADS_PATH,
                 $this->jsonHelper->jsonEncode([])
             );
-            
+
             $threadResponse = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
             $threadId = $threadResponse['id'];
-            
+
             // Step 3: Add messages to the thread
             $threadMessages = [];
             foreach ($messages as $message) {
@@ -838,67 +838,67 @@ class OpenAiService
                     'role' => $message['role'] ?? 'user',
                     'content' => $message['content']
                 ];
-                
+
                 $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
                 $this->curl->addHeader('Content-Type', 'application/json');
                 $this->curl->post(
                     sprintf($this->getApiDomain() . self::THREAD_MESSAGES_PATH, $threadId),
                     $this->jsonHelper->jsonEncode($threadMessage)
                 );
-                
+
                 $messageResponse = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
                 $threadMessages[] = $messageResponse;
             }
-            
+
             // Step 4: Run the assistant on the thread
             $runData = [
                 'assistant_id' => $assistantId
             ];
-            
+
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->post(
                 sprintf($this->getApiDomain() . self::THREAD_RUNS_PATH, $threadId),
                 $this->jsonHelper->jsonEncode($runData)
             );
-            
+
             $runResponse = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
             $runId = $runResponse['id'];
-            
+
             // Step 5: Poll for run completion
             $maxAttempts = 30; // Maximum wait time = 30 * 2 seconds = 60 seconds
             $attempts = 0;
             $runStatus = '';
-            
+
             while ($attempts < $maxAttempts) {
                 $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
                 $this->curl->get(sprintf($this->getApiDomain() . self::THREAD_RUN_STATUS_PATH, $threadId, $runId));
-                
+
                 $runStatusResponse = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
                 $runStatus = $runStatusResponse['status'];
-                
+
                 if (in_array($runStatus, ['completed', 'failed', 'cancelled', 'expired'])) {
                     break;
                 }
-                
+
                 // Wait 2 seconds before checking again
                 sleep(2);
                 $attempts++;
             }
-            
+
             if ($runStatus !== 'completed') {
                 throw new LocalizedException(
                     __('Assistant run did not complete successfully. Status: %1', $runStatus)
                 );
             }
-            
+
             // Step 6: Get the assistant's messages
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->get(sprintf($this->getApiDomain() . self::THREAD_MESSAGES_PATH, $threadId));
-            
+
             $messagesResponse = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
             $assistantMessage = '';
-            
+
             foreach ($messagesResponse['data'] as $message) {
                 if ($message['role'] === 'assistant') {
                     // Extract the content
@@ -910,12 +910,12 @@ class OpenAiService
                     break;
                 }
             }
-            
+
             // Step 7: Clean up by deleting the assistant (optional, can be commented out if you want to keep the assistant)
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('X-HTTP-Method-Override', 'DELETE');
             $this->curl->post($this->getApiDomain() . self::ASSISTANTS_PATH . '/' . $assistantId, '');
-            
+
             // Format the response to match the chat completion API
             return [
                 'content' => $assistantMessage,
@@ -935,7 +935,7 @@ class OpenAiService
             );
         }
     }
-    
+
     /**
      * Get answers to questions about multiple files
      *
@@ -966,11 +966,11 @@ class OpenAiService
                 'content' => $question
             ]
         ];
-        
+
         // Use the multi-file chat method
         return $this->sendMultipleFilesChatRequest($messages, $fileIds, $model, $apiKey, 0.7, $maxTokens);
     }
-    
+
     /**
      * Batch upload multiple files to OpenAI API
      *
@@ -987,7 +987,7 @@ class OpenAiService
     ): array {
         $results = [];
         $errors = [];
-        
+
         foreach ($filePaths as $index => $filePath) {
             try {
                 $fileData = $this->uploadFile($filePath, $apiKey, $purpose);
@@ -996,7 +996,7 @@ class OpenAiService
                 $errors[$filePath] = $e->getMessage();
             }
         }
-        
+
         return [
             'successful' => $results,
             'failed' => $errors,
@@ -1031,7 +1031,7 @@ class OpenAiService
                     __('Audio file does not exist: %1', $audioFilePath)
                 );
             }
-            
+
             // Read audio file and encode to base64
             $audioContent = file_get_contents($audioFilePath);
             if ($audioContent === false) {
@@ -1039,9 +1039,9 @@ class OpenAiService
                     __('Unable to read audio file: %1', $audioFilePath)
                 );
             }
-            
+
             $audioBase64 = base64_encode($audioContent);
-            
+
             // Prepare request data
             $data = [
                 'config' => [
@@ -1055,52 +1055,52 @@ class OpenAiService
                     'content' => $audioBase64
                 ]
             ];
-            
+
             // Set up headers
             $this->curl->addHeader('Authorization', 'Bearer ' . $googleAccessToken);
             $this->curl->addHeader('Content-Type', 'application/json');
-            
+
             // Send request to Google Cloud Speech-to-Text API
             $this->curl->post(self::GOOGLE_SPEECH_API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
-            
+
             // Get response
             $response = $this->curl->getBody();
             $statusCode = $this->curl->getStatus();
-            
+
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if ($statusCode >= 400 || isset($responseData['error'])) {
-                $errorMessage = isset($responseData['error']) 
-                    ? $responseData['error']['message'] 
+                $errorMessage = isset($responseData['error'])
+                    ? $responseData['error']['message']
                     : "HTTP Error: $statusCode";
                 throw new LocalizedException(
                     __('Google Speech-to-Text API Error: %1', $errorMessage)
                 );
             }
-            
+
             // Process and format response
             $transcript = '';
             $confidence = 0;
-            
+
             if (isset($responseData['results']) && !empty($responseData['results'])) {
                 foreach ($responseData['results'] as $result) {
                     if (isset($result['alternatives']) && !empty($result['alternatives'])) {
                         // Use the top alternative
                         $topAlternative = $result['alternatives'][0];
                         $transcript .= $topAlternative['transcript'] . ' ';
-                        
+
                         // Average out confidence if multiple results
                         if (isset($topAlternative['confidence'])) {
                             $confidence += $topAlternative['confidence'];
                         }
                     }
                 }
-                
+
                 if (count($responseData['results']) > 0 && $confidence > 0) {
                     $confidence = $confidence / count($responseData['results']);
                 }
             }
-            
+
             return [
                 'transcript' => trim($transcript),
                 'confidence' => $confidence,
@@ -1113,7 +1113,7 @@ class OpenAiService
             );
         }
     }
-    
+
     /**
      * Convert speech to text and then use OpenAI to analyze or respond
      *
@@ -1135,13 +1135,13 @@ class OpenAiService
         // First, convert speech to text
         $transcription = $this->speechToText($audioFilePath, $googleAccessToken);
         $model = $model ?: $this->getDefaultModel();
-        
+
         if (empty($transcription['transcript'])) {
             throw new LocalizedException(
                 __('No speech was recognized in the audio file')
             );
         }
-        
+
         // Create messages for OpenAI
         $messages = [
             [
@@ -1153,10 +1153,10 @@ class OpenAiService
                 'content' => $promptPrefix . $transcription['transcript']
             ]
         ];
-        
+
         // Get AI response
         $aiResponse = $this->sendChatRequest($messages, $model, $openAiApiKey);
-        
+
         // Combine the results
         return [
             'transcript' => $transcription['transcript'],
@@ -1189,7 +1189,7 @@ class OpenAiService
                     __('Image file does not exist: %1', $imageFilePath)
                 );
             }
-            
+
             // Read image file and encode to base64
             $imageContent = file_get_contents($imageFilePath);
             if ($imageContent === false) {
@@ -1197,9 +1197,9 @@ class OpenAiService
                     __('Unable to read image file: %1', $imageFilePath)
                 );
             }
-            
+
             $imageBase64 = base64_encode($imageContent);
-            
+
             // Prepare features array
             $features = [];
             foreach ($featureTypes as $featureType) {
@@ -1208,7 +1208,7 @@ class OpenAiService
                     'maxResults' => $maxResults
                 ];
             }
-            
+
             // Prepare request data
             $data = [
                 'requests' => [
@@ -1220,29 +1220,29 @@ class OpenAiService
                     ]
                 ]
             ];
-            
+
             // Set up headers
             $this->curl->addHeader('Authorization', 'Bearer ' . $googleAccessToken);
             $this->curl->addHeader('Content-Type', 'application/json');
-            
+
             // Send request to Google Cloud Vision API
             $this->curl->post(self::GOOGLE_VISION_API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
-            
+
             // Get response
             $response = $this->curl->getBody();
             $statusCode = $this->curl->getStatus();
-            
+
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if ($statusCode >= 400 || isset($responseData['error'])) {
-                $errorMessage = isset($responseData['error']) 
-                    ? $responseData['error']['message'] 
+                $errorMessage = isset($responseData['error'])
+                    ? $responseData['error']['message']
                     : "HTTP Error: $statusCode";
                 throw new LocalizedException(
                     __('Google Vision API Error: %1', $errorMessage)
                 );
             }
-            
+
             // Process and format response into a more user-friendly structure
             $result = [
                 'labels' => [],
@@ -1250,10 +1250,10 @@ class OpenAiService
                 'objects' => [],
                 'raw_response' => $responseData
             ];
-            
+
             if (isset($responseData['responses']) && !empty($responseData['responses'])) {
                 $response = $responseData['responses'][0];
-                
+
                 // Process label annotations
                 if (isset($response['labelAnnotations'])) {
                     foreach ($response['labelAnnotations'] as $label) {
@@ -1264,13 +1264,13 @@ class OpenAiService
                         ];
                     }
                 }
-                
+
                 // Process text annotations
                 if (isset($response['textAnnotations']) && !empty($response['textAnnotations'])) {
                     // The first element typically contains the entire text
                     $result['text'] = $response['textAnnotations'][0]['description'] ?? '';
                     $result['text_items'] = [];
-                    
+
                     // Add individual text items
                     foreach ($response['textAnnotations'] as $index => $text) {
                         if ($index > 0) { // Skip the first one as it's the complete text
@@ -1282,7 +1282,7 @@ class OpenAiService
                         }
                     }
                 }
-                
+
                 // Process object localizations
                 if (isset($response['localizedObjectAnnotations'])) {
                     foreach ($response['localizedObjectAnnotations'] as $object) {
@@ -1294,7 +1294,7 @@ class OpenAiService
                     }
                 }
             }
-            
+
             return $result;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -1302,7 +1302,7 @@ class OpenAiService
             );
         }
     }
-    
+
     /**
      * Recognize image and send its content to OpenAI for analysis
      *
@@ -1324,24 +1324,24 @@ class OpenAiService
         // First, recognize the image
         $recognition = $this->recognizeImage($imageFilePath, $googleAccessToken);
         $model = $model ?: $this->getDefaultModel();
-        
+
         // Format the labels as a comma-separated list
         $labelsText = implode(', ', array_map(function ($label) {
             return $label['description'] . ' (' . round($label['score'] * 100) . '%)';
         }, $recognition['labels']));
-        
+
         // Format the objects as a comma-separated list
         $objectsText = implode(', ', array_map(function ($object) {
             return $object['name'] . ' (' . round($object['score'] * 100) . '%)';
         }, $recognition['objects']));
-        
+
         // Replace placeholders in the prompt template
         $prompt = str_replace(
             ['{{LABELS}}', '{{TEXT}}', '{{OBJECTS}}'],
             [$labelsText, $recognition['text'], $objectsText],
             $promptTemplate
         );
-        
+
         // Create messages for OpenAI
         $messages = [
             [
@@ -1353,10 +1353,10 @@ class OpenAiService
                 'content' => $prompt
             ]
         ];
-        
+
         // Get AI response
         $aiResponse = $this->sendChatRequest($messages, $model, $openAiApiKey);
-        
+
         // Combine the results
         return [
             'recognition' => [
@@ -1367,7 +1367,7 @@ class OpenAiService
             'ai_analysis' => $aiResponse['content']
         ];
     }
-    
+
     /**
      * Extract and analyze text from an image
      *
@@ -1389,7 +1389,7 @@ class OpenAiService
                     __('Image file does not exist: %1', $imageFilePath)
                 );
             }
-            
+
             // Read image file and encode to base64
             $imageContent = file_get_contents($imageFilePath);
             if ($imageContent === false) {
@@ -1397,9 +1397,9 @@ class OpenAiService
                     __('Unable to read image file: %1', $imageFilePath)
                 );
             }
-            
+
             $imageBase64 = base64_encode($imageContent);
-            
+
             // Prepare features for text detection
             $features = [
                 [
@@ -1407,7 +1407,7 @@ class OpenAiService
                     'maxResults' => 100
                 ]
             ];
-            
+
             // Add DOCUMENT_TEXT_DETECTION if full text annotation is requested
             if ($fullTextAnnotation) {
                 $features[] = [
@@ -1415,7 +1415,7 @@ class OpenAiService
                     'maxResults' => 100
                 ];
             }
-            
+
             // Prepare request data
             $data = [
                 'requests' => [
@@ -1427,29 +1427,29 @@ class OpenAiService
                     ]
                 ]
             ];
-            
+
             // Set up headers
             $this->curl->addHeader('Authorization', 'Bearer ' . $googleAccessToken);
             $this->curl->addHeader('Content-Type', 'application/json');
-            
+
             // Send request to Google Cloud Vision API
             $this->curl->post(self::GOOGLE_VISION_API_ENDPOINT, $this->jsonHelper->jsonEncode($data));
-            
+
             // Get response
             $response = $this->curl->getBody();
             $statusCode = $this->curl->getStatus();
-            
+
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if ($statusCode >= 400 || isset($responseData['error'])) {
-                $errorMessage = isset($responseData['error']) 
-                    ? $responseData['error']['message'] 
+                $errorMessage = isset($responseData['error'])
+                    ? $responseData['error']['message']
                     : "HTTP Error: $statusCode";
                 throw new LocalizedException(
                     __('Google Vision API Error: %1', $errorMessage)
                 );
             }
-            
+
             // Process and format response for text extraction
             $result = [
                 'text' => '',
@@ -1457,21 +1457,21 @@ class OpenAiService
                 'blocks' => [],
                 'is_handwritten' => false
             ];
-            
+
             if (isset($responseData['responses']) && !empty($responseData['responses'])) {
                 $response = $responseData['responses'][0];
-                
+
                 // Basic text from TEXT_DETECTION
                 if (isset($response['textAnnotations']) && !empty($response['textAnnotations'])) {
                     $result['text'] = $response['textAnnotations'][0]['description'] ?? '';
                     $result['language'] = $response['textAnnotations'][0]['locale'] ?? '';
                 }
-                
+
                 // Detailed text from DOCUMENT_TEXT_DETECTION
                 if (isset($response['fullTextAnnotation'])) {
                     // Override basic text with full text if available
                     $result['text'] = $response['fullTextAnnotation']['text'] ?? $result['text'];
-                    
+
                     // Process text blocks for structured content
                     if (isset($response['fullTextAnnotation']['pages'])) {
                         foreach ($response['fullTextAnnotation']['pages'] as $page) {
@@ -1479,14 +1479,14 @@ class OpenAiService
                                 foreach ($page['blocks'] as $block) {
                                     $blockText = '';
                                     $blockType = $block['blockType'] ?? 'TEXT';
-                                    
+
                                     // Check if this block might be handwritten
                                     $handwrittenConfidence = 0;
                                     if (isset($block['property']['detectedBreak']['handwritten'])) {
                                         $handwrittenConfidence = $block['property']['detectedBreak']['handwritten'];
                                         $result['is_handwritten'] = $handwrittenConfidence > 0.5 ? true : $result['is_handwritten'];
                                     }
-                                    
+
                                     // Extract paragraphs from the block
                                     if (isset($block['paragraphs'])) {
                                         foreach ($block['paragraphs'] as $paragraph) {
@@ -1502,7 +1502,7 @@ class OpenAiService
                                             }
                                         }
                                     }
-                                    
+
                                     $result['blocks'][] = [
                                         'text' => trim($blockText),
                                         'type' => $blockType,
@@ -1515,7 +1515,7 @@ class OpenAiService
                     }
                 }
             }
-            
+
             return $result;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -1523,7 +1523,7 @@ class OpenAiService
             );
         }
     }
-    
+
     /**
      * Generate embeddings for text or multiple texts using OpenAI Embeddings API
      *
@@ -1545,35 +1545,35 @@ class OpenAiService
                     __('No texts provided for embedding generation')
                 );
             }
-            
+
             // Prepare request data
             $data = [
                 'model' => $model,
                 'input' => $input
             ];
-            
+
             // Set up headers
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
-            
+
             // Send request to OpenAI Embeddings API
             $this->curl->post($this->getApiDomain() . self::EMBEDDINGS_PATH, $this->jsonHelper->jsonEncode($data));
-            
+
             // Get response
             $response = $this->curl->getBody();
             $statusCode = $this->curl->getStatus();
-            
+
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if ($statusCode >= 400 || isset($responseData['error'])) {
-                $errorMessage = isset($responseData['error']) 
-                    ? $responseData['error']['message'] 
+                $errorMessage = isset($responseData['error'])
+                    ? $responseData['error']['message']
                     : "HTTP Error: $statusCode";
                 throw new LocalizedException(
                     __('OpenAI Embeddings API Error: %1', $errorMessage)
                 );
             }
-            
+
             return $responseData;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -1613,25 +1613,25 @@ class OpenAiService
                     __('Image prompt must not be empty')
                 );
             }
-            
+
             if ($n < 1 || $n > 10) {
                 throw new LocalizedException(
                     __('Number of images must be between 1 and 10')
                 );
             }
-            
+
             if (!in_array($size, ['256x256', '512x512', '1024x1024', '1792x1024', '1024x1792'])) {
                 throw new LocalizedException(
                     __('Invalid image size. Valid sizes are: 256x256, 512x512, 1024x1024, 1792x1024, 1024x1792')
                 );
             }
-            
+
             if (!in_array($responseFormat, ['url', 'b64_json'])) {
                 throw new LocalizedException(
                     __('Invalid response format. Valid formats are: url, b64_json')
                 );
             }
-            
+
             // Prepare the request data
             $data = [
                 'prompt' => $prompt,
@@ -1640,7 +1640,7 @@ class OpenAiService
                 'response_format' => $responseFormat,
                 'model' => $model
             ];
-            
+
             // Add additional parameters for dall-e-3
             if ($model === 'dall-e-3') {
                 if (!in_array($quality, ['standard', 'hd'])) {
@@ -1648,39 +1648,39 @@ class OpenAiService
                         __('Invalid quality. Valid qualities are: standard, hd')
                     );
                 }
-                
+
                 if (!in_array($style, ['vivid', 'natural'])) {
                     throw new LocalizedException(
                         __('Invalid style. Valid styles are: vivid, natural')
                     );
                 }
-                
+
                 $data['quality'] = $quality;
                 $data['style'] = $style;
             }
-            
+
             // Set up headers
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
-            
+
             // Send request to OpenAI Images API
             $this->curl->post($this->getApiDomain() . self::IMAGES_PATH, $this->jsonHelper->jsonEncode($data));
-            
+
             // Get response
             $response = $this->curl->getBody();
             $statusCode = $this->curl->getStatus();
-            
+
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if ($statusCode >= 400 || isset($responseData['error'])) {
-                $errorMessage = isset($responseData['error']) 
-                    ? $responseData['error']['message'] 
+                $errorMessage = isset($responseData['error'])
+                    ? $responseData['error']['message']
                     : "HTTP Error: $statusCode";
                 throw new LocalizedException(
                     __('OpenAI Image Generation API Error: %1', $errorMessage)
                 );
             }
-            
+
             return $responseData;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -1719,13 +1719,13 @@ class OpenAiService
                     __('Messages array cannot be empty')
                 );
             }
-            
+
             if (empty($functions)) {
                 throw new LocalizedException(
                     __('Functions array cannot be empty')
                 );
             }
-            
+
             // Prepare request data
             $data = [
                 'model' => $model,
@@ -1734,34 +1734,34 @@ class OpenAiService
                 'temperature' => $temperature,
                 'max_tokens' => $maxTokens
             ];
-            
+
             // Add function_call parameter if specified
             if ($functionCall !== null) {
                 $data['function_call'] = $functionCall;
             }
-            
+
             // Set up headers
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
-            
+
             // Send request to OpenAI API
             $this->curl->post($this->getApiDomain() . self::CHAT_COMPLETIONS_PATH, $this->jsonHelper->jsonEncode($data));
-            
+
             // Get response
             $response = $this->curl->getBody();
             $statusCode = $this->curl->getStatus();
-            
+
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if ($statusCode >= 400 || isset($responseData['error'])) {
-                $errorMessage = isset($responseData['error']) 
-                    ? $responseData['error']['message'] 
+                $errorMessage = isset($responseData['error'])
+                    ? $responseData['error']['message']
                     : "HTTP Error: $statusCode";
                 throw new LocalizedException(
                     __('OpenAI API Error: %1', $errorMessage)
                 );
             }
-            
+
             // Format the response to include function call information
             $result = [
                 'content' => $responseData['choices'][0]['message']['content'] ?? null,
@@ -1771,12 +1771,12 @@ class OpenAiService
                     'total_tokens' => 0
                 ]
             ];
-            
+
             // Add function call data if present
             if (isset($responseData['choices'][0]['message']['function_call'])) {
                 $result['function_call'] = $responseData['choices'][0]['message']['function_call'];
             }
-            
+
             return $result;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -1814,7 +1814,7 @@ class OpenAiService
                     __('Audio file does not exist: %1', $audioFilePath)
                 );
             }
-            
+
             // Validate response format
             $validFormats = ['json', 'text', 'srt', 'verbose_json', 'vtt'];
             if (!in_array($responseFormat, $validFormats)) {
@@ -1822,67 +1822,67 @@ class OpenAiService
                     __('Invalid response format. Valid formats are: %1', implode(', ', $validFormats))
                 );
             }
-            
+
             // Get file info
             $fileInfo = $this->file->getPathInfo($audioFilePath);
             $fileName = $fileInfo['basename'];
-            
+
             // Prepare multipart boundary
             $boundary = '-------------' . uniqid();
-            
+
             // Build multipart request body
             $body = '';
-            
+
             // Add file data
             $body .= '--' . $boundary . "\r\n";
             $body .= 'Content-Disposition: form-data; name="file"; filename="' . $fileName . '"' . "\r\n";
             $body .= 'Content-Type: audio/mpeg' . "\r\n\r\n";
             $body .= file_get_contents($audioFilePath) . "\r\n";
-            
+
             // Add model parameter
             $body .= '--' . $boundary . "\r\n";
             $body .= 'Content-Disposition: form-data; name="model"' . "\r\n\r\n";
             $body .= $model . "\r\n";
-            
+
             // Add optional parameters if provided
             if ($language !== null) {
                 $body .= '--' . $boundary . "\r\n";
                 $body .= 'Content-Disposition: form-data; name="language"' . "\r\n\r\n";
                 $body .= $language . "\r\n";
             }
-            
+
             if ($prompt !== null) {
                 $body .= '--' . $boundary . "\r\n";
                 $body .= 'Content-Disposition: form-data; name="prompt"' . "\r\n\r\n";
                 $body .= $prompt . "\r\n";
             }
-            
+
             // Add response format
             $body .= '--' . $boundary . "\r\n";
             $body .= 'Content-Disposition: form-data; name="response_format"' . "\r\n\r\n";
             $body .= $responseFormat . "\r\n";
-            
+
             if ($temperature !== null) {
                 $body .= '--' . $boundary . "\r\n";
                 $body .= 'Content-Disposition: form-data; name="temperature"' . "\r\n\r\n";
                 $body .= $temperature . "\r\n";
             }
-            
+
             // Close multipart body
             $body .= '--' . $boundary . '--';
-            
+
             // Set up headers
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'multipart/form-data; boundary=' . $boundary);
             $this->curl->addHeader('Content-Length', strlen($body));
-            
+
             // Send request
             $this->curl->post($this->getApiDomain() . self::AUDIO_TRANSCRIPTION_PATH, $body);
-            
+
             // Get response
             $response = $this->curl->getBody();
             $statusCode = $this->curl->getStatus();
-            
+
             // Parse response based on format
             if ($responseFormat === 'json' || $responseFormat === 'verbose_json') {
                 $responseData = $this->jsonHelper->jsonDecode($response, true);
@@ -1890,23 +1890,23 @@ class OpenAiService
                 // For text, srt, or vtt formats
                 $responseData = ['text' => $response];
             }
-            
+
             if ($statusCode >= 400) {
                 // Try to parse error message from JSON response
                 try {
                     $errorData = $this->jsonHelper->jsonDecode($response, true);
-                    $errorMessage = isset($errorData['error']) 
-                        ? $errorData['error']['message'] 
+                    $errorMessage = isset($errorData['error'])
+                        ? $errorData['error']['message']
                         : "HTTP Error: $statusCode";
                 } catch (\Exception $e) {
                     $errorMessage = "HTTP Error: $statusCode";
                 }
-                
+
                 throw new LocalizedException(
                     __('OpenAI Audio Transcription API Error: %1', $errorMessage)
                 );
             }
-            
+
             return $responseData;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -1944,27 +1944,27 @@ class OpenAiService
                     __('Text cannot be empty')
                 );
             }
-            
+
             $validVoices = ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'];
             if (!in_array($voice, $validVoices)) {
                 throw new LocalizedException(
                     __('Invalid voice. Valid voices are: %1', implode(', ', $validVoices))
                 );
             }
-            
+
             $validFormats = ['mp3', 'opus', 'aac', 'flac'];
             if (!in_array($responseFormat, $validFormats)) {
                 throw new LocalizedException(
                     __('Invalid response format. Valid formats are: %1', implode(', ', $validFormats))
                 );
             }
-            
+
             if ($speed !== null && ($speed < 0.25 || $speed > 4.0)) {
                 throw new LocalizedException(
                     __('Speed must be between 0.25 and 4.0')
                 );
             }
-            
+
             // Prepare request data
             $data = [
                 'model' => $model,
@@ -1972,38 +1972,38 @@ class OpenAiService
                 'voice' => $voice,
                 'response_format' => $responseFormat
             ];
-            
+
             if ($speed !== null) {
                 $data['speed'] = $speed;
             }
-            
+
             // Set up headers
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
-            
+
             // Send request
             $this->curl->post($this->getApiDomain() . self::AUDIO_SPEECH_PATH, $this->jsonHelper->jsonEncode($data));
-            
+
             // Get response
             $response = $this->curl->getBody();
             $statusCode = $this->curl->getStatus();
-            
+
             if ($statusCode >= 400) {
                 // Try to parse error message from JSON response
                 try {
                     $errorData = $this->jsonHelper->jsonDecode($response, true);
-                    $errorMessage = isset($errorData['error']) 
-                        ? $errorData['error']['message'] 
+                    $errorMessage = isset($errorData['error'])
+                        ? $errorData['error']['message']
                         : "HTTP Error: $statusCode";
                 } catch (\Exception $e) {
                     $errorMessage = "HTTP Error: $statusCode";
                 }
-                
+
                 throw new LocalizedException(
                     __('OpenAI Text-to-Speech API Error: %1', $errorMessage)
                 );
             }
-            
+
             // If output file path is provided, save the audio
             if ($outputFilePath !== null) {
                 try {
@@ -2018,7 +2018,7 @@ class OpenAiService
                     );
                 }
             }
-            
+
             // Return the binary audio data as base64
             return [
                 'audio_data' => base64_encode($response),
@@ -2045,7 +2045,7 @@ class OpenAiService
     public function getChatCompletion(
         array $messages,
         string $model = 'gpt-3.5-turbo',
-        string $apiKey = null,
+        ?string $apiKey = null,
         float $temperature = 0.7,
         int $maxTokens = 1000
     ): string {
@@ -2059,12 +2059,12 @@ class OpenAiService
                         $apiKey = substr($authHeader, 7);
                     }
                 }
-                
+
                 if ($apiKey === null) {
                     throw new LocalizedException(__('API key is required'));
                 }
             }
-            
+
             $model = $model ?: $this->getDefaultModel();
             if(in_array($model, ['gpt-5-mini', 'gpt-5-nano', 'gpt-5'])){
                 $data = [
@@ -2084,11 +2084,11 @@ class OpenAiService
 
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
-            
+
             $this->curl->post($this->getApiDomain() . self::CHAT_COMPLETIONS_PATH, $this->jsonHelper->jsonEncode($data));
-            
+
             $response = $this->jsonHelper->jsonDecode($this->curl->getBody(), true);
-                
+
             $this->completion_tokens = @$response['usage']['completion_tokens'];
             $this->total_tokens = @$response['usage']['total_tokens'];
             $this->prompt_tokens_details = @$response['usage']['prompt_tokens_details'];
@@ -2118,11 +2118,11 @@ class OpenAiService
                     __('File does not exist: %1', $filePath)
                 );
             }
-            
+
             // Get file info
             $fileInfo = $this->file->getPathInfo($filePath);
             $fileName = $fileInfo['basename'];
-            
+
             // Read file contents
             $fileContents = file_get_contents($filePath);
             if ($fileContents === false) {
@@ -2130,50 +2130,50 @@ class OpenAiService
                     __('Unable to read file: %1', $filePath)
                 );
             }
-            
+
             // Prepare multipart boundary
             $boundary = '-------------' . uniqid();
-            
+
             // Build multipart request body
             $body = '';
-            
+
             // Add purpose field
             $body .= '--' . $boundary . "\r\n";
             $body .= 'Content-Disposition: form-data; name="purpose"' . "\r\n\r\n";
             $body .= $purpose . "\r\n";
-            
+
             // Add file data
             $body .= '--' . $boundary . "\r\n";
             $body .= 'Content-Disposition: form-data; name="file"; filename="' . $fileName . '"' . "\r\n";
             $body .= 'Content-Type: application/octet-stream' . "\r\n\r\n";
             $body .= $fileContents . "\r\n";
-            
+
             // Close multipart body
             $body .= '--' . $boundary . '--';
-            
+
             // Setup headers
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'multipart/form-data; boundary=' . $boundary);
             $this->curl->addHeader('Content-Length', strlen($body));
-            
+
             // Send request
             $this->curl->post($this->getApiDomain() . self::FILES_PATH, $body);
-            
+
             // Get response
             $response = $this->curl->getBody();
             $statusCode = $this->curl->getStatus();
-            
+
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if ($statusCode >= 400 || isset($responseData['error'])) {
-                $errorMessage = isset($responseData['error']) 
-                    ? $responseData['error']['message'] 
+                $errorMessage = isset($responseData['error'])
+                    ? $responseData['error']['message']
                     : "HTTP Error: $statusCode";
                 throw new LocalizedException(
                     __('OpenAI API Error: %1', $errorMessage)
                 );
             }
-            
+
             return $responseData;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -2206,16 +2206,16 @@ class OpenAiService
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->post($this->getApiDomain() . self::THREADS_PATH, '{}');
-            
+
             $response = $this->curl->getBody();
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if (isset($responseData['error'])) {
                 throw new LocalizedException(
                     __('OpenAI API Error: %1', $responseData['error']['message'])
                 );
             }
-            
+
             return $responseData;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -2232,20 +2232,20 @@ class OpenAiService
                 'content' => $message,
                 'file_ids' => $fileIds
             ];
-            
+
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->post(sprintf($this->getApiDomain() . self::THREAD_MESSAGES_PATH, $threadId), $this->jsonHelper->jsonEncode($data));
-            
+
             $response = $this->curl->getBody();
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if (isset($responseData['error'])) {
                 throw new LocalizedException(
                     __('OpenAI API Error: %1', $responseData['error']['message'])
                 );
             }
-            
+
             return $responseData;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -2260,20 +2260,20 @@ class OpenAiService
             $data = [
                 'assistant_id' => $assistantId
             ];
-            
+
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->addHeader('Content-Type', 'application/json');
             $this->curl->post(sprintf($this->getApiDomain() . self::THREAD_RUNS_PATH, $threadId), $this->jsonHelper->jsonEncode($data));
-            
+
             $response = $this->curl->getBody();
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if (isset($responseData['error'])) {
                 throw new LocalizedException(
                     __('OpenAI API Error: %1', $responseData['error']['message'])
                 );
             }
-            
+
             return $responseData;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -2287,16 +2287,16 @@ class OpenAiService
         try {
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->get(sprintf($this->getApiDomain() . self::THREAD_RUN_STATUS_PATH, $threadId, $runId));
-            
+
             $response = $this->curl->getBody();
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if (isset($responseData['error'])) {
                 throw new LocalizedException(
                     __('OpenAI API Error: %1', $responseData['error']['message'])
                 );
             }
-            
+
             return $responseData;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -2310,16 +2310,16 @@ class OpenAiService
         try {
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->get(sprintf($this->getApiDomain() . self::THREAD_MESSAGES_PATH, $threadId));
-            
+
             $response = $this->curl->getBody();
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if (isset($responseData['error'])) {
                 throw new LocalizedException(
                     __('OpenAI API Error: %1', $responseData['error']['message'])
                 );
             }
-            
+
             return $responseData;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -2333,16 +2333,16 @@ class OpenAiService
         try {
             $this->curl->addHeader('Authorization', 'Bearer ' . $apiKey);
             $this->curl->get(sprintf($this->getApiDomain() . self::THREAD_MESSAGES_PATH, $threadId) . '?limit=1');
-            
+
             $response = $this->curl->getBody();
             $responseData = $this->jsonHelper->jsonDecode($response, true);
-            
+
             if (isset($responseData['error'])) {
                 throw new LocalizedException(
                     __('OpenAI API Error: %1', $responseData['error']['message'])
                 );
             }
-            
+
             return $responseData;
         } catch (\Exception $e) {
             throw new LocalizedException(
@@ -2398,4 +2398,4 @@ class OpenAiService
             ];
         }
     }
-} 
+}
